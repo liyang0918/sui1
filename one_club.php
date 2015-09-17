@@ -101,10 +101,9 @@ $ret = getBoardArticles();
             </li>
 <?php
         }
-        echo '</div>';
     }
 ?>
-
+    </div>
 <?php
     // ÎÄÕÂ·ÖÒ³ÏÔÊ¾
     page_partition($totalarticle, $page, $article_num);

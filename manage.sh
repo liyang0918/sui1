@@ -1,7 +1,7 @@
 #!/bin/bash
 # Created By:      LiYang <Liyang@unknownspace.com>
 # Created Time:    2015-08-31 11:39:15
-# Modified Time:   2015-09-15 19:12:06
+# Modified Time:   2015-09-17 09:57:28
 
 working=`pwd`
 project='/usr/local/apache/htdocs/mobile/forum'
@@ -10,7 +10,7 @@ function save_to_local_git()
 {
     if [ $# -eq 1 ]; then  
         path=./$1
-        for filename in `ls`
+        for filename in `ls $path`
         do
             if [ -d $filename ]; then
                 save_to_local_git $path/$filename

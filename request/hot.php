@@ -3,29 +3,6 @@ require_once(dirname(__FILE__)."/../../../mitbbs_funcs.php");
 include_once(dirname(__FILE__)."/../func.php");
 $link = db_connect_web();
 
-function getClubImg($club_name) {
-    $filepath = BBS_HOME.'/pic_home/club/'.strtoupper(substr($club_name, 0, 1)).'/'.$club_name."/";
-    $filename_return = "";
-    if(is_dir($filepath)){
-        $handler = opendir($filepath);
-        while( ($filename = readdir($handler)) !== false )
-        {
-            if($filename != "." && $filename != ".." && $filename != "boardimg" && (strpos($filename,"boardimg") !== false))
-            {
-                $filename_return = $filename;
-                break;
-            }
-        }
-        if($filename_return == ""){
-            $filename_return = "boardimg";
-        }
-
-        $filename_return = "/clubimg/".strtoupper(substr($club_name, 0, 1))."/".$club_name."/$filename_return";
-        closedir($handler);
-    }
-    return $filename_return;
-}
-
 /* 获取十大热门话题 */
 function getHotSubjects() {
     global $link;
@@ -112,6 +89,7 @@ function getRecommendArticle() {
         $data["author"] = $commend_author;
 
         $brdnum = bbs_getboard($commend_board, $brdarr);
+
         if ($brdnum == 0)
             continue;
         $data["boardsname"] = $brdarr["DESC"];
@@ -135,6 +113,7 @@ function getRecommendArticle() {
 
 /* 获取热门版面 */
 function getHotBoards() {
+    global $link;
     $ret=array();
 
     $xmlfile = BBS_HOME . '/xml/hot_board.xml';
@@ -148,14 +127,17 @@ function getHotBoards() {
         $brdarr = array();
         bbs_getboard($board_c, $brdarr);
 
+//        var_dump($brdarr);
+//        echo "<br /><br />";
         $t_element = array();
         $t_element["href"] = url_generate(2, array("board"=>$board_c));
 
-        $t_element["img"] = "";
+        $t_element["img"] = getBoardImg($board_c);
         $t_element["des"] = $board_c;
         $t_element["name"] = $board_desc;
         $t_element["online"] = $brdarr["CURRENTUSERS"];
-        $t_element["total"] = $brdarr["TOTAL"];
+        /* 获取主题总数 */
+        $t_element["total"] = getBoardGroupNum($brdarr["BOARD_ID"], $link);
         $ret[]=$t_element;
     }
     //$msg["data"]=$ret;

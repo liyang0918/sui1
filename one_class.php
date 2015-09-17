@@ -2,113 +2,129 @@
 include_once(dirname(__FILE__)."/../../mitbbs_funcs.php");
 include_once(dirname(__FILE__)."/func.php");
 include_once("head.php");
+$link = db_connect_web();
 //data part
 $class = $_GET["class"];
-$url_page = url_generate(1, array("type"=>$_COOKIE["app_type"], "class"=>$board_name))."&page=";
-$brdarr = array();
-$brdnum = bbs_getboard($board_name, $brdarr);
+$url_page = url_generate(1, array("type"=>$_COOKIE["app_type"], "class"=>$class))."&page=";
+
+function getBoardsBySection($class)
+{
+    global $link;
+    global $currentuser;
+
+    $china_flag = is_china();
+    $section_num = $class;
+
+    if($china_flag == 1){
+        $limitboards = getlimitboards();
+    }
+    $boards_original = bbs_getboards($section_num, 0, 0);
+    $boards = $boards_original;
+    list ($board_list, $rows) = boards_dir_sort($boards);
+
+    $fav_arr = array();
+    if ($currentuser["userid"] != "guest") {
+        $fav_arr = get_fav_arr($currentuser["num_id"],$link);
+    }
+
+    /* boards_rank[0]存放board，boards_rank[1]存放board_group,用groupFlag控制 */
+    $boards_rank[0] = array();
+    $boards_rank[1] = array();
+    foreach ($board_list as $i) {
+        if($china_flag == 1 and in_array($boards["NAME"][$i],$limitboards))
+                continue;
+
+        $tmp["EnglishName"] = $boards["NAME"][$i];
+        $tmp["ChineseName"] = $boards["DESC"][$i];
+        $tmp["zapped"]= $boards["ZAPPED"][$i];
+        if ($boards["FLAG"][$i] & BBS_BOARD_GROUP) {
+            $tmp["groupFlag"]= 1;
+            $boards_original = bbs_getboards($boards["BID"][$i], $boards["BID"][$i],0);
+            $childboardnum = count($boards_original["NAME"]);
+            $tmp["childBoardNum"] = "$childboardnum";
+        }
+        else
+            $tmp["groupFlag"]= 0;
+
+        $tmp["BID"] = $boards["BID"][$i];
+        $tmp["boardID"] = $boards["BOARD_ID"][$i];
+        $tmp["fav"] = "0";
+        $tmp["fav_id"] = "0";
+        if ($currentuser["userid"] != "guest")
+            if(($ret_id = check_key($fav_arr,$tmp["EnglishName"]))!=false){
+                $tmp["fav"] = "1";
+                $tmp["fav_id"] = $ret_id;
+            }
+        $brdarr = array();
+        $brdnum = bbs_getboard($tmp["EnglishName"], $brdarr);
+        $tmp["boardBM"] = explode(trim(" ", $tmp["BM"]));
+        $tmp["boardimg"] = getBoardImg($tmp["EnglishName"]);
+        $tmp["href"] = url_generate(2, array("board"=>$tmp["EnglishName"]));
+        $tmp["online"] = $brdarr["CURRENTUSERS"];
+        $tmp["boardtotalarticle"] = getBoardGroupNum($tmp["boardID"], $link);
+
+        $boards_rank[$tmp["groupFlag"]][] = $tmp;
+    }
+
+    return $boards_rank;
+}
+
+$boards = getBoardsBySection($class);
 
 $page=intval($_GET["page"]);
 if(empty($page)){
     $page=1;
 }
-if ($brdnum == 0) {
-    if ($num == 0) wap_error_quit("不存在的版面");
-}
 
-/* 每页文章数 */
-$article_num = 10;
+/* 每页版面数 */
+$board_num = 10;
 /* 起始页 */
-$start_num = $article_num*($page-1)+1;
-/* 文章总数 */
-$totalarticle = bbs_countarticles($brdnum, $dir_modes["ORIGIN"]);
-$articles = bbs_getarticles($brdarr["NAME"], $start_num, $article_num, $dir_modes["ORIGIN"]);
-
-function getBoardArticles() {
-    global $articles, $brdarr;
-    $link = db_connect_web();
-    $sql_pub = "select owner_id,owner,posttime,title,read_num,reply_num from dir_article_".$brdarr["BOARD_ID"]." where groupid=";
-
-    // 置顶文章标志
-    // ret[1] 存放置顶文章，ret[0]存放普通文章
-    $ret[0] = array();
-    $ret[1] = array();
-    foreach ($articles as $article) {
-        $href = url_generate(3, array("type"=>$_COOKIE["app_type"], "board"=>$brdarr["NAME"], "groupid"=>$article["GROUPID"]));
-        if (!strncasecmp($article["FLAGS"], "d", 1)) {
-            $ret[1][] = array("href" => $href, "title" => $article["TITLE"]);
-        } else {
-            $sql = $sql_pub.$article["GROUPID"];
-            $result = mysql_query($sql, $link);
-            if ($result) {
-                $row = mysql_fetch_array($result);
-                $row["href"] = $href;
-                $row["img"] = getHeadImage($row["owner_id"]);
-                $ret[0][] = $row;
-            }
-            mysql_free_result($result);
-        }
-    }
-
-    mysql_close($link);
-    return $ret;
-}
-
-$ret = getBoardArticles();
-
+$start_num = $board_num*($page-1)+1;
+/* 版面总数,目前不考虑board_group */
+$totalboard = count($boards[0]);
 ?>
 
     <div class="ds_box border_bottom">
-        <a href="forum_boardlist.html"><img src="img/btn_left.png" alt="bth_left.png"/></a>
-        论坛版面列表
-        <a href="replyNew_send.html" class="span_r" >发文</a>
+        <a href="forum_discuss.html"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+        <?php echo getClassName($class); ?>
+    </div><!--------End ds_box-->
+    <div class="hot_li">
+        <ul class="class_list_wrap border_bottom block">
+<?php
+for ($i = $start_num; $i < $start_num+9 and $i < $totalboard-1; $i++) {
+    $data = $boards[0][$i];
+    echo '<li class="content_list_wrap padding10 border_bottom padding-bottom board_link">';
+    echo '<a href="'.$data["href"].'">';
+    echo '<img class="hot_li_img" src="'.$data["boardimg"].'" alt="boardimg"/>';
+    echo '<div class="hot_content">';
+    echo '<h3 class="hot_name">'.$data["ChineseName"].'</h3>';
+    echo '<p class="hot_des">'.$data["EnglishName"].'</p>';
+    echo '<p class="hot_count"><span class="hot_left">当前在线：'.$data["online"].'人</span><span class="hot_right">主题总数：'.$data["boardtotalarticle"].'</span></p>';
+    echo '</div></a></li>';
+}
+
+if ($i < $totalboard) {
+    $data = $boards[0][$i];
+    echo '<li class="content_list_wrap padding10  padding-bottom board_link">';
+    echo '<a href="'.url_generate(2, array("board"=>$data["EnglishName"])).'">';
+    echo '<img class="hot_li_img" src="'.$data["boardimg"].'" alt="boardimg"/>';
+    echo '<div class="hot_content">';
+    echo '<h3 class="hot_name">'.$data["ChineseName"].'</h3>';
+    echo '<p class="hot_des">'.$data["EnglishName"].'</p>';
+    echo '<p class="hot_count"><span class="hot_left">当前在线：'.$data["online"].'人</span><span class="hot_right">主题总数：'.$data["boardtotalarticle"].'</span></p>';
+    echo '</div></a></li>';
+}
+
+?>
+        </ul>
     </div>
-    <div class="theme_wrap">
-<?php
-    // 显示置顶文章
-    if (!empty($ret[1])) {
-        echo '<div class="theme_top">';
-        foreach ($ret[1] as $each) {
-?>
-            <a href="<?php echo $each['href']; ?>"> <p class="theme_p"><span class="theme_red">置顶</span><?php echo $each["title"]; ?></p></a>
-<?php
-        }
-        echo '</div>';
-    }
-
-    // 显示普通文章
-    if (!empty($ret[0])) {
-        echo '<ul class="theme_conter">';
-        foreach ($ret[0] as $each) {
-?>
-            <li class="theme_li">
-                <a class="theme_a" href="<?php echo $each["href"]; ?>">
-                    <div class="theme_up">
-                        <img class="theme_small" src="<?php echo $each["img"]; ?>" alt="pic"/>
-                        <div class="theme_right">
-                            <h4><?php echo $each["owner"]; ?></h4>
-                            <span><?php echo date("H:i", strtotime($each["posttime"])); ?>&nbsp;</span><span class="theme_time"><?php echo date("Y-m-d", strtotime($each["posttime"])); ?></span>
-                        </div>
-                    </div>
-                    <p class="theme_middle"><?php echo $each["title"]; ?></p>
-                    <div class="theme_bottom">
-                        <p class="p_r"><img src="img/email.png" alt="email.png"/><span><?php echo $each["reply_num"]; ?></span></p>
-                        <p class="p_l"><img src="img/eye.png" alt="eye.png"/><span><?php echo $each["read_num"]; ?></span></p>
-                    </div>
-                </a>
-            </li>
-<?php
-        }
-        echo '</div>';
-    }
-?>
-
 <?php
     // 文章分页显示
-    page_partition($totalarticle, $page, $article_num);
+    page_partition($totalboard, $page, $board_num);
 ?>
 
-    <script type="text/javascript" src="js/jquery.js"></script>
+<!--    <script type="text/javascript" src="js/jquery.js"></script>-->
+<!--    <script type="text/javascript" src="js/js.js"></script>-->
     <script type="text/javascript">
         $(document).ready(function () {
             var page = <?php echo $page;?>;
@@ -180,7 +196,8 @@ $ret = getBoardArticles();
 
         }
     </script>
-    </script>
+
 <?php
+mysql_close($link);
 include_once("foot.php");
 ?>

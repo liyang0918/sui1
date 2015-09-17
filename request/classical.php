@@ -59,7 +59,13 @@ function getSectionHotArticles($msg){
     return $ret;
 }
 
-foreach ($forum_list as $sectionId => $forum_name) {
+foreach ($forum_class_list as $each) {
+    $sectionId = intval($each["section_num"]);
+    if($sectionId == 0)
+        $sectionId = 13;
+
+    $forum_name = $each["section_name"];
+
     $t_data = array();
     $t_data = getSectionHotArticles(array("sectionId" => $sectionId));
 
