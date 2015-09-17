@@ -1,0 +1,10 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: root
+ * Date: 15-9-16
+ * Time: ÉÏÎç11:25
+ */
+$str = "a";
+
+echo intval($str);
