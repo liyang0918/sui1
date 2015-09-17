@@ -195,5 +195,5 @@ if($('input').attr('type')=='text'){
     });
 }
 
-$(document).ready(setEffect());
 $(document).ready(downMenu($('.navone_menu'), $('.navone_ul')));
+$(document).ready(setEffect());

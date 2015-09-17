@@ -346,20 +346,71 @@ function get_add_textarea_context ($filename,$user) {
     return $ret_str;
 }
 
-$forum_list = array(
-    "1" => "新闻中心",
-    "2" => "海外生活",
-    "3" => "华人世界",
-    "4" => "体育健身",
-    "5" => "休闲娱乐",
-    "6" => "情感杂想",
-    "7" => "文学艺术",
-    "8" => "校友联谊",
-    "9" => "乡里乡情",
-    "10" => "电脑网络",
-    "11" => "学术学科",
-    "12" => "本站系统"
+function getClubImg($club_name) {
+    $filepath = BBS_HOME.'/pic_home/club/'.strtoupper(substr($club_name, 0, 1)).'/'.$club_name."/";
+    $filename_return = "";
+    if(is_dir($filepath)){
+        $handler = opendir($filepath);
+        while( ($filename = readdir($handler)) !== false )
+        {
+            if($filename != "." && $filename != ".." && $filename != "boardimg" && (strpos($filename,"boardimg") !== false))
+            {
+                $filename_return = $filename;
+                break;
+            }
+        }
+        if($filename_return == ""){
+            $filename_return = "clubimg";
+        }
+
+        $filename_return = "/clubimg/".strtoupper(substr($club_name, 0, 1))."/".$club_name."/$filename_return";
+        closedir($handler);
+    }
+    return $filename_return;
+}
+
+function getBoardImg($board_name) {
+    return "/boardimg/".$board_name."/boardimg";
+}
+
+$forum_class_list = array(
+    "1" => array("section_name"=>"新闻中心", "section_num"=>"1"),
+    "2" => array("section_name"=>"海外生活", "section_num"=>"2"),
+    "3" => array("section_name"=>"华人世界", "section_num"=>"3"),
+    "4" => array("section_name"=>"体育健身", "section_num"=>"4"),
+    "5" => array("section_name"=>"休闲娱乐", "section_num"=>"5"),
+    "6" => array("section_name"=>"情感杂想", "section_num"=>"6"),
+    "7" => array("section_name"=>"文学艺术", "section_num"=>"7"),
+    "8" => array("section_name"=>"校友联谊", "section_num"=>"8"),
+    "9" => array("section_name"=>"乡里乡情", "section_num"=>"9"),
+    "10" => array("section_name"=>"电脑网络", "section_num"=>"a"),
+    "11" => array("section_name"=>"学术学科", "section_num"=>"b"),
+    "12" => array("section_name"=>"本站系统", "section_num"=>"0")
 );
+
+function getClassName($class) {
+    global $forum_class_list;
+    switch($class) {
+        case "1":
+        case "2":
+        case "3":
+        case "4":
+        case "5":
+        case "6":
+        case "7":
+        case "8":
+        case "9":
+            return $forum_class_list[$class]["section_name"];
+        case "a":
+            return $forum_class_list["10"]["section_name"];
+        case "b":
+            return $forum_class_list["11"]["section_name"];
+        case "0":
+            return $forum_class_list["12"]["section_name"];
+        default:
+            return "";
+    }
+}
 
 function url_generate($level, $data) {
     /*  level 分为4级
@@ -408,13 +459,24 @@ function page_partition($total_row, $page, $per_page=10, $show_page=3) {
     $total_page = intval($total_row/$per_page)+1;
     $frt_page = 1;
     $end_page = $total_page;
+    $show_page = 2;
 ?>
     <div id="page_part" class="pages_box margin-bottom">
         <?php if ($page != 1) {?>
+        <p>
         <a id="pre_page" href="">上一页</a>
+            <?php if($page != $end_page) ?>
+                <a id="sub_page" href="">下一页</a>
+        </p>
+        <p>
         <a id="frt_page" href=""><?php echo $frt_page;?></a>
     <?php }else{?>
-        <a id="page_now" href=""><?php echo $frt_page;?></a>
+            <p>
+            <?php if($page != $end_page) ?>
+                <a id="sub_page" href="">下一页</a>
+            </p>
+            <p>
+            <a id="page_now" href=""><?php echo $frt_page;?></a>
     <?php }?>
 
     <?php
@@ -445,13 +507,21 @@ function page_partition($total_row, $page, $per_page=10, $show_page=3) {
 
     <?php if($page != $end_page){?>
         <a id="end_page" href=""><?php echo $end_page;?></a>
-        <a id="sub_page" href="">下一页</a>
     <?php }elseif($frt_page != $end_page){?>
         <a id="page_now" href=""><?php echo $end_page;?></a>
     <?php }?>
-
+    </p>
     </div><!-- End pages_box   每页显示20篇-->
 <?php
+}
+
+function getBoardGroupNum($board_id, $link) {
+    $sql = "select count(*) as count from dir_article_".$board_id." where groupid=article_id and reid=0;";
+    $result = mysql_query($sql, $link);
+    if($result)
+        return mysql_fetch_array($result)["count"];
+    else
+        return 0;
 }
 
 ?>
