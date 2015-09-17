@@ -1,11 +1,12 @@
 function sec_category(obj){
-    var current_active=getCookie_wap("sec_category");
-    if(current_active!=""){
-        var act_obj=document.getElementById(current_active);
-        act_obj.className="none";
+    var current_active = getCookie_wap("sec_category");
+    if(current_active != ""){
+        var act_obj = document.getElementById(current_active);
+        act_obj.className = "none";
     }
-    obj.className="active";
-    document.cookie="sec_category="+obj.id;
+    obj.className = "active";
+    document.cookie = "sec_category="+obj.id;
+    document.cookie = "top_page=1";
     //ajax 请求部分
     sec_category_auto();
 }
@@ -29,7 +30,27 @@ function sec_category_auto(){
             }
             if(ret_json.detail!= undefined) {
                 var tag = document.getElementById("detail");
-                tag.outerHTML = ret_json.detail;
+                tag.innerHTML = ret_json.detail;
+                var pagebox = document.getElementById("top_next_page");
+                if(pagebox)
+                    pagebox.parentNode.removeChild(pagebox);
+
+                if (obj.id == "top") {
+                    var pageNext = document.createElement("div");
+                    pageNext.setAttribute("id", "top_page2");
+                    tag.appendChild(pageNext);
+
+                    var more_text = document.createElement("h3");
+                    more_text.setAttribute("id", "top_next_page")
+                    more_text.setAttribute("align", "center");
+                    more_text.setAttribute("onclick", "getMoreArticle()");
+                    if (getCookie_wap("end_flag") == "1")
+                        more_text.innerHTML = "End";
+                    else
+                        more_text.innerHTML = "More";
+
+                    document.getElementById("pagebox").appendChild(more_text);
+                }
             }
 
             // js.js设置点击时的效果
@@ -37,10 +58,58 @@ function sec_category_auto(){
         }
             , onFailure: function (x) {
             alert("fail to get data from server " +
-            ",please check your connection;")
+            ",please check your connection;");
         }
         });
 }
+
+function getMoreArticle() {
+    /* end_flag 为1表示数据已经到尾 */
+    if (getCookie_wap("end_flag") == "1")
+        return;
+    var page = parseInt(getCookie_wap("top_page"))+1;
+    document.cookie = "top_page=" + page;
+    var url="/mobile/forum/request/top.php";
+    var myAjax = new Ajax.Request(url,
+        {
+            method: 'post'
+            , parameters: null
+            , asynchronous: false
+            , onSuccess: function (ret) {
+            var ret_json = eval("(" + ret.responseText + ")");
+
+            if(ret_json.article!= undefined) {
+                var end_flag = getCookie_wap("end_flag");
+//                var page = parseInt(getCookie_wap("top_page"));
+                var pageCurrent  = document.getElementById("top_page"+page);
+                var tag = document.getElementById("detail");
+                pageCurrent.innerHTML = ret_json.article;
+
+                if (end_flag != "1") {
+                    var pageNext = document.createElement("div");
+                    pageNext.setAttribute("id", "top_page"+(page+1));
+                    tag.appendChild(pageNext);
+                }
+
+                var more_text = document.getElementById("top_next_page");
+                more_text.innerHTML = "";
+                if (end_flag == "1")
+                    more_text.innerHTML = "End";
+                else {
+                    more_text.innerHTML = "More"
+                }
+            }
+
+            // js.js设置点击时的效果
+            setEffect();
+        }
+            , onFailure: function (x) {
+            alert("fail to get data from server " +
+                ",please check your connection;")
+        }
+        });
+}
+
 function getCookie_wap(name){
     var strCookie=document.cookie;
     var arrCookie=strCookie.split("; ");

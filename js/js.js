@@ -1,7 +1,5 @@
 function setEffect() {
 
-//navone点击下拉菜单显示隐藏的调用，封装函数在下面；
-
 //forum_elite.htm/forum_recommend.html页面中的点击显示隐藏效果；
     $('.hot_title').each(function (i) {
         $(this).click(function () {
@@ -195,5 +193,6 @@ if($('input').attr('type')=='text'){
     });
 }
 
+$(document).ready(document.cookie="top_page=1");
 $(document).ready(downMenu($('.navone_menu'), $('.navone_ul')));
 $(document).ready(setEffect());

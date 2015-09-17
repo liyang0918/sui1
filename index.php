@@ -15,6 +15,8 @@ include_once("sec_index.php")
 </div>
 <div id="detail">
 </div>
+<div id="pagebox">
+</div>
 <?php
 include_once("foot.php");
 ?>

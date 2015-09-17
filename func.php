@@ -455,28 +455,19 @@ function url_generate($level, $data) {
     return $url;
 }
 
+/*
+// 页码太多
 function page_partition($total_row, $page, $per_page=10, $show_page=3) {
     $total_page = intval($total_row/$per_page)+1;
     $frt_page = 1;
     $end_page = $total_page;
-    $show_page = 2;
 ?>
     <div id="page_part" class="pages_box margin-bottom">
         <?php if ($page != 1) {?>
-        <p>
         <a id="pre_page" href="">上一页</a>
-            <?php if($page != $end_page) ?>
-                <a id="sub_page" href="">下一页</a>
-        </p>
-        <p>
         <a id="frt_page" href=""><?php echo $frt_page;?></a>
     <?php }else{?>
-            <p>
-            <?php if($page != $end_page) ?>
-                <a id="sub_page" href="">下一页</a>
-            </p>
-            <p>
-            <a id="page_now" href=""><?php echo $frt_page;?></a>
+        <a id="page_now" href=""><?php echo $frt_page;?></a>
     <?php }?>
 
     <?php
@@ -507,13 +498,47 @@ function page_partition($total_row, $page, $per_page=10, $show_page=3) {
 
     <?php if($page != $end_page){?>
         <a id="end_page" href=""><?php echo $end_page;?></a>
+        <a id="sub_page" href="">下一页</a>
     <?php }elseif($frt_page != $end_page){?>
         <a id="page_now" href=""><?php echo $end_page;?></a>
     <?php }?>
-    </p>
+
     </div><!-- End pages_box   每页显示20篇-->
 <?php
 }
+*/
+
+/* 只保留3个按钮   ... 5 6 7 ...
+ *               当前页 ^
+*/
+function page_partition($total_row, $page, $per_page=10, $show_page=1) {
+    $total_page = intval($total_row/$per_page)+1;
+    $frt_page = 1;
+    $end_page = $total_page;
+    $page_str = '<div id="page_part" class="pages_box margin-bottom">';
+    if ($page != 1) {
+        $page_str .= '<a id="pre_page" href="">上一页</a>';
+    }
+
+    if($page-$frt_page > $show_page){
+        $page_str .= "<span>...</span>";
+    }
+
+    $page_str .= '<a id="page_now" href="">'.$page.'</a>';
+
+    if($end_page-$page > $show_page){
+        $page_str .= "<span>...</span>";
+        }
+
+        if($page != $end_page){
+            $page_str .= '<a id="sub_page" href="">下一页</a>';
+        }
+
+    $page_str .= '</div>';
+    return $page_str;
+
+}
+
 
 function getBoardGroupNum($board_id, $link) {
     $sql = "select count(*) as count from dir_article_".$board_id." where groupid=article_id and reid=0;";
@@ -524,4 +549,12 @@ function getBoardGroupNum($board_id, $link) {
         return 0;
 }
 
+function in_array_list($array,$array_list){
+    foreach($array_list as $list){
+        if($array["article_id"] == $list["article_id"] && $array["board_id"] == $list["board_id"]){
+            return 1;
+        }
+    }
+    return 0;
+}
 ?>
