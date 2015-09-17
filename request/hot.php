@@ -147,6 +147,7 @@ function getHotBoards() {
 /* 获取热门俱乐部 */
 function getHotClubs() {
     global $link;
+    global $dir_modes;
     $ret = array();
     $denyclubfilename="/home/bbs/etc/denyclub";
     $fp = @fopen($denyclubfilename, "r");
@@ -176,7 +177,7 @@ function getHotClubs() {
         $notIn = $notIn.")";
     }
 
-    $club_sql = "select club_id,club_name,club_cname,club_description,post_sum,onlines from club where approval_state=1 and club_type=1 {$notIn} ";
+    $club_sql = "select club_id,club_name,club_cname,club_description,onlines from club where approval_state=1 and club_type=1 {$notIn} ";
     if (is_china() == 1)
         $club_sql .= " and limit_flag=0 ";
     $club_sql .= " order by currentScore desc limit 10";
@@ -184,17 +185,18 @@ function getHotClubs() {
     $club_result = mysql_query($club_sql, $link);
     while($row = mysql_fetch_array($club_result)) {
         // 生成俱乐部对应的url
-        $club_url = url_generate(2, array("club" => $row["club_id"]));
-
+        $club_url = url_generate(2, array("club" => $row["club_name"]));
         // 俱乐部首页图片路径
         $club_img = getClubImg($row["club_name"]);
+        // 俱乐部文章数
+        $club_article_num = bbs_countarticles($row['club_name'], $dir_modes["ORIGIN"], 1);
         $ret[] = array(
             'href' => $club_url,
             'img' => $club_img,
             'name' => $row["club_cname"], //iconv("GBK", "UTF-8//IGNORE", urldecode($board_desc)),
             'des' => $row["club_description"],
             'online' => $row['onlines'],
-            'post_sum' => $row["post_sum"]
+            'article_num' => $club_article_num
         );
     }
     mysql_free_result($club_result);
@@ -307,14 +309,15 @@ if ($topic_num > 0) {
         $str_content .= '<div class="hot_content">';
         $str_content .= '<h3 class="hot_name">'.$t_data[$i]["name"].'</h3>';
         $str_content .= '<p class="hot_des">'.$t_data[$i]["des"].'</p>';
-        $str_content .= '<p class="hot_count"><span class="hot_left">当前在线 : '.$t_data[$i]["online"].'人</span><span class="hot_right">文章总数 : '.$t_data[$i]["post_sum"].'</span></p>';
+        $str_content .= '<p class="hot_count"><span class="hot_left">当前在线 : '.$t_data[$i]["online"].'人</span><span class="hot_right">文章总数 : '.$t_data[$i]["article_num"].'</span></p>';
         $str_content .= '</div></a></div>';
     }
 }
 
 $str_content .= '</div>';
 // json_encode()转换的字符串含的中文必须为UTF-8编码
-$all_arr["detail"] = iconv('GBK', 'UTF-8', $str_content);
+$str_content = mb_convert_encoding($str_content, "UTF-8", "GBK");
+$all_arr["detail"] = $str_content;
 echo json_encode($all_arr);
 mysql_close($link);
 ?>

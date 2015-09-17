@@ -106,7 +106,7 @@ $ret = getBoardArticles();
     </div>
 <?php
     // ÎÄÕÂ·ÖÒ³ÏÔÊ¾
-    page_partition($totalarticle, $page, $article_num);
+    echo page_partition($totalarticle, $page, $article_num);
 ?>
 
     <script type="text/javascript" src="js/jquery.js"></script>

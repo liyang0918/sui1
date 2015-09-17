@@ -120,7 +120,7 @@ if ($i < $totalboard) {
     </div>
 <?php
     // ÎÄÕÂ·ÖÒ³ÏÔÊ¾
-    page_partition($totalboard, $page, $board_num);
+    echo page_partition($totalboard, $page, $board_num);
 ?>
 
 <!--    <script type="text/javascript" src="js/jquery.js"></script>-->

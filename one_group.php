@@ -125,7 +125,7 @@ $i_cnt = count($prt_arr);
     </div>
 <?php
     // ·ÖÒ³ÏÔÊ¾
-    page_partition($total_row, $page, $per_page);
+    echo page_partition($total_row, $page, $per_page);
 ?>
 
 <head>
