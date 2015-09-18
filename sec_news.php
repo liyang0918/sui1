@@ -1,13 +1,15 @@
-<div id="sec_category">
+<div id="sec_category" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
+     xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
+     xmlns="http://www.w3.org/1999/html">
    <nav class="navtwo">
                 <ul class="navtwo_ul border_bottom">
-                    <li><p id="mix" onclick="sec_category(this)">大杂烩</p></li>
-                    <li><p id="military" onclick="sec_category(this)">军事</p></li>
-                    <li><p id="international" onclick="sec_category(this)">国际</p></li>
-                    <li><p id="sport" onclick="sec_category(this)">体育</p></li>
-                    <li><p id="recreation" onclick="sec_category(this)">娱乐</p></li>
-                    <li><p id="science" onclick="sec_category(this)">科技</p></li>
-                    <li><p id="finance" onclick="sec_category(this)">财经</p></li>
+                    <li><a href="" id="mix" onclick="sec_category(this)">大杂烩</a></li>
+                    <li><a href="" id="military" onclick="sec_category(this)">军事</a></li>
+                    <li><a href="" id="international" onclick="sec_category(this)">国际</a></li>
+                    <li><a href="" id="sport" onclick="sec_category(this)">体育</a></li>
+                    <li><a href="" id="recreation" onclick="sec_category(this)">娱乐</a></li>
+                    <li><a href="" id="science" onclick="sec_category(this)">科技</a></li>
+                    <li><a href="" id="finance" onclick="sec_category(this)">财经</a></li>
                 </ul>
     </nav>
 </div>
