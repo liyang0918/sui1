@@ -10,9 +10,10 @@
 </div>
 <script type="text/javascript" src="js/jquery.js"></script>
 <script type="text/javascript" src="js/funs.js"></script>
-<link rel="stylesheet" href="css/reset.css" type="text/css" media="screen" />
-<link rel="stylesheet" href="css/style.css" />
+
 <script type="text/javascript">
+    /* 刷新页面时再清除已读的页数 */
+    $(document).ready(document.cookie="current_page=1");
     $(document).ready(function () {
         var sec_category=getCookie_wap("sec_category");
         $("#"+sec_category).addClass("active");
