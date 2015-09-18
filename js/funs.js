@@ -1,3 +1,22 @@
+var needPageList = new Array(
+    "top",
+    "mix",
+    "military",
+    "international",
+    "sport",
+    "recreation",
+    "science",
+    "finance");
+
+function need_page(id) {
+    for (var cur in needPageList) {
+        if (id == needPageList[cur])
+            return true;
+    }
+
+    return false;
+}
+
 function sec_category(obj){
     var current_active = getCookie_wap("sec_category");
     if(current_active != ""){
@@ -6,7 +25,7 @@ function sec_category(obj){
     }
     obj.className = "active";
     document.cookie = "sec_category="+obj.id;
-    document.cookie = "top_page=1";
+    document.cookie = "current_page=1";
     //ajax 请求部分
     sec_category_auto();
 }
@@ -26,22 +45,27 @@ function sec_category_auto(){
             var ret_json = eval("(" + ret.responseText + ")");
             if(ret_json.carouselfigure != undefined) {
                 var tag = document.getElementById("carouselfigure");
+                tag.setAttribute("style", 'display:block');
                 tag.outerHTML = ret_json.carouselfigure;
+            } else {
+                var tag = document.getElementById("carouselfigure");
+                tag.setAttribute("style", 'display:none');
             }
-            if(ret_json.detail!= undefined) {
+
+            if(ret_json.detail != undefined) {
                 var tag = document.getElementById("detail");
                 tag.innerHTML = ret_json.detail;
-                var pagebox = document.getElementById("top_next_page");
+                var pagebox = document.getElementById("current_next_page");
                 if(pagebox)
                     pagebox.parentNode.removeChild(pagebox);
 
-                if (obj.id == "top") {
+                if (need_page(obj.id)) {
                     var pageNext = document.createElement("div");
-                    pageNext.setAttribute("id", "top_page2");
+                    pageNext.setAttribute("id", "current_page2");
                     tag.appendChild(pageNext);
 
                     var more_text = document.createElement("h3");
-                    more_text.setAttribute("id", "top_next_page")
+                    more_text.setAttribute("id", "current_next_page")
                     more_text.setAttribute("align", "center");
                     more_text.setAttribute("onclick", "getMoreArticle()");
                     if (getCookie_wap("end_flag") == "1")
@@ -65,11 +89,12 @@ function sec_category_auto(){
 
 function getMoreArticle() {
     /* end_flag 为1表示数据已经到尾 */
-    if (getCookie_wap("end_flag") == "1")
+    if (getCookie_wap("end_flag") != "0")
         return;
-    var page = parseInt(getCookie_wap("top_page"))+1;
-    document.cookie = "top_page=" + page;
-    var url="/mobile/forum/request/top.php";
+    var page = parseInt(getCookie_wap("current_page"))+1;
+    document.cookie = "current_page=" + page;
+    var url="/mobile/forum/request/"+getCookie_wap("sec_category")+".php";
+    alert(url);
     var myAjax = new Ajax.Request(url,
         {
             method: 'post'
@@ -80,18 +105,18 @@ function getMoreArticle() {
 
             if(ret_json.article!= undefined) {
                 var end_flag = getCookie_wap("end_flag");
-//                var page = parseInt(getCookie_wap("top_page"));
-                var pageCurrent  = document.getElementById("top_page"+page);
+//                var page = parseInt(getCookie_wap("current_page"));
+                var pageCurrent  = document.getElementById("current_page"+page);
                 var tag = document.getElementById("detail");
                 pageCurrent.innerHTML = ret_json.article;
 
                 if (end_flag != "1") {
                     var pageNext = document.createElement("div");
-                    pageNext.setAttribute("id", "top_page"+(page+1));
+                    pageNext.setAttribute("id", "current_page"+(page+1));
                     tag.appendChild(pageNext);
                 }
 
-                var more_text = document.getElementById("top_next_page");
+                var more_text = document.getElementById("current_next_page");
                 more_text.innerHTML = "";
                 if (end_flag == "1")
                     more_text.innerHTML = "End";

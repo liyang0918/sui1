@@ -193,6 +193,5 @@ if($('input').attr('type')=='text'){
     });
 }
 
-$(document).ready(document.cookie="top_page=1");
 $(document).ready(downMenu($('.navone_menu'), $('.navone_ul')));
 $(document).ready(setEffect());

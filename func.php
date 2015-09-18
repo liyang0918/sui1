@@ -373,6 +373,25 @@ function getBoardImg($board_name) {
     return "/boardimg/".$board_name."/boardimg";
 }
 
+$label_list = array(
+    "index" => array("top", "hot", "classical", "classes"),
+    "news" => array("mix", "military", "international", "sport", "recreation", "science", "finance"),
+    "club" => array(),
+    "immigration" => array(),
+    "dianping" => array()
+);
+
+function is_own_label($label, $own="index") {
+    global $label_list;
+    if(!array_key_exists($own, $label_list))
+        return false;
+
+    if(in_array($label, $label_list[$own]))
+        return true;
+    else
+        return false;
+}
+
 $forum_class_list = array(
     "1" => array("section_name"=>"新闻中心", "section_num"=>"1"),
     "2" => array("section_name"=>"海外生活", "section_num"=>"2"),
@@ -557,4 +576,60 @@ function in_array_list($array,$array_list){
     }
     return 0;
 }
+
+/*
+function getNewsData(&$msg)
+{
+
+    $ret = array();
+    $typeToBoardid= array(
+        "0300" => "365",
+        "0301" => "249",
+        "0302" => "395",
+        "0303" => "81",
+        "0304" => "114",
+        "0305" => "146",
+        "0306" => "347",
+        "0307" => "420"
+    );
+    $typeToSqlStr = array(
+//        "0300" => "[ZGPT]",
+        "0301" => "[ZGPT]",
+        "0302" => "[HWPT]",
+        "0303" => "[TYPT]",
+        "0304" => "[YLPT]",
+        "0305" => "[KJPT]",
+        "0306" => "[CJPT]",
+        "0307" => ""
+    );
+
+    if($msg["reqType"] == "0300"){
+        return getHeadlineNews($msg);
+    }
+    if($msg["reqType"] != "0300"){
+        $data_tmp = array();
+        $type = $msg["reqType"];
+        $boardid = $typeToBoardid["$type"];
+        $mysql_str = $typeToSqlStr["$type"];
+        $msg["boardid"] = $boardid;
+        $msg["news_type"] = $mysql_str;
+        $data_tmp = getNewsforPage($msg);
+
+        $msg["result"] = "1";
+        if($data_tmp == null){
+            $data_tmp = array();
+        }
+        return  $data_tmp;
+    }
+
+}
+*/
+function getNewsReply($link, $board_id, $group_id){
+    $sql = "SELECT count(*) as count_num FROM dir_article_".$board_id." WHERE groupid=".$group_id." and article_id!=".$group_id;
+    $result = mysql_query($sql,$link);
+    $row = mysql_fetch_array($result);
+    mysql_free_result($result);
+    return $row["count_num"];
+}
+
 ?>

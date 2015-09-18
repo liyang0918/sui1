@@ -14,8 +14,9 @@ if(!empty($_COOKIE["app_show"]))
         <meta name="viewport" content="width=device-width,	min-width:350px,initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
         <title>Î´Ãû¿Õ¼ä</title>
         <link rel="stylesheet" href="css/reset.css" type="text/css" media="screen" />
-        <link rel="stylesheet" href="css/nivo-slider.css" type="text/css" media="screen"/>
         <link rel="stylesheet" href="css/style.css" type="text/css" media="screen"/>
+        <link rel="stylesheet" href="css/silder.css" type="text/css" media="screen" />
+        <link rel="stylesheet" href="css/nivo-slider.css" type="text/css" media="screen"/>
     </head>
     <body>
     <div class="conter">
