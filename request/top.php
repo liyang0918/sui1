@@ -3,7 +3,7 @@ require_once(dirname(__FILE__)."/../../../mitbbs_funcs.php");
 include_once(dirname(__FILE__)."/../func.php");
 $link = db_connect_web();
 
-$page = $_COOKIE["top_page"];
+$page = $_COOKIE["current_page"];
 if (empty($page))
     $page = 1;
 
@@ -25,12 +25,9 @@ function getArticleLunbo($link){
     return $articlelist;
 }
 
-$articlelist = getArticleLunbo($link);
 
-function getTopArticle($link) {
-    global $page;
-    global $articlelist;
 
+function getTopArticle($link, $page, $limit_article) {
     $pagenum = 40;
     $from = $page*$pagenum;
     $is_china_flag = is_china();
@@ -100,7 +97,7 @@ function getTopArticle($link) {
         } else {
             continue;
         }
-        if(in_array_list($limit, $articlelist)){
+        if(in_array_list($limit, $limit_article)){
             continue;
         }
 
@@ -134,8 +131,9 @@ function getTopArticle($link) {
     return array($ret, $end_flag);
 }
 
-$all_arr=array();
-$img_arr=array();
+$articlelist = getArticleLunbo($link);
+$all_arr = array();
+$img_arr = array();
 foreach ($articlelist as $row) {
     $tmp=array();
     $board_id = $row["board_id"];
@@ -167,29 +165,41 @@ foreach ($articlelist as $row) {
     $img_arr[] = $tmp;
 }
 $type = "index";
-
 // top image start
-$str_img = '<div id="carouselfigure" class="main_image">';
-$str_img .= '<div id="wrapper">';
-$str_img .= '<div class="slider-wrapper theme-default box">';
-$str_img .= '<div id="slider" class="nivoSlider">';
-foreach($img_arr as $index=>$img_one){
-    $php_page = "one_group.php?&board=".$board_name."&group=".$img_one["groupid"];
-    if ($index == 1) {
-        $str_img .= '<a class="hr_a" href="'.$php_page.'"><img src="'.$img_one["imgURL"].'" alt="img" /></a>';
-    } else {
-        $str_img .= '<a href="'.$php_page.'"><img src="'.$img_one["imgURL"].'" alt="img" /></a>';
-    }
+$str_img = '<div id="carouselfigure" class="main_visual">';
+$img_page = '<div class="flickimg_con">';
+$img_url = '<div class="main_image"><ul>';
+foreach ($img_arr as $i=>$imgDate) {
+//    if ($index == 1) {
+//        $str_img .= '<a class="hr_a" href="'.$php_page.'"><img src="'.$img_one["imgURL"].'" alt="img" /></a>';
+//    } else {
+//        $str_img .= '<a href="'.$php_page.'"><img src="'.$img_one["imgURL"].'" alt="img" /></a>';
+//    }
+    $php_page = "one_group.php?&board=".$board_name."&group=".$imgDate["groupid"];
+    $img_page .= '<a href="javascript:;">'.($i+1).'</a>';
+    $img_url .=
+        '<li>
+            <a href="'.$php_page.'">
+                <span class="img" background="'.$imgDate["imgURL"].'"></span>
+            </a>
+        </li>';
 }
-$str_img .= "</div></div></div></div>";
+$img_page .= '</div>';
+$img_url .= '</ul></div>';
+$str_img .=
+    '<div class="text">
+        <p id="text">
+        </p>
+    </div>';
+$str_img .= $img_page.$img_url."</div>";
 //top image end
 
 //detail start
 $str_article = '<ul class="article_wrap">';
 
-list($top_article, $end_flag) = getTopArticle($link);
+list($top_article, $end_flag) = getTopArticle($link, $page, $articlelist);
 
-setcookie("end_flag", "$end_flag");
+setcookie("end_flag", (string)$end_flag, 0, "/");
 
 foreach ($top_article as $each) {
     if ($each["imgNum"] == 1) {

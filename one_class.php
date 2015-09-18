@@ -5,6 +5,10 @@ include_once("head.php");
 $link = db_connect_web();
 //data part
 $class = $_GET["class"];
+$page=intval($_GET["page"]);
+if(empty($page)){
+    $page=1;
+}
 $url_page = url_generate(1, array("type"=>$_COOKIE["app_type"], "class"=>$class))."&page=";
 
 function getBoardsBySection($class)
@@ -57,7 +61,7 @@ function getBoardsBySection($class)
             }
         $brdarr = array();
         $brdnum = bbs_getboard($tmp["EnglishName"], $brdarr);
-        $tmp["boardBM"] = explode(trim(" ", $tmp["BM"]));
+        $tmp["boardBM"] = explode(" ", trim($tmp["BM"]));
         $tmp["boardimg"] = getBoardImg($tmp["EnglishName"]);
         $tmp["href"] = url_generate(2, array("board"=>$tmp["EnglishName"]));
         $tmp["online"] = $brdarr["CURRENTUSERS"];
@@ -70,11 +74,6 @@ function getBoardsBySection($class)
 }
 
 $boards = getBoardsBySection($class);
-
-$page=intval($_GET["page"]);
-if(empty($page)){
-    $page=1;
-}
 
 /* 每页版面数 */
 $board_num = 10;
@@ -123,8 +122,7 @@ if ($i < $totalboard) {
     echo page_partition($totalboard, $page, $board_num);
 ?>
 
-<!--    <script type="text/javascript" src="js/jquery.js"></script>-->
-<!--    <script type="text/javascript" src="js/js.js"></script>-->
+    <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             var page = <?php echo $page;?>;
@@ -145,56 +143,6 @@ if ($i < $totalboard) {
                 this.href = url_page;
             });
         });
-    </script>
-    <script type="text/javascript">
-        var text_id = "";
-        var btn_id = "";
-        function reply_show(obj){
-            <?php if($currentuser["userid"] == "guest"){ ?>
-            var url_page = "<?php echo $url_page.$page;?>";
-            alert(url_page);
-            document.cookie = "before_login="+url_page;
-            window.location = "login.php";
-            <?php } ?>
-            if(obj.text == "回复"){
-                obj.text = "取消"
-                $("#"+text_id).remove();
-                $("#"+btn_id).remove();
-                var re_id = obj.name;
-                text_id = "text_"+obj.name;
-                btn_id = "btn_"+obj.name;
-                var board_name = '<?php echo $board_name;?>';
-                var title = '<?php echo $title;?>';
-                var re_li = $("#re_"+re_id);
-                var re_con = $("#re_content_"+obj.name).text();
-//            var atta_str='<tr> <td align="right">附件：</td> ' +
-//                '<td colspan="2"><span id="pro_span"> ' +
-//                ' <a href="javascript:void(0);" class="news" onclick="document.getElementById(\'pic_span\').style.display=\'block\';document.getElementById(\'pro_span\').innerHTML=\'\';">点击添加附件</a></span> ' +
-//                ' <span style="display:none" id="pic_span"><input name="attachname" size="85" maxlength="100"  value="" type="text">' +
-//                ' <a href="#" onclick="return GoAttachWindow()" class="news">操作附件</a></span>' +
-//                '</td></tr>';
-                var atta_str='<input name="attachfile[]" capture="camera" accept="image/*" type="file" style="margin-left: 10px;width: 200px" multiple="multiple">';
-                var rep_body=atta_str+     '<tr><td><textarea id='+text_id+'>'+re_con+'</textarea><button id='+btn_id+' onclick="post_article('+'\''+board_name+'\',\''+title+'\','+obj.name+')">发表</button></td></tr>';
-                re_li.after(rep_body);
-            }else if(obj.text == "取消"){
-                obj.text = "回复";
-                $("#"+text_id).remove();
-                $("#"+btn_id).remove();
-            }
-        }
-        function GoAttachWindow(){
-
-            var hWnd = window.open("bbsupload.php","_blank","width=600,height=300,scrollbars=yes");
-
-            if ((document.window != null) && (!hWnd.opener))
-
-                hWnd.opener = document.window;
-
-            hWnd.focus();
-
-            return false;
-
-        }
     </script>
 
 <?php
