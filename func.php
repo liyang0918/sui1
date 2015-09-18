@@ -577,53 +577,142 @@ function in_array_list($array,$array_list){
     return 0;
 }
 
-/*
-function getNewsData(&$msg)
-{
+$type_to_sql_data = array(
+    "military"=>array("boardID"=>"249", "news_type"=>"[ZGPT]"),
+    "international"=>array("boardID"=>"395", "news_type"=>"[HWPT]"),
+    "sport"=>array("boardID"=>"81", "news_type"=>"[TYPT]"),
+    "recreation"=>array("boardID"=>"114", "news_type"=>"[YLPT]"),
+    "science"=>array("boardID"=>"146", "news_type"=>"[KJPT]"),
+    "finance"=>array("boardID"=>"347", "news_type"=>"[CJPT]")
+);
 
-    $ret = array();
-    $typeToBoardid= array(
-        "0300" => "365",
-        "0301" => "249",
-        "0302" => "395",
-        "0303" => "81",
-        "0304" => "114",
-        "0305" => "146",
-        "0306" => "347",
-        "0307" => "420"
-    );
-    $typeToSqlStr = array(
-//        "0300" => "[ZGPT]",
-        "0301" => "[ZGPT]",
-        "0302" => "[HWPT]",
-        "0303" => "[TYPT]",
-        "0304" => "[YLPT]",
-        "0305" => "[KJPT]",
-        "0306" => "[CJPT]",
-        "0307" => ""
-    );
+function getNewsDataByType($link, $page, $newsTypeName) {
+    global $type_to_sql_data;
+    $boardid = $type_to_sql_data[$newsTypeName]["boardID"];
+    $news_type = $type_to_sql_data[$newsTypeName]["news_type"];
 
-    if($msg["reqType"] == "0300"){
-        return getHeadlineNews($msg);
+    $num = 40;
+    $page = $page*$num;
+    $is_china_flag = is_china();
+    if ($is_china_flag == 1) {
+        $str = "AND cn_read!='N' AND cn_read!='M' ";
     }
-    if($msg["reqType"] != "0300"){
-        $data_tmp = array();
-        $type = $msg["reqType"];
-        $boardid = $typeToBoardid["$type"];
-        $mysql_str = $typeToSqlStr["$type"];
-        $msg["boardid"] = $boardid;
-        $msg["news_type"] = $mysql_str;
-        $data_tmp = getNewsforPage($msg);
 
-        $msg["result"] = "1";
-        if($data_tmp == null){
-            $data_tmp = array();
+    $str .= "AND LEFT(title,".strlen($news_type)." )='$news_type'";
+
+    $sql = "SELECT a.article_id,a.boardname boardname,a.title,a.owner,a.o_id,a.groupid,a.o_groupid,a.o_bid ,UNIX_TIMESTAMP(action_time)
+         ,a.filename,b.board_desc,a.type_flag,UNIX_TIMESTAMP(posttime) FROM digest_article a JOIN board b ON a.board_id=b.board_id
+         WHERE a.board_id=$boardid $str ORDER BY a.action_time DESC, a.article_id DESC LIMIT {$page}, {$num}";
+    $result = mysql_query($sql, $link);
+    if (mysql_num_rows($result) < $num)
+        $end_flag = "1";
+    else
+        $end_flag = "0";
+
+    while ($row = mysql_fetch_array($result)) {
+        $aNew["groupID"] = $row["groupid"];
+        $aNew["articleID"] = $row["article_id"];
+        $aNew["author"] = $row["owner"];
+        $aNew["title"] = $row["title"];
+        $aNew["title"] = substr(strchr($aNew["title"],"]"),1);
+        if ($aNew["title"] == null) {
+            $aNew["title"] = "";
         }
-        return  $data_tmp;
-    }
+        $boardName = $row["boardname"];
+        $boardCnName = $row["board_desc"];
+        $aNew["BoardsName"] = trim(substr($boardCnName, strpos($boardCnName,']')+1));
+        $aNew["BoardsEngName"] = $boardName;
+        $aNew["boardID"] = $boardid;
+        $aNew["href"] = url_generate(3, array("board"=>$boardName, "groupid"=>$row["groupid"]));
+        $aNew["actiontime"] = "".$row["UNIX_TIMESTAMP(action_time)"];
 
+        $filepath = BBS_HOME."/boards/".$aNew["BoardsEngName"]."/".$row["filename"];
+        $filehandle = fopen($filepath, "r");
+        if ($filehandle) {
+            for ($i = 0; $i < 4; $i++)
+                fgets($filehandle);
+            while ($notes = fgets($filehandle)) {
+                if (!strncmp($notes, "--", 2)) {
+                    $notes = "1";//end
+                    break;
+                } else if (!strncmp($notes,"http://",7) or $notes == "\n") {
+                    continue;
+                } else if(strpos(iconv("GBK", "UTF-8//IGNORE", $notes),"编者按")!==false) {
+                    if (strpos($notes,"。") !== false) {
+                        break;//ok,it is
+                    } else {
+                        while ($notes1 = fgets($filehandle)) {
+                            if ($i = strpos(iconv("GBK", "UTF-8//IGNORE", $notes1), "。")) {
+                                $notes .= $notes1;
+                                break;
+                            } else if (!strncmp($notes1, "--", 2) or !strncmp($notes1, "http://", 7)) {
+                                break;
+                            } else {
+                                $notes .= $notes1;
+                            }
+                        }
+                        break;
+                    }
+                }else {
+                    if(!isset($notestmp)){
+                        $notestmp = $notes;
+                    }
+                }
+            }
+        }else{
+            $notes = "0";
+        }
+        if($notes == 1)
+            $notes = $notestmp;
+        else
+            $notes = "";
+
+        unset($notestmp);
+        $aNew["filename"] = $row["filename"];
+        $arr=explode("。", iconv("GBK", "UTF-8//IGNORE", $notes));
+        $aNew["notes"] = str_replace("编者按：","",$arr[0]);
+        $postdate = "".$row["UNIX_TIMESTAMP(posttime)"];
+        $nowdate = strtotime(date('Y/m/d'));
+
+        $aNew["postTime"] = $postdate;
+        $sql = "SELECT new_url FROM article_image_list WHERE article_id={$aNew["articleID"]} and board_id='{$aNew["boardID"]}'";
+        $num1 = 0;
+        $result1 = mysql_query($sql, $link);
+        $aNew["imgList"] = array();
+        while($row1 = mysql_fetch_array($result1)) {
+            $num1 ++;
+            $img = BBS_HOME.'/pic_home/boards/'.$aNew["BoardsEngName"]."/".$row1["new_url"];
+            if(is_file($img)){
+                $pic_list ="http://". $_SERVER["SERVER_NAME"]."/boardimg/" . $aNew["BoardsEngName"]. "/".$row1["new_url"];
+            }else{
+                $pic_list = "";
+            }
+            $aNew["imgList"][] = $pic_list;
+        }
+        $aNew["imgNum"] = $num1;
+        $aNew["source"] = "未名空间";
+        $sql = "select source,read_num,total_reply from  dir_article_{$aNew["boardID"]} where article_id={$aNew["articleID"]}";
+        $result1 = mysql_query($sql, $link);
+        if ($row1 = mysql_fetch_array($result1)) {
+            if($row1["source"] != null)
+                $aNew["source"] = $row1["source"];
+            else
+                $aNew["source"] = "未名空间";
+            $aNew["read_num"] = $row1["read_num"];
+            $aNew["total_reply"] = $row1["total_reply"];
+        } else {
+            $aNew["source"] = "未名空间";
+            $aNew["read_num"] = "0";
+            $aNew["total_reply"] = "0";
+        }
+        $aNew["total_reply"] = getNewsReply($link, $aNew["boardID"], $aNew["articleID"]);
+        $ret[] = $aNew;
+    }
+    usort($ret, 'sortByActionTime');
+
+    return array($ret, $end_flag);
 }
-*/
+
 function getNewsReply($link, $board_id, $group_id){
     $sql = "SELECT count(*) as count_num FROM dir_article_".$board_id." WHERE groupid=".$group_id." and article_id!=".$group_id;
     $result = mysql_query($sql,$link);

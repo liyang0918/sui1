@@ -35,7 +35,7 @@ if(!empty($_COOKIE["app_show"]))
                 <li class="navone_li"><a href="index.php"><img src="img/item.png" alt="item.png"/>论坛</a></li>
                 <li class="navone_li"><a href="news.php"><img src="img/item.png" alt="item.png"/>新闻</a></li>
                 <li class="navone_li"><a href="club.php"><img src="img/item.png" alt="item.png"/>俱乐部</a></li>
-                <li class="navone_li"><a href="immigration.php"><img src="img/item.png" alt="item.png"/>移民</a></li>
+                <li class="navone_li"><a href="immigration.php"><img src="img/item.png" alt="item.png"/>移民专栏</a></li>
                 <li class="navone_li"><a href="dianping.php"><img src="img/item.png" alt="item.png"/>点评</a></li>
                 <li class="navone_li noborder"><a href="search.html"><img src="img/item.png" alt="item.png"/>搜索</a></li>
             </ul>
