@@ -2,7 +2,7 @@
 require_once(dirname(__FILE__)."/../../../mitbbs_funcs.php");
 include_once(dirname(__FILE__)."/../func.php");
 $link = db_connect_web();
-$groupid = 1;
+$groupid = 10;
 $page = $_COOKIE["current_page"];
 if (empty($page))
     $page = 1;
@@ -22,7 +22,7 @@ foreach ($t_data as $i=>$each) {
             $str_img_dot .= '<span></span>';
             $str_img .= '</li><li class="club_list_li">';
         } else {
-            $str_img_dot .= '<div class="club_dot"><span class="act"></span>';
+            $str_img_dot .= '<div class="club_dot"><span></span>';
             $str_img .= '<ul><li class="club_list_li">';
         }
 

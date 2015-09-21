@@ -9,7 +9,7 @@ if (empty($page))
 
 function getHeadLineNews($link, $page) {
     $pagenum = 40;
-    $from = $page*$pagenum;
+    $from = ($page-1)*$pagenum;
     $is_china_flag = is_china();
     if ($is_china_flag == 1)
         $station_id = 2;
@@ -98,7 +98,7 @@ function getHeadLineNews($link, $page) {
                 $notes="";
 
             unset($notestmp);
-            $arr = $notes;
+            $arr=explode("°£",  $notes);
             $aNew["notes"] = str_replace("±‡’ﬂ∞¥£∫","", $arr[0]);
             $postdate = "".$row1["UNIX_TIMESTAMP(posttime)"];
             $nowdate = strtotime(date('Y/m/d'));

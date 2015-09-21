@@ -3,8 +3,6 @@ require_once(dirname(__FILE__)."/../../../mitbbs_funcs.php");
 include_once(dirname(__FILE__)."/../func.php");
 $link = db_connect_web();
 
-
-
 $all_arr=array();
 $type="hot";
 $str_content = '<div id="detail"><ul class="hot_recommend">';
