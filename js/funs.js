@@ -13,8 +13,91 @@ var needPageList = new Array(
     "club_sport",
     "club_game",
     "club_recreation",
-    "club_music"
+    "club_music",
+    "club_hobby",
+    "club_life",
+    "club_finance",
+    "club_schoolfellow",
+    "club_hisfellow",
+    "club_politics",
+    "club_science",
+    "club_literature",
+    "club_art",
+    "club_other"
 );
+
+// 所有的2级标签 ： 1表示需要分页
+var label_list = {
+    "index":{
+        "top":"1",
+        "hot":"0",
+        "classical":"0",
+        "classes":"0"
+    },
+    "news":{
+        "mix":"1",
+        "military":"1",
+        "international":"1",
+        "sport":"1",
+        "recreation":"1",
+        "science":"1",
+        "finance":"1"
+    },
+    "club":{
+        "handpick":"1",
+        "emotion":"1",
+        "woman":"1",
+        "sport":"1",
+        "game":"1",
+        "recreation":"1",
+        "music":"1",
+        "hobby":"1",
+        "life":"1",
+        "finance":"1",
+        "schoolfellow":"1",
+        "hisfellow":"1",
+        "politics":"1",
+        "science":"1",
+        "literature":"1",
+        "art":"1",
+        "other":"1"
+    }
+};
+
+function get_info_by_id(id) {
+    var app_type = getCookie_wap("app_type");
+    var domain = label_list[app_type];
+
+    var info = [];/*
+    if (domain) {
+        alert(domain[id]);
+        if (id in domain) {
+            alert("sss");
+            info["domain"] = app_type;
+            info["needpage"] = domain[id]
+        }
+    }
+*/
+    var obj;
+    for (obj in domain) {
+        alert(obj);
+            if (obj+"" == id) {
+                info["needpage"] = domian[obj];
+                info["domain"] = app_type;
+            }
+    }
+
+    return info;
+}
+
+function request_url_generate(id) {
+    var info = get_info_by_id(id);
+    var url = "/404.php";
+    if (info.length)
+        url = "/mobile/forum/request/" + info["domain"] +".php?type=" + "id";
+
+    return url;
+}
 
 function need_page(id) {
     for (var cur in needPageList) {
@@ -27,7 +110,7 @@ function need_page(id) {
 
 function sec_category(obj){
     var current_active = getCookie_wap("sec_category");
-    if(current_active != ""){
+    if(current_active != "") {
         var act_obj = document.getElementById(current_active);
         act_obj.className = "none";
     }
@@ -35,15 +118,16 @@ function sec_category(obj){
     document.cookie = "sec_category="+obj.id;
     document.cookie = "current_page=1";
     //ajax 请求部分
-    sec_category_auto();
+//    sec_category_auto();
 }
 function sec_category_auto(){
     var current_active=getCookie_wap("sec_category");
     var obj=document.getElementById(current_active);
     //obj.className="active";
     //ajax 请求部分
-    var url="/mobile/forum/request/"+obj.id+".php";
-
+//    var url="/mobile/forum/request/"+obj.id+".php";
+    var url = request_url_generate(obj.id);
+    alert(url);
     var myAjax = new Ajax.Request(url,
         {
             method: 'post'
@@ -77,9 +161,9 @@ function sec_category_auto(){
                     more_text.setAttribute("align", "center");
                     more_text.setAttribute("onclick", "getMoreArticle()");
                     if (getCookie_wap("end_flag") == "1")
-                        more_text.innerHTML = "End";
+                        more_text.innerHTML = "已加载全部内容";
                     else
-                        more_text.innerHTML = "More";
+                        more_text.innerHTML = "点击加载更多内容";
 
                     document.getElementById("pagebox").appendChild(more_text);
                 }
@@ -102,7 +186,8 @@ function getMoreArticle() {
     var page = parseInt(getCookie_wap("current_page"))+1;
     document.cookie = "current_page=" + page;
     var url="/mobile/forum/request/"+getCookie_wap("sec_category")+".php";
-    alert(url);
+    var more_text = document.getElementById("current_next_page");
+    more_text.innerHTML = "正在加载中...";
     var myAjax = new Ajax.Request(url,
         {
             method: 'post'
@@ -124,12 +209,11 @@ function getMoreArticle() {
                     tag.appendChild(pageNext);
                 }
 
-                var more_text = document.getElementById("current_next_page");
                 more_text.innerHTML = "";
                 if (end_flag == "1")
-                    more_text.innerHTML = "End";
+                    more_text.innerHTML = "已加载全部内容";
                 else {
-                    more_text.innerHTML = "More"
+                    more_text.innerHTML = "点击加载更多内容"
                 }
             }
 
@@ -153,7 +237,7 @@ function getCookie_wap(name){
     return "";
 }
 function check_phone(obj){
-    var url="request/check_phone.php"
+    var url="request/check_phone.php";
     var para="phone="+obj.value;
     var country=document.getElementById("reg_country_id");
     if(obj.value==""){

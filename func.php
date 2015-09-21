@@ -209,6 +209,136 @@ function wap_read_article($filepath, $attach_link, $img_ago_str, $img_after_str,
     $ret_str[1] = $content_str;
     return $ret_str;
 }
+
+function wap_read_article2($filepath, $attach_link, $img_ago_str, $img_after_str, $attach_linkstr, $articlType = 1, $opflag = 0,&$imgList)
+{
+    $imgType = "jpg|jpeg|png|gif|bmp";
+    define ("MAXATTACHMENTCOUNT", 20);
+    $UBB_Control = chr(27); //0x1b
+    $attach_start_pos = 0;
+
+    $content_array = "";
+    $content_attach = "";
+
+    if (is_file($filepath)) {
+        $content_tmp = file_get_contents($filepath);
+        if ($attach_link && $articlType != 2) {
+            $attach_start_pos = strpos($content_tmp, "\0\0\0\0\0\0\0\0");
+            $content_array = substr($content_tmp, 0, $attach_start_pos);
+            $content_attach = substr($content_tmp, $attach_start_pos);
+
+            $content_array = explode("\n", $content_array);
+        } else
+            $content_array = explode("\n", $content_tmp);
+    } else {
+    }
+    $lines = count($content_array);
+    $content_str = "";
+    $articlType  = 2;
+    if ($articlType == 1) {
+        $firsLine = 0;
+    } else if ($articlType == 2 || $articlType == 3) {
+        $firsLine = 4;
+    }
+    for ($j = $firsLine; $j < $lines; $j++) {
+//        print_r($content_array[$j]);
+        //结尾部分
+        if ($firsLine == 4 && substr($content_array[$j], 0, 2) == "--") {
+            //结尾部分
+            $tmp = $content_array[$j+1];
+            $tmp1 = $content_array[$j+2];
+            if(strpos($tmp, "来源") || strpos($tmp1, "来源")||strpos($tmp1, "修改") ||strpos($tmp, "修改")){
+                break;
+            }
+            if($articlType == 2){
+                break;
+            }
+        }
+
+        if ($firsLine == 4 && strpos($content_array[$j], "※ ")) {
+            break;
+        }
+
+        $tmplen = strlen($content_array[$j]);
+        $tmpstr = "";
+        $UBB_Control_Flag = 0;
+        for ($ii = 0; $ii < $tmplen; $ii++) {
+            if ($UBB_Control_Flag) {
+                if (($content_array[$j][$ii] >= 'a' && $content_array[$j][$ii] <= 'z') || ($content_array[$j][$ii] >= 'A' && $content_array[$j][$ii] <= 'Z'))
+                    $UBB_Control_Flag = 0;
+            } else {
+                if ($content_array[$j][$ii] == $UBB_Control)
+                    $UBB_Control_Flag = 1;
+                else {
+                    $tmpstr = $tmpstr . $content_array[$j][$ii];
+                }
+            }
+        }
+        if(strcmp(substr($tmpstr,0, 7), "http://") == 0){
+            if(preg_match("/(".$imgType.")$/",$tmpstr)){
+                $imgList[] = $tmpstr;
+            }
+        }
+        $content_array[$j] = $tmpstr;
+        if (($j > $firsLine && strlen($content_array[$j - 1]) == 76)
+            && (substr_compare($content_array[$j], '  ', 1, 2) == 0
+                || substr_compare($content_array[$j], "\t", 1, 1) == 0
+                || substr_compare($content_array[$j], '  ', 1, 2) == 0)
+        )
+        {
+            $content_str = $content_str . "\n";
+        }
+
+        if (strlen($content_array[$j]) == 76) {
+            $content_str = $content_str . $content_array[$j]. "\n";
+        } else {
+            $content_str = $content_str . $content_array[$j] . "\n";
+        }
+
+        continue;
+    }
+
+    if ($articlType != 2 && $attach_link) {
+        $attach_count = 0;
+        $search_start_pos = 0;
+
+        while (1) {
+            $currattach_start_pos = strpos($content_attach, "\0\0\0\0\0\0\0\0", $search_start_pos);
+            if ($currattach_start_pos === false)
+                break;
+
+            if ($attach_count >= MAXATTACHMENTCOUNT)
+                break;
+
+            $tmp_i = strpos($content_attach, "\0", $currattach_start_pos + 8);
+            if ($tmp_i === false)
+                break;
+            else {
+                $tmp_array = unpack('Nsize', substr($content_attach, $tmp_i + 1, 4));
+                $search_start_pos = $tmp_i + 4 + $tmp_array["size"];
+
+                $attach_filename = substr($content_attach, $currattach_start_pos + 8, $tmp_i - $currattach_start_pos - 8);
+                if ($attach_filename) {
+                    $attach_pos = $attach_start_pos + $currattach_start_pos + 8;
+
+                    if (is_pic_web($attach_filename)) //IMG
+                    {
+                        //$linkstr = $attach_linkstr. "_" . $attach_pos.getWebPicType($attach_filename);
+                        $linkstr = $attach_linkstr . "_" . $attach_pos . ".jpg";
+                        $imgList[] = $linkstr;
+                        $linkstr = "$attach_filename<br/><br/><img style=\"width:228px;height:auto;\" src=".$linkstr."></img>";
+//                        $content_str = $content_str . " <br/>$linkstr<br/>";
+                    }
+                    $attach_count++;
+                }
+            }
+        }
+    }
+
+    $ret_str[1] = $content_str;
+    return $ret_str;
+}
+
 function get_file_content($filename,$att_flag,$board_name,$article_id,$article_type,&$att_arr){
     if(false==$filename){
         $ret_str="未名提示:由于某些不明原因,该文章未能正确读取,请稍后再刷新重试!";
@@ -567,13 +697,163 @@ function getHotClubs($link) {
     return $ret;
 }
 
+function getHostClub($link, $page, $group_id) {
+    $china_flag = is_china();
+    /*
+    if($group_id != 'all'){
+        $this_group = get_group_byid($group_id, $link);
+        if (!$this_group)
+            return null;
+    }
+*/
+    $club_sql="select club_name,club_cname,club_description,modifytime,post_sum,member_sum,managerid,onlines,join_way,club_type,a.club_group_id,join_way,a.club_id,a.approval_state ";
+
+    if($group_id != 0)
+        $club_sql.=' from club a use index( index_score),users c where a.club_group_id='.$group_id.' and a.approval_state<=1 and a.managerid=c.numeral_user_id and a.flag&64<>64';
+    else
+        $club_sql.='from club a use index( index_score), club_group b,users c where a.club_group_id=b.club_group_id and a.approval_state<=1 and a.managerid=c.numeral_user_id and a.flag&64<>64';
+    if($china_flag==1)
+        $club_sql.=" and a.limit_flag=0 ";
+
+
+    $club_sql .= " order by a.currentScore desc limit 10";
+    $club_result = mysql_query($club_sql, $link);
+
+    $ret = array();
+    if ($club_result) {
+        while ($clubrow = mysql_fetch_array($club_result)) {
+//            $bm = getClubBM($clubrow["club_id"],$clubrow["managerid"],$link);
+            $clubimg = getClubImg($clubrow["club_name"]);
+            $href = url_generate(2, array("club"=>$clubrow["club_name"]));
+            $club = array("clubId" => $clubrow["club_id"],
+                "name" => $clubrow["club_name"],
+                "cnName" => $clubrow["club_cname"],
+                "href"=>$href,
+                "description" => $clubrow["club_description"],
+                "modifytime" => "".strtotime($clubrow["modifytime"]),
+                "postSum" => $clubrow["post_sum"],
+                "totalarticle" => $clubrow["post_sum"],
+                "memberSum" => $clubrow["member_sum"],
+                "joinWay" => $clubrow["join_way"],
+                "club_type" => $clubrow["club_type"],
+//                "managerUserId" => $bm,
+                "managerUserNumId" => $clubrow["managerid"],
+                "onlines" => $clubrow["onlines"],
+                "clubimg"=>$clubimg,
+                "club_approval_state"=>$clubrow["approval_state"]
+            );
+            /*
+            if ($group_id != 'all') {
+                $club["groupName"] = $this_group['group_name'];
+                $club["groupId"] = $group_id;
+            }else{
+                $club["groupName"] = getGroupName($clubrow['club_group_id'], $link);
+                $club["groupId"] = $clubrow["club_group_id"];
+            }*/
+            $ret[] = $club;
+        }
+    }
+
+    return $ret;
+}
+
+function getClubCnName($club_id, $link) {
+    $sql = 'select club_cname from club where club_id='.$club_id;
+    $result = mysql_query($sql,$link);
+    if($result&&$row = mysql_fetch_array($result)){
+        return $row["club_cname"];
+    }else{
+        return '';
+    }
+}
+
+function getArticleInfo($group_id,$club_id,$link){
+    $table_id = ($club_id % 256);
+    $arr = array();
+    if ($table_id == 0)
+        $table_id = 256;
+
+    $sql = " select article_id,filename,club_name,filename,groupid,owner,read_num,reply_num,posttime,title from club_dir_article_$table_id
+         WHERE club_id=$club_id  AND article_id=$group_id";
+    $result = mysql_query($sql,$link);
+    if($result && $row = mysql_fetch_array($result)){
+        $arr["groupID"] = $row["groupid"];
+        $arr["articleID"] = $row["article_id"];
+        $arr["title"] =  $row["title"];
+        $arr["author"] = $row["owner"];
+        $arr["BoardsCnName"] = getClubCnName($club_id,$link);
+        $arr["postTime"] = date('Y-m-d',strtotime($row["posttime"]));
+        $arr["BoardsEngName"] = $row["club_name"];
+        $arr["readnum"] = $row["read_num"];
+        $arr["reply_num"] = $row["reply_num"];
+        $arr["boardID"] = $club_id;
+        $arr["href"] = url_generate(3, array("club"=>$row["club_name"], "groupid"=>$row["groupid"]));
+        $filename = "/home/bbs/club/".strtoupper($arr["BoardsEngName"])."/".$arr["BoardsEngName"]."/".$row["filename"];
+        $attachlink_rewrite = "http://" . $_SERVER['HTTP_HOST'] . "/clubarticle2/" . $arr["BoardsEngName"] . "/" . $arr["articleID"];
+        $ret_str = wap_read_article2($filename,  $arr["attflag"], "", "", $attachlink_rewrite, 1, 1,$imgList);
+        if (!empty($imgList))
+            $arr["img"] = $imgList[0];
+
+        $arr["content"] = $ret_str[1];
+        $arr["content"] = mb_substr($arr["content"],0,140,"GBK").'...';
+    }
+    return $arr;
+}
+
+/* 获取俱乐部热门推荐文章 */
+function getRecommendClubArticle($link, $page, $group_id){
+    $return = array();
+    $hot_time = 30;//推荐文章有效天数
+    $pageSize = 30;
+    $pageLimit = ((int)$page-1)*$pageSize.",".(int)$page*($pageSize);
+    $dayTime = $hot_time*24*3600;
+    $startTime = strtotime(date('Y-m-d',time()))-$dayTime;
+    $endTime = $startTime+$dayTime+86400;
+    $startTimeDate=date("Y-m-d H:i:s", $startTime);
+    $endTimeDate=date("Y-m-d H:i:s", $endTime);
+
+
+    $sql ='SELECT a.article_id,a.club_id, a.groupid FROM club_dir_article_memory a,club b where
+    a.club_id=b.club_id and b.approval_state<=1 and b.flag&64<>64 and article_id=groupid and club_group_id='.$group_id.' and posttime between "'.$startTimeDate.'" and "'.$endTimeDate.'"  ORDER BY  a.posttime desc,reply_num desc limit '.$pageLimit;
+
+
+    $result = mysql_query($sql,$link);
+    $index = array();
+    if (mysql_num_rows($result) < $pageSize)
+        $end_flag = 1;
+    else
+        $end_flag = 0;
+
+    while ($row = mysql_fetch_array($result)) {
+        $table_id = $row["club_id"]%256;
+        $query = "select owner from club_dir_article_$table_id where article_id='".$row["article_id"]."'";
+        $ret = mysql_query($query,$link);
+        $owner = mysql_fetch_array($ret);
+        if($owner[0] == "deliver")
+            continue;
+        $index["{$row["club_id"]}"]++;
+        if($index["{$row["club_id"]}"]>5)
+            continue;
+        $one["club_id"] = $row["club_id"];
+        $one["groupid"] = $row["groupid"];
+        $articleInfo = getArticleInfo($one["groupid"], $one["club_id"], $link);
+        if ($articleInfo != NULL)
+            $return[] = $articleInfo;
+
+    }
+
+    return array($return, $end_flag);
+}
+
 $label_list = array(
     // 置顶文章 热门推荐 论坛集粹 分类讨论
     "index" => array("top", "hot", "classical", "classes"),
     // 大杂烩 军事 国际 体育 娱乐 科技 财经
     "news" => array("news_mix", "news_military", "news_international", "news_sport", "news_recreation", "news_science", "news_finance"),
     // 精选 情感 女性 体育 游戏 娱乐 音乐
-    "club" => array("club_handpick", "club_emotion", "club_woman", "club_game", "club_recreation", "club_music"),
+    "club" => array("club_handpick", "club_emotion", "club_woman", "club_sport", "club_game", "club_recreation", "club_music",
+                    "club_hobby", "club_life", "club_finance", "club_schoolfellow", "hisfellow", "club_politics", "club_science",
+                    "club_literature", "club_art", "club_other"),
     // 移民专栏 加盟律师 移民新闻 移民签证信息 讨论区
     "immigration" => array(),
     // 推荐 附近 搜索 排行
@@ -639,7 +919,14 @@ function url_generate($level, $data) {
      *          俱乐部：array("club"=>$club_name)
      *      3: 分组
      *          array("board"=>$board_name, "group"=>$group_id)
-     *      4: 保留
+     *          array("club"=>$clubname, "group"=>$group_id)
+     *      4: DIY 传入action和args，返回url
+     *          $data = {
+     *              "action"=>"one_test.php"
+     *              "args"=>{"type"=>"top", "groupid"=>"2"}
+     *          }
+     *          返回  one_test.php?type=top&groupid=2
+     *
      * */
     $url = "/404.html";
     // 注: type可以为空
@@ -656,13 +943,25 @@ function url_generate($level, $data) {
 
             break;
         case 3:
-            if(isset($data["groupid"])) {
+            if (isset($data["groupid"])) {
                 if (isset($data["board"]))
                     // 论坛内文章的跳转地址
                     $url = 'one_group.php?type='.$data["type"].'&board='.$data["board"].'&group='.$data["groupid"];
                 else if (isset($data["club"]))
                     // 俱乐部文章跳转地址
                     $url = 'one_group_club.php?type='.$data["type"].'&club='.$data["club"].'&group='.$data["groupid"];
+            }
+
+            break;
+        case 4:
+            if (isset($data["action"])) {
+                $url = $data["action"].'?';
+                foreach ($data["args"] as $key=>$value)
+                    $url = $url.$key.'='.$value.'&';
+
+                $len = strlen($url);
+                if ($url[$len-1] == "?" or $url[$len-1] == "&")
+                    $url = substr($url, 0 , $len-1);
             }
 
             break;
@@ -791,7 +1090,7 @@ function getNewsDataByType($link, $page, $newsTypeName) {
     $news_type = $type_to_sql_data[$newsTypeName]["news_type"];
 
     $num = 40;
-    $page = $page*$num;
+    $page = ($page-1)*$num;
     $is_china_flag = is_china();
     if ($is_china_flag == 1) {
         $str = "AND cn_read!='N' AND cn_read!='M' ";
@@ -868,7 +1167,7 @@ function getNewsDataByType($link, $page, $newsTypeName) {
 
         unset($notestmp);
         $aNew["filename"] = $row["filename"];
-        $arr=explode("。", iconv("GBK", "UTF-8//IGNORE", $notes));
+        $arr=explode("。",  $notes);
         $aNew["notes"] = str_replace("编者按：","",$arr[0]);
         $postdate = "".$row["UNIX_TIMESTAMP(posttime)"];
         $nowdate = strtotime(date('Y/m/d'));
