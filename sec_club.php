@@ -27,7 +27,7 @@
                 <dd><a href="" id="club_game" onclick="sec_category(this)">游戏</a></dd>
                 <dd><a href="" id="club_recreation" onclick="sec_category(this)">娱乐</a></dd>
                 <dd><a href="" id="club_music" onclick="sec_category(this)">音乐</a></dd>
-                <dd><a href="" id="club_bobby" onclick="sec_category(this)">爱好</a></dd>
+                <dd><a href="" id="club_hobby" onclick="sec_category(this)">爱好</a></dd>
                 <dd><a href="" id="club_life" onclick="sec_category(this)">生活</a></dd>
                 <dd><a href="" id="club_finance" onclick="sec_category(this)">财经</a></dd>
                 <dd><a href="" id="club_schoolfellow" onclick="sec_category(this)">校友</a></dd>
