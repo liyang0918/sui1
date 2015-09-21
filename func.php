@@ -373,11 +373,210 @@ function getBoardImg($board_name) {
     return "/boardimg/".$board_name."/boardimg";
 }
 
+/* 获取十大热门话题 */
+function getHotSubjects($link) {
+    $is_china_flag = is_china();
+    if($is_china_flag == 1)
+        $country = "cn";
+    else
+        $country = "us";
+
+    $ret = array();
+
+    $brdarr = array();
+    $xmlfile = BBS_HOME . "/xml/day_$country.xml";
+    $results = read_xmlfile_content_web($xmlfile, 3);
+
+    $count = 0;
+    foreach ($results as $each) {
+        if ($count >= 10)
+            break;
+
+        $data=array();
+        $hot_title = $each['title'];
+        $hot_author = $each['author'];
+        $hot_board = $each['board'];
+        $hot_groupid = $each['groupid'];
+
+
+        //版面ID boardID 组ID groupID 文章ID articleID 文章标题 title 作者 author BoardsEngName  BoardsName
+        $data["title"] = $hot_title;
+        $data["author"] = $hot_author;
+
+        $brdnum = bbs_getboard($hot_board, $brdarr);
+        if ($brdnum == 0)
+            continue;
+        $data["boardsname"] = $brdarr["DESC"];
+        $data["boardengname"] = $brdarr["NAME"];
+
+        $sql = "select total_reply,read_num from dir_article_".$brdarr["BOARD_ID"]." where article_id=".$hot_groupid.";";
+        $row = @mysql_fetch_array(mysql_query($sql, $link));
+        if ($row)
+            $data["popularity"] = $row["total_reply"].'/'.$row["read_num"];
+        else
+            $data["popularity"] = "0/0";
+
+        $data["href"] = url_generate(3, array("board" => $brdarr["NAME"], "groupid" => $hot_groupid));
+
+        $ret[] = $data;
+        $count++;
+    }
+
+    return $ret;
+}
+
+/* 获取十大推荐文章 */
+function getRecommendArticle($link) {
+    if(is_china() == 1)
+        $country="cn";
+    else
+        $country="us";
+
+    $brdarr = array();
+    $xmlfile = BBS_HOME . "/xml/commend_$country.xml";
+    $results = read_xmlfile_content_web($xmlfile, 3);
+
+    $ret=array();
+
+    $count = 0;
+    foreach ($results as $each) {
+        if ($count >= 10)
+            break;
+
+        $data=array();
+        $commend_title = $each['title'];
+        $commend_author = $each['author'];
+        $commend_board = $each['board'];
+        $commend_groupid = $each['groupid'];
+
+
+        //版面ID boardID 组ID groupID 文章ID articleID 文章标题 title 作者 author BoardsEngName  BoardsName
+        $data["title"] = $commend_title;
+        $data["author"] = $commend_author;
+
+        $brdnum = bbs_getboard($commend_board, $brdarr);
+
+        if ($brdnum == 0)
+            continue;
+        $data["boardsname"] = $brdarr["DESC"];
+        $data["boardengname"] = $brdarr["NAME"];
+
+        $sql = "select total_reply,read_num from dir_article_".$brdarr["BOARD_ID"]." where article_id=".$commend_groupid.";";
+        $row = @mysql_fetch_array(mysql_query($sql, $link));
+        if ($row)
+            $data["popularity"] = $row["total_reply"].'/'.$row["read_num"];
+        else
+            $data["popularity"] = "0/0";
+
+        $data["href"] = url_generate(3, array("board" => $brdarr["NAME"], "groupid" => $commend_groupid));
+
+        $ret[] = $data;
+        $count++;
+    }
+
+    return $ret;
+}
+
+/* 获取热门版面 */
+function getHotBoards($link) {
+    $ret=array();
+
+    $xmlfile = BBS_HOME . '/xml/hot_board.xml';
+    $results = read_xmlfile_content_web($xmlfile, 3);
+    foreach($results as $each) {
+        $oneboard=array();
+        $board_c = $each['board'];
+        $board_desc = $each['board_desc'];
+        $oneboard["BoardsName"] = iconv("GBK","UTF-8//IGNORE",urldecode($board_desc));
+        $oneboard["BoardsEngName"] = $board_c;
+        $brdarr = array();
+        bbs_getboard($board_c, $brdarr);
+
+//        var_dump($brdarr);
+//        echo "<br /><br />";
+        $t_element = array();
+        $t_element["href"] = url_generate(2, array("board"=>$board_c));
+
+        $t_element["img"] = getBoardImg($board_c);
+        $t_element["des"] = $board_c;
+        $t_element["name"] = $board_desc;
+        $t_element["online"] = $brdarr["CURRENTUSERS"];
+        /* 获取主题总数 */
+        $t_element["total"] = getBoardGroupNum($brdarr["BOARD_ID"], $link);
+        $ret[]=$t_element;
+    }
+    return $ret;
+}
+
+/* 获取热门俱乐部 */
+function getHotClubs($link) {
+    global $dir_modes;
+    $ret = array();
+    $denyclubfilename="/home/bbs/etc/denyclub";
+    $fp = @fopen($denyclubfilename, "r");
+    $notInArray = array();
+    if ($fp != false) {
+        while (!feof($fp)) {
+            $buffer = trim(fgets($fp, 300));
+            if(strlen($buffer) > 0) {
+                $notInArray[] = $buffer;
+            }
+        }
+        fclose($fp);
+    }
+
+    $notIn="";
+    if(count($notInArray) > 0) {
+        $notIn=" and club_name not in ( ";
+        $i=0;
+        foreach($notInArray as $item) {
+            if($i == 0)
+                $notIn = $notIn."'".$item."'";
+            else
+                $notIn = $notIn.",'".$item."'";
+
+            $i++;
+        }
+        $notIn = $notIn.")";
+    }
+
+    $club_sql = "select club_id,club_name,club_cname,club_description,onlines from club where approval_state=1 and club_type=1 {$notIn} ";
+    if (is_china() == 1)
+        $club_sql .= " and limit_flag=0 ";
+    $club_sql .= " order by currentScore desc limit 10";
+
+    $club_result = mysql_query($club_sql, $link);
+    while($row = mysql_fetch_array($club_result)) {
+        // 生成俱乐部对应的url
+        $club_url = url_generate(2, array("club" => $row["club_name"]));
+        // 俱乐部首页图片路径
+        $club_img = getClubImg($row["club_name"]);
+        // 俱乐部文章数
+        $club_article_num = bbs_countarticles($row['club_name'], $dir_modes["ORIGIN"], 1);
+        $ret[] = array(
+            'href' => $club_url,
+            'img' => $club_img,
+            'name' => $row["club_cname"], //iconv("GBK", "UTF-8//IGNORE", urldecode($board_desc)),
+            'des' => $row["club_description"],
+            'online' => $row['onlines'],
+            'article_num' => $club_article_num
+        );
+    }
+    mysql_free_result($club_result);
+
+    return $ret;
+}
+
 $label_list = array(
+    // 置顶文章 热门推荐 论坛集粹 分类讨论
     "index" => array("top", "hot", "classical", "classes"),
-    "news" => array("mix", "military", "international", "sport", "recreation", "science", "finance"),
-    "club" => array(),
+    // 大杂烩 军事 国际 体育 娱乐 科技 财经
+    "news" => array("news_mix", "news_military", "news_international", "news_sport", "news_recreation", "news_science", "news_finance"),
+    // 精选 情感 女性 体育 游戏 娱乐 音乐
+    "club" => array("club_handpick", "club_emotion", "club_woman", "club_game", "club_recreation", "club_music"),
+    // 移民专栏 加盟律师 移民新闻 移民签证信息 讨论区
     "immigration" => array(),
+    // 推荐 附近 搜索 排行
     "dianping" => array()
 );
 

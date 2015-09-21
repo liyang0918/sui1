@@ -1,12 +1,20 @@
 var needPageList = new Array(
     "top",
-    "mix",
-    "military",
-    "international",
-    "sport",
-    "recreation",
-    "science",
-    "finance");
+    "news_mix",
+    "news_military",
+    "news_international",
+    "news_sport",
+    "news_recreation",
+    "news_science",
+    "news_finance",
+    "club_handpick",
+    "club_emotion",
+    "club_woman",
+    "club_sport",
+    "club_game",
+    "club_recreation",
+    "club_music"
+);
 
 function need_page(id) {
     for (var cur in needPageList) {
