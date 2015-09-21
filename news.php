@@ -6,12 +6,12 @@ if(empty($_COOKIE["app_type"]))
 if(empty($_COOKIE["app_show"]))
     setcookie("app_show", iconv("GBK","UTF-8//IGNORE","新闻"));
 if(empty($_COOKIE["sec_category"]))
-    setcookie("sec_category", "mix");
+    setcookie("sec_category", "news_mix");
 
 if(!is_own_label($_COOKIE["sec_category"], "news")) {
     setcookie("app_type", "news");
     setcookie("app_show", iconv("GBK", "UTF-8//IGNORE", "新闻"));
-    setcookie("sec_category", "mix");
+    setcookie("sec_category", "news_mix");
 }
 
 include_once("head.php");
