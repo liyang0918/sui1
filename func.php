@@ -860,6 +860,26 @@ $label_list = array(
     "dianping" => array()
 );
 
+$club_class_list = array(
+    "handpick" => array("id"=>"0", "name"=>"精选"),
+    "emotion" => array("id"=>"1", "name"=>"情感类"),
+    "woman" => array("id"=>"2", "name"=>"女性类"),
+    "sport" => array("id"=>"3", "name"=>"体育类"),
+    "game" => array("id"=>"4", "name"=>"游戏类"),
+    "recreation" => array("id"=>"5", "name"=>"娱乐类"),
+    "music" => array("id"=>"6", "name"=>"音乐类"),
+    "hobby" => array("id"=>"7", "name"=>"爱好类"),
+    "life" => array("id"=>"8", "name"=>"生活类"),
+    "finance" => array("id"=>"9", "name"=>"财经类"),
+    "schoolfellow" => array("id"=>"10", "name"=>"校友类"),
+    "hisfellow" => array("id"=>"11", "name"=>"同乡类"),
+    "politics" => array("id"=>"12", "name"=>"时政类"),
+    "science" => array("id"=>"13", "name"=>"科技类"),
+    "literature" => array("id"=>"14", "name"=>"文学类"),
+    "art" => array("id"=>"15", "name"=>"艺术类"),
+    "other" => array("id"=>"100", "name"=>"其他"),
+);
+
 function is_own_label($label, $own="index") {
     global $label_list;
     if(!array_key_exists($own, $label_list))
@@ -934,7 +954,11 @@ function url_generate($level, $data) {
         case 1:
             if (isset($data["class"]))
                 $url = 'one_class.php?type='.$data["type"].'&class='.$data["class"];
-                break;
+            else if(isset($data["club_class"]))
+                $url = 'one_class_club.php?type='.$data["type"].'&club_class='.$data["club_class"];
+
+            break;
+
         case 2:
             if (isset($data["board"]))
                 $url = 'one_board.php?type='.$data["type"].'&board='.$data["board"];

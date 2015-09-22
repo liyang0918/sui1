@@ -84,7 +84,6 @@ function sec_category_auto(){
     var obj=document.getElementById(current_active);
     //obj.className="active";
     //ajax «Î«Û≤ø∑÷
-//    var url="/mobile/forum/request/"+obj.id+".php";
     var url = request_url_generate(obj.id);
     var myAjax = new Ajax.Request(url,
         {
