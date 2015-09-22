@@ -5,7 +5,7 @@ include_once("head.php");
 $link = db_connect_web();
 //data part
 $class = $_GET["class"];
-$page=intval($_GET["page"]);
+$page = intval($_GET["page"]);
 if(empty($page)){
     $page=1;
 }

@@ -2,29 +2,9 @@
 require_once(dirname(__FILE__)."/../../../mitbbs_funcs.php");
 include_once(dirname(__FILE__)."/../func.php");
 
-$club_id_list = array(
-    "handpick" => "0",
-    "emotion" => "1",
-    "woman" => "2",
-    "sport" => "3",
-    "game" => "4",
-    "recreation" => "5",
-    "music" => "6",
-    "hobby" => "7",
-    "life" => "8",
-    "finance" => "9",
-    "schoolfellow" => "10",
-    "hisfellow" => "11",
-    "politics" => "12",
-    "science" => "13",
-    "literature" => "14",
-    "art" => "15",
-    "other" => "100"
-);
-
 $link = db_connect_web();
 $type = substr($_GET["type"], 5);
-$groupid = $club_id_list[$type];
+$groupid = $club_class_list[$type]["id"];
 $page = $_COOKIE["current_page"];
 if (empty($page))
     $page = 1;
