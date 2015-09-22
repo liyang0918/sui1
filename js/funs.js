@@ -1,31 +1,3 @@
-var needPageList = new Array(
-    "top",
-    "news_mix",
-    "news_military",
-    "news_international",
-    "news_sport",
-    "news_recreation",
-    "news_science",
-    "news_finance",
-    "club_handpick",
-    "club_emotion",
-    "club_woman",
-    "club_sport",
-    "club_game",
-    "club_recreation",
-    "club_music",
-    "club_hobby",
-    "club_life",
-    "club_finance",
-    "club_schoolfellow",
-    "club_hisfellow",
-    "club_politics",
-    "club_science",
-    "club_literature",
-    "club_art",
-    "club_other"
-);
-
 // 所有的2级标签 ： 1表示需要分页
 var label_list = {
     "index":{
@@ -35,32 +7,32 @@ var label_list = {
         "classes":"0"
     },
     "news":{
-        "mix":"1",
-        "military":"1",
-        "international":"1",
-        "sport":"1",
-        "recreation":"1",
-        "science":"1",
-        "finance":"1"
+        "news_mix":"1",
+        "news_military":"1",
+        "news_international":"1",
+        "news_sport":"1",
+        "news_recreation":"1",
+        "news_science":"1",
+        "news_finance":"1"
     },
     "club":{
-        "handpick":"1",
-        "emotion":"1",
-        "woman":"1",
-        "sport":"1",
-        "game":"1",
-        "recreation":"1",
-        "music":"1",
-        "hobby":"1",
-        "life":"1",
-        "finance":"1",
-        "schoolfellow":"1",
-        "hisfellow":"1",
-        "politics":"1",
-        "science":"1",
-        "literature":"1",
-        "art":"1",
-        "other":"1"
+        "club_handpick":"1",
+        "club_emotion":"1",
+        "club_woman":"1",
+        "club_sport":"1",
+        "club_game":"1",
+        "club_recreation":"1",
+        "club_music":"1",
+        "club_hobby":"1",
+        "club_life":"1",
+        "club_finance":"1",
+        "club_schoolfellow":"1",
+        "club_hisfellow":"1",
+        "club_politics":"1",
+        "club_science":"1",
+        "club_literature":"1",
+        "club_art":"1",
+        "club_other":"1"
     }
 };
 
@@ -68,44 +40,31 @@ function get_info_by_id(id) {
     var app_type = getCookie_wap("app_type");
     var domain = label_list[app_type];
 
-    var info = [];/*
+    var info = [];
     if (domain) {
-        alert(domain[id]);
-        if (id in domain) {
-            alert("sss");
+        if (domain[id]) {
             info["domain"] = app_type;
             info["needpage"] = domain[id]
         }
     }
-*/
-    var obj;
-    for (obj in domain) {
-        alert(obj);
-            if (obj+"" == id) {
-                info["needpage"] = domian[obj];
-                info["domain"] = app_type;
-            }
-    }
-
     return info;
 }
 
 function request_url_generate(id) {
     var info = get_info_by_id(id);
     var url = "/404.php";
-    if (info.length)
-        url = "/mobile/forum/request/" + info["domain"] +".php?type=" + "id";
+    if (info["domain"] != undefined)
+        if (info["domain"] == "index")
+            url = "/mobile/forum/request/" + id + ".php";
+        else
+            url = "/mobile/forum/request/" + info["domain"] + ".php?type=" + id;
 
     return url;
 }
 
 function need_page(id) {
-    for (var cur in needPageList) {
-        if (id == needPageList[cur])
-            return true;
-    }
-
-    return false;
+    var info = get_info_by_id(id);
+    return (info["needpage"] == "1");
 }
 
 function sec_category(obj){
@@ -127,7 +86,6 @@ function sec_category_auto(){
     //ajax 请求部分
 //    var url="/mobile/forum/request/"+obj.id+".php";
     var url = request_url_generate(obj.id);
-    alert(url);
     var myAjax = new Ajax.Request(url,
         {
             method: 'post'
@@ -185,7 +143,7 @@ function getMoreArticle() {
         return;
     var page = parseInt(getCookie_wap("current_page"))+1;
     document.cookie = "current_page=" + page;
-    var url="/mobile/forum/request/"+getCookie_wap("sec_category")+".php";
+    var url = request_url_generate(getCookie_wap("sec_category"));
     var more_text = document.getElementById("current_next_page");
     more_text.innerHTML = "正在加载中...";
     var myAjax = new Ajax.Request(url,

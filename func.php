@@ -852,7 +852,7 @@ $label_list = array(
     "news" => array("news_mix", "news_military", "news_international", "news_sport", "news_recreation", "news_science", "news_finance"),
     // 精选 情感 女性 体育 游戏 娱乐 音乐
     "club" => array("club_handpick", "club_emotion", "club_woman", "club_sport", "club_game", "club_recreation", "club_music",
-                    "club_hobby", "club_life", "club_finance", "club_schoolfellow", "hisfellow", "club_politics", "club_science",
+                    "club_hobby", "club_life", "club_finance", "club_schoolfellow", "club_hisfellow", "club_politics", "club_science",
                     "club_literature", "club_art", "club_other"),
     // 移民专栏 加盟律师 移民新闻 移民签证信息 讨论区
     "immigration" => array(),
@@ -1084,6 +1084,135 @@ $type_to_sql_data = array(
     "finance"=>array("boardID"=>"347", "news_type"=>"[CJPT]")
 );
 
+function getHeadLineNews($link, $page) {
+    $pagenum = 40;
+    $from = ($page-1)*$pagenum;
+    $is_china_flag = is_china();
+    if ($is_china_flag == 1)
+        $station_id = 2;
+    else
+        $station_id = 1;
+    $sql="SELECT board_id, article_id FROM fenlei_zhandian_xinxi
+        WHERE station_id=$station_id AND data_type=4 AND del_flag=0 ORDER BY modify_time DESC LIMIT $from, $pagenum";
+    $result = mysql_query($sql, $link);
+    if(mysql_num_rows($result) < 40)
+        $end_flag = 1;
+    else
+        $end_flag = 0;
+
+    $ret = array();
+    while($row = mysql_fetch_array($result)) {
+        $aNew["boardID"] = $row["board_id"];
+        $aNew["articleID"] = $row["article_id"];
+        $aNew["groupID"] = "";
+        $aNew["href"] = "";
+        $aNew["author"] = "";
+        $aNew["title"] = "";
+        $aNew["BoardsName"] = "";
+        $aNew["notes"] = "";
+        $aNew["BoardsEngName"] = "";
+        $aNew["postTime"]="";
+        $aNew["imgList"] = array();
+        $aNew["imgNum"]="";
+        $aNew["source"] = "未名空间";
+        $aNew["read_num"] = "0";
+        $aNew["total_reply"] = "0";
+        $sql1="select boardname,title,groupid,owner,filename,
+       total_reply,read_num,UNIX_TIMESTAMP(posttime),source from dir_article_{$row['board_id']} where article_id={$row['article_id']}";
+        $result1 = mysql_query($sql1, $link);
+        while ($row1=mysql_fetch_array($result1)) {
+            $aNew["groupID"] = $row1["groupid"];
+            $aNew["title"] = $row1["title"];
+            if($aNew["title"] == null){
+                $aNew["title"] = "";
+            }
+            $aNew["author"] = $row1["owner"];
+            $aNew["BoardsEngName"] = $row1["boardname"];
+            $aNew["total_reply"] = getNewsReply($link, $row["board_id"], $row1["groupid"]);
+            $aNew["read_num"] = $row1["read_num"];
+            $aNew["postTime"] = $row1["posttime"];
+            $aNew["href"] = url_generate(3, array("board"=>$row1["boardname"], "groupid"=>$aNew["groupID"]));
+            $filepath = BBS_HOME."/boards/".$aNew["BoardsEngName"]."/".$row1["filename"];
+            $filehandle = fopen($filepath, "r");
+
+            if($filehandle){
+                for($i = 0; $i < 4; $i++)
+                    fgets($filehandle);
+                while ($notes = fgets($filehandle)) {
+                    if (!strncmp($notes, "--", 2)) {
+                        $notes = "1";//end
+                        break;
+                    } else if (!strncmp($notes, "http://", 7) or $notes == "\n") {
+                        continue;
+                    }else if(strpos(iconv("GBK", "UTF-8//IGNORE", $notes), "编者按") !== false){
+                        if(strlen($notes) >= 30){
+                            break;//ok,it is
+                        }else{
+                            while($notes1 = fgets($filehandle)){
+                                if(strlen($notes.$notes1) >= 30){
+                                    $notes .= $notes1;
+                                    break;
+                                }else if(!strncmp($notes1, "--", 2) or !strncmp($notes1, "http://", 7)){
+                                    break;
+                                }else{
+                                    $notes .= $notes1;
+                                }
+                            }
+                            break;
+                        }
+                    } else {
+                        if(!isset($notestmp)){
+                            $notestmp = $notes;
+                        }
+                    }
+                }
+            } else
+                $notes="0";
+
+            if($notes==1)
+                $notes=$notestmp;
+            else
+                $notes="";
+
+            unset($notestmp);
+            $arr=explode("。",  $notes);
+            $aNew["notes"] = str_replace("编者按：","", $arr[0]);
+            $postdate = "".$row1["UNIX_TIMESTAMP(posttime)"];
+            $nowdate = strtotime(date('Y/m/d'));
+
+            $aNew["postTime"] = $postdate;
+            if($row1["source"] != null)
+                $aNew["source"] = $row1["source"];
+            else
+                $aNew["source"] = "未名空间";
+        }
+        $sql1="select  board_desc from board where board_id={$row['board_id']}";
+        $result1 = mysql_query($sql1, $link);
+        while($row1=mysql_fetch_array($result1)){
+            $aNew["BoardsName"] = $row1["board_desc"];
+            $aNew["BoardsName"] = trim(substr($aNew["BoardsName"],strpos($aNew["BoardsName"],']')+1));
+        }
+        $sql = "SELECT new_url FROM article_image_list WHERE article_id={$aNew["articleID"]} and board_id={$aNew["boardID"]}";
+        $num1 = "0";
+        $result1 = mysql_query($sql, $link);
+        $aNew["imgList"] = array();
+        while($row1 = mysql_fetch_array($result1)) {
+            $num1 ++;
+            $img = BBS_HOME.'/pic_home/boards/'.$aNew["BoardsEngName"]."/".$row1["new_url"];
+            if(is_file($img)){
+                $pic_list ="http://". $_SERVER["SERVER_NAME"]."/boardimg/" . $aNew["BoardsEngName"]. "/".$row1["new_url"];
+            }else{
+                $pic_list = "";
+            }
+            $aNew["imgList"][] = $pic_list;
+        }
+        $aNew["imgNum"] = $num1;
+        $ret[] = $aNew;
+    }
+
+    return array($ret, $end_flag);
+}
+
 function getNewsDataByType($link, $page, $newsTypeName) {
     global $type_to_sql_data;
     $boardid = $type_to_sql_data[$newsTypeName]["boardID"];
@@ -1217,6 +1346,13 @@ function getNewsReply($link, $board_id, $group_id){
     $row = mysql_fetch_array($result);
     mysql_free_result($result);
     return $row["count_num"];
+}
+
+function getNews($link, $page, $type) {
+    if ($type == "mix")
+        return getHeadLineNews($link, $page);
+    else
+        return getNewsDataByType($link, $page, $type);
 }
 
 ?>
