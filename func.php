@@ -855,7 +855,7 @@ $label_list = array(
                     "club_hobby", "club_life", "club_finance", "club_schoolfellow", "club_hisfellow", "club_politics", "club_science",
                     "club_literature", "club_art", "club_other"),
     // 移民专栏 加盟律师 移民新闻 移民签证信息 讨论区
-    "immigration" => array(),
+    "immigration" => array("i_column", "i_lawyer", "i_news", "i_visa", "i_forum"),
     // 推荐 附近 搜索 排行
     "dianping" => array()
 );

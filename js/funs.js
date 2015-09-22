@@ -33,6 +33,13 @@ var label_list = {
         "club_literature":"1",
         "club_art":"1",
         "club_other":"1"
+    },
+    "immigration":{
+        "i_column":"1",
+        "i_lawyer":"1",
+        "i_news":"1",
+        "i_visa":"1",
+        "i_forum":"0"
     }
 };
 
@@ -54,11 +61,10 @@ function request_url_generate(id) {
     var info = get_info_by_id(id);
     var url = "/404.php";
     if (info["domain"] != undefined)
-        if (info["domain"] == "index")
+        if ((info["domain"] == "index") || (info["domain"] == "immigration"))
             url = "/mobile/forum/request/" + id + ".php";
         else
             url = "/mobile/forum/request/" + info["domain"] + ".php?type=" + id;
-
     return url;
 }
 

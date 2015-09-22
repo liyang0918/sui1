@@ -4,6 +4,8 @@ require_once("func.php");
 
 if(!empty($_COOKIE["app_show"]))
     $page_title= iconv("UTF-8","GBK",$_COOKIE["app_show"]);
+else
+    $page_title = iconv("UTF-8", "GBK", "ÂÛÌ³");
 ?>
 <html lang="zh">
     <head>
@@ -43,5 +45,5 @@ if(!empty($_COOKIE["app_show"]))
         <script type="text/javascript" src="js/jquery.nivo.slider.js" charset="utf-8"></script>
         <script type="text/javascript" src="js/js.js"></script>
         <script type="text/javascript" src="js/slide.js"></script>
-        <script src="js/funs.js" type="text/javascript"></script>
-        <script src="../../js/prototype.js" type="text/javascript"></script>
+        <script type="text/javascript" src="js/funs.js"></script>
+        <script type="text/javascript" src="../../js/prototype.js"></script>
