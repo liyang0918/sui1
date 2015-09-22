@@ -35,7 +35,7 @@ var label_list = {
         "club_other":"1"
     },
     "immigration":{
-        "i_column":"1",
+        "i_column":"0",
         "i_lawyer":"1",
         "i_news":"1",
         "i_visa":"1",
