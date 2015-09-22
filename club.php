@@ -4,7 +4,7 @@ include_once("func.php");
 if(empty($_COOKIE["app_type"]))
     setcookie("app_type", "club");
 if(empty($_COOKIE["app_show"]))
-    setcookie("app_show", iconv("GBK","UTF-8//IGNORE","俱乐部"));
+    $_COOKIE["app_show"] = iconv("GBK", "UTF-8//IGNORE", "俱乐部");
 if(empty($_COOKIE["sec_category"]))
     setcookie("sec_category", "club_handpick");
 
@@ -12,6 +12,8 @@ if(!is_own_label($_COOKIE["sec_category"], "club")) {
     setcookie("app_type", "club");
     setcookie("app_show", iconv("GBK", "UTF-8//IGNORE", "俱乐部"));
     setcookie("sec_category", "club_handpick");
+    // 切换栏目需要重新加载
+    echo '<script language="javascript">location.href=location.href</script>';
 }
 
 include_once("head.php");
