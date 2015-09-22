@@ -12,6 +12,8 @@ if(!is_own_label($_COOKIE["sec_category"], "news")) {
     setcookie("app_type", "news");
     setcookie("app_show", iconv("GBK", "UTF-8//IGNORE", "新闻"));
     setcookie("sec_category", "news_mix");
+    // 切换栏目需要重新加载
+    echo '<script language="javascript">location.href=location.href</script>';
 }
 
 include_once("head.php");
