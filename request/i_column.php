@@ -99,6 +99,33 @@ function getMainPageLawyers($lawyer_list) {
     return $ret;
 }
 
+function getSpecialColumnArticle($link) {
+    $xmlfile = BBS_HOME.'/xml/lawyer_1.xml';
+    $result = read_xmlfile_content_web($xmlfile, 3);
+    $ret = array();
+    $i = 0;
+    foreach ($result as $i=>$each) {
+        if ($i == 20)
+            break;
+
+        $title = urldecode($each["title"]);
+        $postTime = str_replace("/", "-", $each["date"]);
+        $href = url_generate(4, array(
+                "action"=>"/mobile/forum/i_group.php",
+                "args"=>array("board"=>$each["board"], "groupid"=>$each["groupid"])
+            ));
+        $boardname = $each["board"];
+        $ret[] = array(
+            "title" => $title,
+            "postTime" => $postTime,
+            "href" => $href,
+            "boardname" => $boardname
+        );
+    }
+
+    return $ret;
+}
+
 // carouselfigure start
 $str_img = '<div class="carouselfigure">';
 $str_img .= '<div class="club_list_wrap"><div class="club_div">';
@@ -134,7 +161,8 @@ $str_img .= '</div></div></div>';
 
 // carouselfigure end
 
-list($article_list, $end_flag) = getRecommendClubArticle($link, $page, $groupid);
+// detail start
+$article_list = getSpecialColumnArticle($link);
 if (count($article_list) == 0) {
     $article_list[0] = array(
         "href" => "one_group_club.php?type=index&club=Prepaid&group=138",
@@ -150,7 +178,7 @@ if (count($article_list) == 0) {
     $article_list[1] = array(
         "href" => "one_group_club.php?type=index&club=Prepaid&group=183",
         "BoardsCnName" => "测试用例: 邹正89分钟绝杀进球，广州恒大客场2-1逆转广州富力",
-        "content" => "2015年9月21日19:35广州富力坐镇越秀山体育场迎战来访的广州恒大，恒大在先丢一球情况下最终由高拉特、邹正的进球逆转取胜，富力方面...",
+        "content" => "2015年9月21日19:35中超第26轮最后一场比赛,广州富力坐镇越秀山体育场迎战来访的广州恒大，恒大在先丢一球情况下最终由高拉特、邹正的进球逆转取胜，富力方面...",
         "img" => "/mobile/forum/img/club_simg.png",
         "read_num" => "10086",
         "reply_num" => "10010",
@@ -159,28 +187,17 @@ if (count($article_list) == 0) {
     );
 }
 
-setcookie("end_flag", (string)$end_flag, 0, "/");
-$str_article = '<ul class="club_cont">';
+$str_article = '<ul class="hot_recommend">';
 $each = array();
 foreach ($article_list as $each) {
-    $str_article .= '<li>';
-    $str_article .= '<a href="'.$each["href"].'">';
-    $str_article .= '<h3 class="club_cont_top">'.$each["BoardsCnName"].'</h3>';
-    $str_article .= '<div class="club_cont_middle">';
-    $str_article .= '<p>'.$each["content"].'</p>';
-    if (isset($each["img"]))
-        $str_article .= '<div><img src="'.$each["img"].'" alt="club_img"/ ></div>';
-    $str_article .= '</div>';
-
-    $str_article .= '<div class="club_cont_bottom">';
-    $str_article .= '<p class="cont_b_l">';
-    $str_article .= '<span class="margin_r"><img src="img/redeye.png" alt="redeye.png" />'.$each["read_num"].'</span>';
-    $str_article .= '<span class="club_l"><img class="club_email" src="img/redemail.png" alt="redemail.png" />'.$each["reply_num"].'</span>';
-    $str_article .= '</p>';
-    $str_article .= '<p class="cont_b_r">';
-    $str_article .= '<span class="margin_r">'.$each["author"].'</span>';
-    $str_article .= '<span class="club_r">'.$each["postTime"].'</span>';
-    $str_article .= '</p></div></a></li>';
+    $str_article .= '<li class="hot_li hot_list_wrap im_conter_box">';
+    $str_article .= '<div class="content_list nopic padding10 ">';
+    $str_article .= '<h4><a href="'.$each["href"].'">'.$each["title"].'</a></h4>';
+    $str_article .= '<p class="commen_p padding-bottom border_bottom">';
+    $str_article .= '<span class="commen_margin im_l">'.$each["boardname"].'</span>';
+    $str_article .= '<span class="commen_right ">'.$each["postTime"].'</span>';
+    $str_article .= '</p></div></li>';
+    $str_article .= '<hr />';
 }
 $str_article .= '</ul>';
 
