@@ -60,7 +60,7 @@ $ret = getBoardArticles();
 
     <div class="ds_box border_bottom">
         <a href="forum_boardlist.html"><img src="img/btn_left.png" alt="bth_left.png"/></a>
-        论坛版面列表
+        <?php echo $brdarr["DESC"]; ?>
         <a href="replyNew_send.html" class="span_r" >发文</a>
     </div>
     <div class="theme_wrap">
