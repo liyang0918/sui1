@@ -39,7 +39,7 @@ var label_list = {
         "i_lawyer":"1",
         "i_news":"1",
         "i_visa":"1",
-        "i_forum":"0"
+        "i_discussion":"0"
     }
 };
 

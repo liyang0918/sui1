@@ -4,6 +4,306 @@ $php_page_arr=array(
     ,"b"=>"2"
     ,"c"=>"3"
 );
+
+$codeDecs=array(
+    "Α",
+    "Δ",
+    "Η",
+    "Κ",
+    "Ν",
+    "Π",
+    "Τ",
+    "Χ",
+    "α",
+    "δ",
+    "η",
+    "κ",
+    "ν",
+    "π",
+    "σ",
+    "φ",
+    "ω",
+    "?",
+    "′",
+    "?",
+    "?",
+    "←",
+    "↓",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "∝",
+    "∧",
+    "∪",
+    "?",
+    "≠",
+    "≥",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "¨",
+    "?",
+    "?",
+    "±",
+    "?",
+    "<",
+    "Γ",
+    "Ζ",
+    "Ι",
+    "Μ",
+    "Ο",
+    "Σ",
+    "Φ",
+    "Ω",
+    "γ",
+    "ζ",
+    "ι",
+    "μ",
+    "ο",
+    "?",
+    "υ",
+    "ψ",
+    "?",
+    "…",
+    "?",
+    "?",
+    "?",
+    "→",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "∑",
+    "√",
+    "∠",
+    "∩",
+    "∴",
+    "≈",
+    "≤",
+    "?",
+    "?",
+    "⊥",
+    "?",
+    "?",
+    "?",
+    "?",
+    "¤",
+    "§",
+    "?",
+    "",
+    "°",
+    "?",
+    '"',
+    "'",
+    "Β",
+    "Ε",
+    "Θ",
+    "Λ",
+    "Ξ",
+    "Ρ",
+    "Υ",
+    "Ψ",
+    "β",
+    "ε",
+    "θ",
+    "λ",
+    "ξ",
+    "ρ",
+    "τ",
+    "χ",
+    "?",
+    "?",
+    "″",
+    "?",
+    "?",
+    "↑",
+    "?",
+    "?",
+    "?",
+    "?",
+    "∈",
+    "∏",
+    "?",
+    "∞",
+    "∨",
+    "∫",
+    "?",
+    "≡",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    ">");
+
+$codeEnts=array(
+    "&Alpha;",
+    "&Delta;",
+    "&Eta;",
+    "&Kappa;",
+    "&Nu;",
+    "&Pi;",
+    "&Tau;",
+    "&Chi;",
+    "&alpha;",
+    "&delta;",
+    "&eta;",
+    "&kappa;",
+    "&nu;",
+    "&pi;",
+    "&sigma;",
+    "&phi;",
+    "&omega;",
+    "&piv;",
+    "&prime;",
+    "&frasl;",
+    "&real;",
+    "&larr;",
+    "&darr;",
+    "&lArr;",
+    "&dArr;",
+    "&part;",
+    "&nabla;",
+    "&ni;",
+    "&minus;",
+    "&prop;",
+    "&and;",
+    "&cup;",
+    "&sim;",
+    "&ne;",
+    "&ge;",
+    "&nsub;",
+    "&oplus;",
+    "&sdot;",
+    "&lfloor;",
+    "&spades;",
+    "&diams;",
+    "&cent;",
+    "&yen;",
+    "&uml;",
+    "&laquo;",
+    "&reg;",
+    "&plusmn;",
+    "&acute;",
+    "&lt;",
+    "&Gamma;",
+    "&Zeta;",
+    "&Iota;",
+    "&Mu;",
+    "&Omicron;",
+    "&Sigma;",
+    "&Phi;",
+    "&Omega;",
+    "&gamma;",
+    "&zeta;",
+    "&iota;",
+    "&mu;",
+    "&omicron;",
+    "&sigmaf;",
+    "&upsilon;",
+    "&psi;",
+    "&upsih;",
+    "&hellip;",
+    "&oline;",
+    "&image;",
+    "&alefsym;",
+    "&rarr;",
+    "&crarr;",
+    "&rArr;",
+    "&forall;",
+    "&empty;",
+    "&notin;",
+    "&sum;",
+    "&radic;",
+    "&ang;",
+    "&cap;",
+    "&there4;",
+    "&asymp;",
+    "&le;",
+    "&sup;",
+    "&supe;",
+    "&perp;",
+    "&rceil;",
+    "&loz;",
+    "&hearts;",
+    "&iexcl;",
+    "&curren;",
+    "&sect;",
+    "&ordf;",
+    "&shy;",
+    "&deg;",
+    "&sup3;",
+    "&quot;",
+    "?",
+    "&Beta;",
+    "&Epsilon;",
+    "&Theta;",
+    "&Lambda;",
+    "&Xi;",
+    "&Rho;",
+    "&Upsilon;",
+    "&Psi;",
+    "&beta;",
+    "&epsilon;",
+    "&theta;",
+    "&lambda;",
+    "&xi;",
+    "&rho;",
+    "&tau;",
+    "&chi;",
+    "&thetasym;",
+    "&bull;",
+    "&Prime;",
+    "&weierp;",
+    "&trade;",
+    "&uarr;",
+    "&harr;",
+    "&uArr;",
+    "&hArr;",
+    "&exist;",
+    "&isin;",
+    "&prod;",
+    "&lowast;",
+    "&infin;",
+    "&or;",
+    "&int;",
+    "&cong;",
+    "&equiv;",
+    "&sub;",
+    "&sube;",
+    "&otimes;",
+    "&lceil;",
+    "&rfloor;",
+    "&clubs;",
+    "&nbsp;",
+    "&pound;",
+    "&brvbar;",
+    "&copy;",
+    "&not;",
+    "&macr;",
+    "&sup2;",
+    "&micro;",
+    "&gt;");
+
+
 function get_row_count($board_id,$article_id,$conn){
     $sql = "SELECT COUNT(*) FROM dir_article_" . $board_id.
         " WHERE groupid=".$article_id;
@@ -386,7 +686,7 @@ $pre_url = $_SERVER['REQUEST_URI'];
 
 ?>
 <div align="center">
-    <table width="778" border="0" cellspacing="0" cellpadding="0">
+    <table width="240" border="0" cellspacing="0" cellpadding="0">
         <tr>
             <td align="center" valign="middle" class="logo-bg">
                 <div align="center">
@@ -855,7 +1155,7 @@ $label_list = array(
                     "club_hobby", "club_life", "club_finance", "club_schoolfellow", "club_hisfellow", "club_politics", "club_science",
                     "club_literature", "club_art", "club_other"),
     // 移民专栏 加盟律师 移民新闻 移民签证信息 讨论区
-    "immigration" => array("i_column", "i_lawyer", "i_news", "i_visa", "i_forum"),
+    "immigration" => array("i_column", "i_lawyer", "i_news", "i_visa", "i_discussion"),
     // 推荐 附近 搜索 排行
     "dianping" => array()
 );
@@ -1080,6 +1380,118 @@ function page_partition($total_row, $page, $per_page=10, $show_page=1) {
 
 }
 
+$lawyer_list = array(
+    "0" => array(
+        "name"=>"谢正权",
+        "link"=>"XieLaw",
+        "alt"=>"美国乔治亚州注册律师；乔治亚州立大学法学博士；中国政法大学学士、法学硕士；美国密苏里大学司法学硕士；原美国圣路易大学法学院访问学者；原中国政法大学教师、在职法学博士生；原美国乔治亚州政府律师；美国律师协会会员；美国移民律师协会会员；美国乔治亚州律师协会会员。",
+        "picname"=>"pic2.gif"
+    ),
+
+    "1" => array(
+        "name"=>"张哲瑞",
+        "link"=>"hooyou",
+        "alt"=>"张哲瑞联合律师事务所是全美最大的移民律师事务所之一，擅长办理杰出技能人才(EB-1a)，杰出教授和研究人员(EB-1b)以及国家利益豁免移民(NIW)绿卡,PERM职业移民及H-1B等签证，已成功帮助数千客户获得绿卡。拥有25位美国执照律师，在硅谷、纽约、洛杉矶、芝加哥、休斯顿、奥斯汀和西雅图七个城市的商业中心区设有办公室，致力于为客户提供最佳的服务，成功率高。网址：www.hooyou.com; email：info@hooyou.com;tel：1-800-230-7040.",
+        "picname"=>"hooyou.jpg"
+    ),
+
+    "2" => array(
+        "name"=>"戚博雄",
+        "link"=>"sqilaw",
+        "alt"=>"J.D., Western State University, College of Law, California M.A., Journalism, University of Southern California B. A., World Economy, Fudan University, Shanghai, China.",
+        "picname"=>"pic3.gif"
+    ),
+
+    "3" => array(
+        "name"=>"精诚",
+        "link"=>"jingchenglaw",
+        "alt"=>"精诚联合律师事务所于1987年成立于加州洛杉矶市。为来自中国大 陆、台湾、香港及美国各州的华人客户提供全面的移民业务服务。此外，我们还为来自印度、韩国、俄罗斯、日本、加拿大、法国、英国、泰国、马来西亚和中美洲地区国家的人士办理各项移民及工作签证申请。",
+        "picname"=>"pic4.gif"
+    ),
+
+    "4" => array(
+        "name"=>"刘宗坤",
+        "link"=>"LiuLaw",
+        "alt"=>"A graduate of Peking University (Ph.D.) and Valparaiso University School of Law (J.D.), Dr. Liu is a licensed member of the Illinois State Bar. He was also admitted to practice law in the U.S. District Courts for Southern District of Texas and Northern District of Illinois. His practice includes employment-based immigrant and non-immigrant petitions, and administrative and judiciary appeals. Prior to practicing law as a licensed attorney, Dr. Liu interned as law clerk in the Law Division of Cook County Circuit Court, Chicago, Illinois, and served on the editorial board of Valparaiso University Law Review, Valparaiso, Indiana.",
+        "picname"=>"pic7.gif"
+    ),
+
+    "5" => array(
+        "name"=>"孙虹",
+        "link"=>"SunLaw",
+        "alt"=>"Alice H. Sun 律师，全美移民律师协会会员(AILA)，加州律师协会会员（1994）。美国法学博士（1994）原中国社会科学院法学硕士，法学所研究人员。办理职业移民杰出人才，教授及研究人员，国家利益豁免, PERM劳工审查尤为成功。为美国全国名校研究人员和博士学生及NIH, RAND等著名研究所研究人员申办绿卡及工作签证。律师事务所向本所客户提供寻找和协商高科技风险投资以及专利和知识产权全方位服务。我们的宗旨是帮助您在美国立足，在美国成功。网站信息：www.sunlawfirm.us.",
+        "picname"=>"pic11.jpg"
+    ),
+
+    "6" => array(
+        "name"=>"陈帆",
+        "link"=>"ChenLaw",
+        "alt"=>"陈帆联合律师事务所(Nguyen & Chen, LLP)专业受理各类民事、刑事诉讼。该综合律师事务所尤其擅长提供移民法、人事雇佣法、以及劳工法等领域的优质服务。
+        作为该所创始人之一,陈帆律师具备扎实的法学基础和丰富的实践经验。陈帆律师曾在德克萨斯州哈里斯郡政府、州上诉法院实习工作，并在全美知名律师事务所供职多年。
+        陈帆律师毕业于休斯敦大学法学院，是德克萨斯州执照律师、美国联邦地区法院出庭律师、美国移民律师协会会员。",
+        "picname"=>"pic14.jpg"
+    ),
+
+    "7" => array(
+        "name"=>"FYZ",
+        "link"=>"fyzlaw",
+        "alt"=>"FYZ律师事务所(FYZ Law Group LLP)是向各大教育/研究机构，私营企业及个人提供全方位移民法律服务的事务所。我们的律师拥有多年美国移民法律服务经验。我们专精科技职业移民申请和非移民工作签证申请，诸如：EB-1A， EB-1B， EB-1C, NIW, PERM, H-1B, L-1 and O-1. 我们在旧金山湾区，芝加哥和纽约设有办公室， 是为数不多的跨美职业移民律师事务所之一。网址: www.fyzlaw.com  Email: info@fyzlaw.com  Tel: 650-312-8668(CA); 630-577-9060(IL); 646-288-7129(NY)",
+        "picname"=>"pic16.jpg"
+    ),
+
+    "8" => array(
+        "name"=>"Annie杨",
+        "link"=>"yanglaw",
+        "alt"=>"Ms. Annie Yang 杨静宜律师是杨律师联合律师事务所(Yang and Associates, LLP)的创办人之一和主要律师。杨律师在美国移民法方面有着非常丰富的经验。她上十年高效率，高质量，高水平和全心投入的服务深得客户广泛好评。
+        服务宗旨是提供个性化服务，做一个可以值得您信赖的律师。Immigration Attorneys You Can Trust!
+        主要代理案件类型：杰出人才(EB-1a)，杰出教授和研究人员(EB-1b)，国家利益豁免(NIW)，劳工证 (PERM)EB-2/EB-3移民申请；H-1B, L-1, O, TN等工作签证申请; 投资移民(EB-5), J-1 Waiver, B延期, 家庭移民, I-485以及各种有关移民的疑难问题咨询。",
+        "picname"=>"pic17.jpg"
+    ),
+
+    "9" => array(
+        "name"=>"北美联合",
+        "link"=>"WeGreened",
+        "alt"=>"北美联合律师事务所(WeGreened.com)由美国TOP-10顶尖名校法学院法律博士(J.D.)组成，本所专精国家利益豁免绿卡(NIW)，第一优先杰出人才绿卡(EB1A)，和杰出教授研究人员移民(EB1B),由於对文件品质及人员素质的高标准要求, 和本事务所针对各种请愿案收集大量有助於论证的系统化资料库,使得本所一年有500个以上 EB1/NIW 大量成功案例，平均 EB1/NIW 案件成功率高达98.5%,同时在EB1/NIW申请领域提供全方位的服务(Letters/PL/RFE)和极具竞争力的品质保证方案(Approval or Refund Service),详情请参考我所大量成功经验和批准通知http://cn.wegreened.com/eb1_niw_approvals网址：cn.wegreened.com; 免费评估：law@wegreened.com; 中文热线：888.666.0969 ext.380(免费专线)",
+        "picname"=>"WeGreened.png"
+    )
+);
+
+
+
+function getMainPageLawyers($lawyer_list) {
+    $ret = array();
+
+    foreach ($lawyer_list as $each) {
+        $href = url_generate(4, array(
+            "action" => "/mobile/forum/i_board.php",
+            "args" => array("board"=>$each["link"])
+        ));
+        $ret[] = array(
+            "name"=>$each["name"],
+            "href"=>$href,
+            "img"=>'/yimin/images/'.$each["picname"]
+        );
+    }
+
+    return $ret;
+}
+
+function getLawyerInfo($boardname, $lawyer_list) {
+    foreach ($lawyer_list as $each) {
+        if ($each["link"] == $boardname) {
+            $ret = array(
+                "name"=>$each["name"],
+                "href"=>"",
+                "img"=>'/yimin/images/'.$each["picname"],
+                "desc"=>$each["alt"]
+            );
+
+            return $ret;
+        }
+    }
+
+    return array();
+}
 
 function getBoardGroupNum($board_id, $link) {
     $sql = "select count(*) as count from dir_article_".$board_id." where groupid=article_id and reid=0;";
@@ -1105,7 +1517,8 @@ $type_to_sql_data = array(
     "sport"=>array("boardID"=>"81", "news_type"=>"[TYPT]"),
     "recreation"=>array("boardID"=>"114", "news_type"=>"[YLPT]"),
     "science"=>array("boardID"=>"146", "news_type"=>"[KJPT]"),
-    "finance"=>array("boardID"=>"347", "news_type"=>"[CJPT]")
+    "finance"=>array("boardID"=>"347", "news_type"=>"[CJPT]"),
+    "immigration"=>array("boardID"=>"420", "news_type"=>"")
 );
 
 function getHeadLineNews($link, $page) {
@@ -1237,7 +1650,17 @@ function getHeadLineNews($link, $page) {
     return array($ret, $end_flag);
 }
 
+function getImmigrationNewsType($title){
+    $arr = array();
+    preg_match('/(\[美国\]|\[加拿大\]|\[其他地区\])/', $title, $arr);
+    $return  = $arr[0];
+    $return = str_replace(']','',$return);
+    $return = str_replace('[','',$return);
+    return $return;
+}
+
 function getNewsDataByType($link, $page, $newsTypeName) {
+    global $codeEnts, $codeDecs;
     global $type_to_sql_data;
     $boardid = $type_to_sql_data[$newsTypeName]["boardID"];
     $news_type = $type_to_sql_data[$newsTypeName]["news_type"];
@@ -1249,8 +1672,14 @@ function getNewsDataByType($link, $page, $newsTypeName) {
         $str = "AND cn_read!='N' AND cn_read!='M' ";
     }
 
-    $str .= "AND LEFT(title,".strlen($news_type)." )='$news_type'";
-
+    if ($newsTypeName == "immigration") {
+        $US = "[美国]";
+        $CNA = "[加拿大]";
+        $OTH = "[其他地区]";
+        $str.="AND title REGEXP '($US|$CNA|$OTH)'";
+    } else {
+        $str .= "AND LEFT(title,".strlen($news_type)." )='$news_type'";
+    }
     $sql = "SELECT a.article_id,a.boardname boardname,a.title,a.owner,a.o_id,a.groupid,a.o_groupid,a.o_bid ,UNIX_TIMESTAMP(action_time)
          ,a.filename,b.board_desc,a.type_flag,UNIX_TIMESTAMP(posttime) FROM digest_article a JOIN board b ON a.board_id=b.board_id
          WHERE a.board_id=$boardid $str ORDER BY a.action_time DESC, a.article_id DESC LIMIT {$page}, {$num}";
@@ -1265,6 +1694,10 @@ function getNewsDataByType($link, $page, $newsTypeName) {
         $aNew["articleID"] = $row["article_id"];
         $aNew["author"] = $row["owner"];
         $aNew["title"] = $row["title"];
+        $aNew["title"] = str_replace($codeEnts, $codeDecs, $aNew["title"]);
+        if($newsTypeName  == "immigration"){
+            $aNew["newType"] = getImmigrationNewsType($aNew["title"]);
+        }
         $aNew["title"] = substr(strchr($aNew["title"],"]"),1);
         if ($aNew["title"] == null) {
             $aNew["title"] = "";
@@ -1274,7 +1707,14 @@ function getNewsDataByType($link, $page, $newsTypeName) {
         $aNew["BoardsName"] = trim(substr($boardCnName, strpos($boardCnName,']')+1));
         $aNew["BoardsEngName"] = $boardName;
         $aNew["boardID"] = $boardid;
-        $aNew["href"] = url_generate(3, array("board"=>$boardName, "groupid"=>$row["groupid"]));
+        if ($newsTypeName != "immigration") {
+            $aNew["href"] = url_generate(3, array("board"=>$boardName, "groupid"=>$row["groupid"]));
+        } else {
+            $aNew["href"] = url_generate(4, array(
+                "action"=>"/mobile/forum/i_article.php",
+                "args"=>array("reqtype"=>"news", "board"=>$boardName, "groupid"=>$row["groupid"])
+            ));
+        }
         $aNew["actiontime"] = "".$row["UNIX_TIMESTAMP(action_time)"];
 
         $filepath = BBS_HOME."/boards/".$aNew["BoardsEngName"]."/".$row["filename"];
@@ -1377,6 +1817,48 @@ function getNews($link, $page, $type) {
         return getHeadLineNews($link, $page);
     else
         return getNewsDataByType($link, $page, $type);
+}
+
+function getImmigrationVisa($link) {
+    global $codeDecs, $codeEnts;
+    $data = read_xmlfile_content_web(BBS_HOME."/xml/newscenter/yimininfo.xml", 3);
+    $ret = array();
+    for($i=0; $i<count($data); $i++)
+    {
+        $brdarr = array();
+        $record["groupID"] = $data[$i]["groupid"];
+        $record["articleID"] = $data[$i]["article_id"];
+        $record["title"] = $data[$i]["title"];
+        $record["title"] = substr(str_replace($codeEnts, $codeDecs, $record["title"]),4);
+        $brdnum = bbs_getboard($data[$i]['board'], $brdarr);
+        $postdate =  "".$data[$i]['time'];
+
+        $record["posttime"] = $postdate;
+        $record["BoardsName"] = $brdarr["DESC"];
+        $record["BoardsEngName"] = $brdarr["NAME"];
+        $record["boardID"] = $brdarr["BOARD_ID"];
+        $record["href"] = url_generate(4, array(
+                "action"=>"/mobile/forum/i_article.php",
+                "args"=>array("reqtype"=>"visa", "board"=>$brdarr["NAME"], "groupid"=>$data[$i]["groupid"])
+            ));
+
+        $sql = "select read_num,reply_num,owner from dir_article_".$brdarr["BOARD_ID"]." where article_id='{$record["groupID"]}'";
+        $result = mysql_query($sql, $link);
+        if($row = mysql_fetch_array($result)) {
+            $record["readNum"] = $row[0];
+            $record["relyNum"] = $row[1];
+            $record["author"] = $row[2];
+        }else{
+            $record["readNum"] = "0";
+            $record["relyNum"] = "0";
+            $record["author"] = "";
+        }
+        mysql_free_result($result);
+
+        $ret[] = $record;
+    }
+
+    return $ret;
 }
 
 ?>
