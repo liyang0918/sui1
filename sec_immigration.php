@@ -3,11 +3,11 @@
      xmlns="http://www.w3.org/1999/html">
     <nav class="navtwo">
         <ul class="navtwo_ul immigration_nav">
-            <li><a class="active" href="" id="i_column" onclick="sec_category(this)">律师专栏</a></li>
+            <li><a href="" id="i_column" onclick="sec_category(this)">律师专栏</a></li>
             <li><a href="" id="i_lawyer" onclick="sec_category(this)">加盟律师</a></li>
             <li><a href="" id="i_news" onclick="sec_category(this)">移民新闻</a></li>
             <li><a href="" id="i_visa" onclick="sec_category(this)">移民签证信息</a></li>
-            <li><a href="" id="i_forum" onclick="sec_category(this)">讨论区</a></li>
+            <li><a href="" id="i_discussion" onclick="sec_category(this)">讨论区</a></li>
         </ul>
     </nav>
 </div>
