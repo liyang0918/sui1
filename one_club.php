@@ -7,7 +7,6 @@ $club_name=$_GET["club"];
 $url_page = url_generate(2, array("type"=>$_COOKIE["app_type"], "club"=>$club_name))."&page=";
 $clubarr = array();
 $club_id = bbs_getclub($club_name, $clubarr);
-
 $page = intval($_GET["page"]);
 if(empty($page)){
     $page=1;
@@ -61,8 +60,8 @@ $ret = getBoardArticles();
 ?>
 
     <div class="ds_box border_bottom">
-        <a href="forum_boardlist.html"><img src="img/btn_left.png" alt="bth_left.png"/></a>
-        俱乐部文章列表
+        <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+        <?php echo $clubarr["CLUB_CNAME"]; ?>
         <a href="replyNew_send.html" class="span_r" >发文</a>
     </div>
     <div class="theme_wrap">

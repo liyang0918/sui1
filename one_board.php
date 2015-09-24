@@ -59,7 +59,7 @@ $ret = getBoardArticles();
 ?>
 
     <div class="ds_box border_bottom">
-        <a href="forum_boardlist.html"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+        <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
         <?php echo $brdarr["DESC"]; ?>
         <a href="replyNew_send.html" class="span_r" >╥╒нд</a>
     </div>

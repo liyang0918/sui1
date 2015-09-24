@@ -32,7 +32,7 @@ if($row == false){
     $tmp_arr = array();
     $att_arr = array();
     $content_arr = array();
-    $title = $row["title"];
+    $title = preg_replace( '/\[[A-Z]{4}\]/', "", $row["title"]);
     $board_cname = $brdarr["DESC"];
     $reply_num = $row["total_reply"];
     $read_num = $row["read_num"];
@@ -93,7 +93,10 @@ mysql_close($conn);
 $i_cnt = count($prt_arr);
 //data end
 ?>
-
+    <div class="ds_box border_bottom">
+        <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+        <?php echo $brdarr["DESC"]; ?>
+    </div>
     <div class="theme_wrap">
         <div class="news_title">
             <p><?php echo $title;?></p>

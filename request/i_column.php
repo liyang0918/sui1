@@ -36,7 +36,7 @@ $str_img = '<div class="carouselfigure">';
 $str_img .= '<div class="club_list_wrap"><div class="club_div">';
 $str_img_dot = '';
 $t_data = array();
-$t_data = getMainPageLawyers($lawyer_list);
+$t_data = getMainPageLawyers($link);
 $each = array();
 $in_list_flag = 0;
 foreach ($t_data as $i=>$each) {
