@@ -303,6 +303,43 @@ $codeEnts=array(
     "&micro;",
     "&gt;");
 
+/* 获取汉语拼音首字母 */
+function getSpellInitial($str)
+{
+    if (preg_match('/^[a-z]/i', $str)) {
+        return strtoupper(substr($str, 0, 1));
+    } else if (preg_match("/^[\x7f-\xff]/", $str)) {
+        $fchar=ord($str{0});
+        if($fchar>=ord("A") and $fchar<=ord("z") )return strtoupper($str{0});
+            $a = $str;
+        $val=ord($a{0})*256+ord($a{1})-65536;
+        if($val>=-20319 and $val<=-20284)return "A";
+        if($val>=-20283 and $val<=-19776)return "B";
+        if($val>=-19775 and $val<=-19219)return "C";
+        if($val>=-19218 and $val<=-18711)return "D";
+        if($val>=-18710 and $val<=-18527)return "E";
+        if($val>=-18526 and $val<=-18240)return "F";
+        if($val>=-18239 and $val<=-17923)return "G";
+        if($val>=-17922 and $val<=-17418)return "H";
+        if($val>=-17417 and $val<=-16475)return "J";
+        if($val>=-16474 and $val<=-16213)return "K";
+        if($val>=-16212 and $val<=-15641)return "L";
+        if($val>=-15640 and $val<=-15166)return "M";
+        if($val>=-15165 and $val<=-14923)return "N";
+        if($val>=-14922 and $val<=-14915)return "O";
+        if($val>=-14914 and $val<=-14631)return "P";
+        if($val>=-14630 and $val<=-14150)return "Q";
+        if($val>=-14149 and $val<=-14091)return "R";
+        if($val>=-14090 and $val<=-13319)return "S";
+        if($val>=-13318 and $val<=-12839)return "T";
+        if($val>=-12838 and $val<=-12557)return "W";
+        if($val>=-12556 and $val<=-11848)return "X";
+        if($val>=-11847 and $val<=-11056)return "Y";
+        if($val>=-11055 and $val<=-10247)return "Z";
+    } else {
+        return "#";
+    }
+}
 
 function get_row_count($board_id,$article_id,$conn){
     $sql = "SELECT COUNT(*) FROM dir_article_" . $board_id.
@@ -774,6 +811,16 @@ function get_add_textarea_context ($filename,$user) {
             fclose($fp);
         }
     return $ret_str;
+}
+
+function getExtraValue($str) {
+    $arr = explode("|", $str);
+    $ret = array();
+
+    $ret["mode"] = $arr[0];
+    $ret["city"] = $arr[1];
+
+    return $ret;
 }
 
 function getClubImg($club_name) {
@@ -1380,117 +1427,113 @@ function page_partition($total_row, $page, $per_page=10, $show_page=1) {
 
 }
 
-$lawyer_list = array(
-    "0" => array(
-        "name"=>"谢正权",
-        "link"=>"XieLaw",
-        "alt"=>"美国乔治亚州注册律师；乔治亚州立大学法学博士；中国政法大学学士、法学硕士；美国密苏里大学司法学硕士；原美国圣路易大学法学院访问学者；原中国政法大学教师、在职法学博士生；原美国乔治亚州政府律师；美国律师协会会员；美国移民律师协会会员；美国乔治亚州律师协会会员。",
-        "picname"=>"pic2.gif"
-    ),
+function getLawyerHeadImg($creator) {
+    return "/picture/".strtoupper(substr($creator, 0, 1))."/$creator/lawyerimg";
+}
 
-    "1" => array(
-        "name"=>"张哲瑞",
-        "link"=>"hooyou",
-        "alt"=>"张哲瑞联合律师事务所是全美最大的移民律师事务所之一，擅长办理杰出技能人才(EB-1a)，杰出教授和研究人员(EB-1b)以及国家利益豁免移民(NIW)绿卡,PERM职业移民及H-1B等签证，已成功帮助数千客户获得绿卡。拥有25位美国执照律师，在硅谷、纽约、洛杉矶、芝加哥、休斯顿、奥斯汀和西雅图七个城市的商业中心区设有办公室，致力于为客户提供最佳的服务，成功率高。网址：www.hooyou.com; email：info@hooyou.com;tel：1-800-230-7040.",
-        "picname"=>"hooyou.jpg"
-    ),
-
-    "2" => array(
-        "name"=>"戚博雄",
-        "link"=>"sqilaw",
-        "alt"=>"J.D., Western State University, College of Law, California M.A., Journalism, University of Southern California B. A., World Economy, Fudan University, Shanghai, China.",
-        "picname"=>"pic3.gif"
-    ),
-
-    "3" => array(
-        "name"=>"精诚",
-        "link"=>"jingchenglaw",
-        "alt"=>"精诚联合律师事务所于1987年成立于加州洛杉矶市。为来自中国大 陆、台湾、香港及美国各州的华人客户提供全面的移民业务服务。此外，我们还为来自印度、韩国、俄罗斯、日本、加拿大、法国、英国、泰国、马来西亚和中美洲地区国家的人士办理各项移民及工作签证申请。",
-        "picname"=>"pic4.gif"
-    ),
-
-    "4" => array(
-        "name"=>"刘宗坤",
-        "link"=>"LiuLaw",
-        "alt"=>"A graduate of Peking University (Ph.D.) and Valparaiso University School of Law (J.D.), Dr. Liu is a licensed member of the Illinois State Bar. He was also admitted to practice law in the U.S. District Courts for Southern District of Texas and Northern District of Illinois. His practice includes employment-based immigrant and non-immigrant petitions, and administrative and judiciary appeals. Prior to practicing law as a licensed attorney, Dr. Liu interned as law clerk in the Law Division of Cook County Circuit Court, Chicago, Illinois, and served on the editorial board of Valparaiso University Law Review, Valparaiso, Indiana.",
-        "picname"=>"pic7.gif"
-    ),
-
-    "5" => array(
-        "name"=>"孙虹",
-        "link"=>"SunLaw",
-        "alt"=>"Alice H. Sun 律师，全美移民律师协会会员(AILA)，加州律师协会会员（1994）。美国法学博士（1994）原中国社会科学院法学硕士，法学所研究人员。办理职业移民杰出人才，教授及研究人员，国家利益豁免, PERM劳工审查尤为成功。为美国全国名校研究人员和博士学生及NIH, RAND等著名研究所研究人员申办绿卡及工作签证。律师事务所向本所客户提供寻找和协商高科技风险投资以及专利和知识产权全方位服务。我们的宗旨是帮助您在美国立足，在美国成功。网站信息：www.sunlawfirm.us.",
-        "picname"=>"pic11.jpg"
-    ),
-
-    "6" => array(
-        "name"=>"陈帆",
-        "link"=>"ChenLaw",
-        "alt"=>"陈帆联合律师事务所(Nguyen & Chen, LLP)专业受理各类民事、刑事诉讼。该综合律师事务所尤其擅长提供移民法、人事雇佣法、以及劳工法等领域的优质服务。
-        作为该所创始人之一,陈帆律师具备扎实的法学基础和丰富的实践经验。陈帆律师曾在德克萨斯州哈里斯郡政府、州上诉法院实习工作，并在全美知名律师事务所供职多年。
-        陈帆律师毕业于休斯敦大学法学院，是德克萨斯州执照律师、美国联邦地区法院出庭律师、美国移民律师协会会员。",
-        "picname"=>"pic14.jpg"
-    ),
-
-    "7" => array(
-        "name"=>"FYZ",
-        "link"=>"fyzlaw",
-        "alt"=>"FYZ律师事务所(FYZ Law Group LLP)是向各大教育/研究机构，私营企业及个人提供全方位移民法律服务的事务所。我们的律师拥有多年美国移民法律服务经验。我们专精科技职业移民申请和非移民工作签证申请，诸如：EB-1A， EB-1B， EB-1C, NIW, PERM, H-1B, L-1 and O-1. 我们在旧金山湾区，芝加哥和纽约设有办公室， 是为数不多的跨美职业移民律师事务所之一。网址: www.fyzlaw.com  Email: info@fyzlaw.com  Tel: 650-312-8668(CA); 630-577-9060(IL); 646-288-7129(NY)",
-        "picname"=>"pic16.jpg"
-    ),
-
-    "8" => array(
-        "name"=>"Annie杨",
-        "link"=>"yanglaw",
-        "alt"=>"Ms. Annie Yang 杨静宜律师是杨律师联合律师事务所(Yang and Associates, LLP)的创办人之一和主要律师。杨律师在美国移民法方面有着非常丰富的经验。她上十年高效率，高质量，高水平和全心投入的服务深得客户广泛好评。
-        服务宗旨是提供个性化服务，做一个可以值得您信赖的律师。Immigration Attorneys You Can Trust!
-        主要代理案件类型：杰出人才(EB-1a)，杰出教授和研究人员(EB-1b)，国家利益豁免(NIW)，劳工证 (PERM)EB-2/EB-3移民申请；H-1B, L-1, O, TN等工作签证申请; 投资移民(EB-5), J-1 Waiver, B延期, 家庭移民, I-485以及各种有关移民的疑难问题咨询。",
-        "picname"=>"pic17.jpg"
-    ),
-
-    "9" => array(
-        "name"=>"北美联合",
-        "link"=>"WeGreened",
-        "alt"=>"北美联合律师事务所(WeGreened.com)由美国TOP-10顶尖名校法学院法律博士(J.D.)组成，本所专精国家利益豁免绿卡(NIW)，第一优先杰出人才绿卡(EB1A)，和杰出教授研究人员移民(EB1B),由於对文件品质及人员素质的高标准要求, 和本事务所针对各种请愿案收集大量有助於论证的系统化资料库,使得本所一年有500个以上 EB1/NIW 大量成功案例，平均 EB1/NIW 案件成功率高达98.5%,同时在EB1/NIW申请领域提供全方位的服务(Letters/PL/RFE)和极具竞争力的品质保证方案(Approval or Refund Service),详情请参考我所大量成功经验和批准通知http://cn.wegreened.com/eb1_niw_approvals网址：cn.wegreened.com; 免费评估：law@wegreened.com; 中文热线：888.666.0969 ext.380(免费专线)",
-        "picname"=>"WeGreened.png"
-    )
-);
-
-
-
-function getMainPageLawyers($lawyer_list) {
+function getMainPageLawyers($link) {
+    $sql = 'select lawyer_name,creator from lawyer where identity_flag="S" limit 10;';
+    $result = mysql_query($sql, $link);
     $ret = array();
-
-    foreach ($lawyer_list as $each) {
+    while ($row = mysql_fetch_array($result)) {
         $href = url_generate(4, array(
             "action" => "/mobile/forum/i_board.php",
-            "args" => array("board"=>$each["link"])
+            "args" => array("board"=>$row["creator"])
         ));
         $ret[] = array(
-            "name"=>$each["name"],
-            "href"=>$href,
-            "img"=>'/yimin/images/'.$each["picname"]
+            "name" => $row["lawyer_name"],
+            "href" => $href,
+            "img" => getLawyerHeadImg($row["creator"])
         );
+    }
+    mysql_free_result($result);
+
+    return $ret;
+}
+
+function getLawyerInfo($link, $boardname) {
+    $sql = "select lawyer_name,introduction from lawyer where creator='$boardname';";
+    $result = mysql_query($sql, $link);
+    $ret = array();
+    if ($row = mysql_fetch_array($result)) {
+            $href = url_generate(4, array(
+                "action" => "/mobile/forum/i_lawyerinfo.php",
+                "args" => array("board"=>$boardname)
+            ));
+            $ret = array(
+                "name" => $row["lawyer_name"],
+                "href" => $href,
+                "img" => getLawyerHeadImg($boardname),
+                "desc" => $row["introduction"]
+            );
     }
 
     return $ret;
 }
 
-function getLawyerInfo($boardname, $lawyer_list) {
-    foreach ($lawyer_list as $each) {
-        if ($each["link"] == $boardname) {
-            $ret = array(
-                "name"=>$each["name"],
-                "href"=>"",
-                "img"=>'/yimin/images/'.$each["picname"],
-                "desc"=>$each["alt"]
-            );
-
-            return $ret;
-        }
+function getLawyerGroupByName($link, $city) {
+    $A = ord("A");
+    $ret = array();
+    for ($i=0; $i<26; $i++) {
+        $ret[chr($A+$i)] = array();
     }
+    $ret["#"] = array();
+    if ($city == "all")
+        $sql = "select lawyer_name,identity_flag,creator from lawyer order by lawyer_name";
+    else
+        $sql = "select lawyer_name,identity_flag,creator from lawyer where city=\"{$city}\" order by lawyer_name";
+    $result = mysql_query($sql, $link);
+    while ($row = mysql_fetch_array($result)) {
+        $index = getSpellInitial($row["lawyer_name"]);
+        $row["href"] = url_generate(4, array(
+            "action" => "/mobile/forum/i_lawyerinfo.php",
+            "args" => array("board"=>$row["creator"])
+        ));
+        $row["img"] = getLawyerHeadImg($row["creator"]);
+        $ret[$index][] = $row;
+    }
+    mysql_free_result($result);
+    /*
+    foreach ($ret as $m=>$each) {
+        echo $m."<br/>";
+        foreach ($each as $l) {
+            var_dump($l);
+            echo "<br />";
+        }
+    }*/
 
-    return array();
+    return $ret;
+}
+
+function getLawyerGroupByArea($link) {
+    $A = ord("A");
+    $ret = array();
+    for ($i=0; $i<26; $i++) {
+        $ret[chr($A+$i)] = array();
+    }
+    $ret["#"] = array();
+
+    $sql = "select distinct(city) from lawyer order by lawyer_name";
+    $result = mysql_query($sql, $link);
+    while ($row = mysql_fetch_array($result)) {
+        $index = getSpellInitial($row["city"]);
+        $row["href"] = url_generate(4, array(
+            "action" => "/mobile/forum/i_city.php",
+            "args" => array("city"=>$row["city"])
+        ));
+        $ret[$index][] = $row;
+    }
+    mysql_free_result($result);
+
+//    foreach ($ret as $m=>$each) {
+//        echo $m."<br/>";
+//        foreach ($each as $l) {
+//            var_dump($l);
+//            echo "<br />";
+//        }
+//    }
+
+    return $ret;
 }
 
 function getBoardGroupNum($board_id, $link) {
@@ -1504,7 +1547,7 @@ function getBoardGroupNum($board_id, $link) {
 
 function in_array_list($array,$array_list){
     foreach($array_list as $list){
-        if($array["article_id"] == $list["article_id"] && $array["board_id"] == $list["board_id"]){
+        if($array["article_id"] == $list["article_id"] && $array["board_id"] == $list["board_id"]) {
             return 1;
         }
     }
@@ -1698,10 +1741,7 @@ function getNewsDataByType($link, $page, $newsTypeName) {
         if($newsTypeName  == "immigration"){
             $aNew["newType"] = getImmigrationNewsType($aNew["title"]);
         }
-        $aNew["title"] = substr(strchr($aNew["title"],"]"),1);
-        if ($aNew["title"] == null) {
-            $aNew["title"] = "";
-        }
+        $aNew["title"] = preg_replace('/\[.*\]/', "", $aNew["title"]);
         $boardName = $row["boardname"];
         $boardCnName = $row["board_desc"];
         $aNew["BoardsName"] = trim(substr($boardCnName, strpos($boardCnName,']')+1));

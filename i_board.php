@@ -2,6 +2,8 @@
 include_once(dirname(__FILE__)."/../../mitbbs_funcs.php");
 include_once(dirname(__FILE__)."/func.php");
 include_once("head.php");
+$link = db_connect_web();
+
 //data part
 $board_name=$_GET["board"];
 $url_page = url_generate(4, array(
@@ -28,8 +30,6 @@ $articles = bbs_getarticles($brdarr["NAME"], $start_num, $article_num, $dir_mode
 
 function getLawyerArticles($board_name) {
     global $articles;
-    $link = db_connect_web();
-
     $ret = array();
     foreach ($articles as $article) {
         $href = url_generate(4, array(
@@ -49,9 +49,13 @@ function getLawyerArticles($board_name) {
 
 
 }
-$lawyer = getLawyerInfo($board_name, $lawyer_list);
+$lawyer = getLawyerInfo($link, $board_name);
 $ret = getLawyerArticles($board_name);
 ?>
+    <div class="ds_box border_bottom">
+        <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+        бий╕в╗ю╦
+    </div>
     <ul class="new_list_content_listbox">
         <li class="news_ltems news_list_lione">
             <a href="<?php echo $lawyer["href"]; ?>">
@@ -106,4 +110,5 @@ $ret = getLawyerArticles($board_name);
     </script>
 <?php
 include_once("foot.php");
+mysql_close($link);
 ?>

@@ -36,12 +36,16 @@ var label_list = {
     },
     "immigration":{
         "i_column":"0",
-        "i_lawyer":"1",
+        "i_lawyer":"0",
         "i_news":"1",
         "i_visa":"1",
         "i_discussion":"0"
     }
 };
+
+function go_last_page() {
+    window.history.go(-1);
+}
 
 function get_info_by_id(id) {
     var app_type = getCookie_wap("app_type");
@@ -60,9 +64,15 @@ function get_info_by_id(id) {
 function request_url_generate(id) {
     var info = get_info_by_id(id);
     var url = "/404.php";
+    var extra = getCookie_wap("extra");
+    if (extra == "") {
+        document.cookie = "extra=" + "0|all";
+        extra = "0";
+    }
+
     if (info["domain"] != undefined)
         if ((info["domain"] == "index") || (info["domain"] == "immigration"))
-            url = "/mobile/forum/request/" + id + ".php";
+            url = "/mobile/forum/request/" + id + ".php" + "?extra=" + extra;
         else
             url = "/mobile/forum/request/" + info["domain"] + ".php?type=" + id;
     return url;
@@ -73,7 +83,12 @@ function need_page(id) {
     return (info["needpage"] == "1");
 }
 
-function sec_category(obj){
+function sec_select(obj) {
+    document.cookie = "extra="+obj.id;
+    document.cookie = "current_page=1";
+}
+
+function sec_category(obj) {
     var current_active = getCookie_wap("sec_category");
     if(current_active != "") {
         var act_obj = document.getElementById(current_active);

@@ -71,6 +71,10 @@ $ret_str = read_news_web($filepath, $attach_flag, "", "", $attach_linkstr, 0);
     <div id="linklist"></div>
     <div id="carouselfigure"></div>
     <div class="detail">
+        <div class="ds_box border_bottom">
+            <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+            <?php echo $brdarr["DESC"]; ?>
+        </div>
     <?php if ($reqtype == "news") { ?>
         <div class="content_up border_bottom">
             <h3 class="content_name"><?php echo $article["TITLE"]; ?></h3>
