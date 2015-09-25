@@ -1,0 +1,16 @@
+.footer{
+	background:#0072bb;
+	width:100%;
+	height:40px;
+	line-height:40px;
+	margin-top:40px;
+}
+.footer li{
+	float:right;
+	font-size:1.4em;
+	color:#fff;
+	margin-right:20px;
+}
+.footer a{
+	color:#fff;
+}

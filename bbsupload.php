@@ -1,7 +1,7 @@
 <?php
 	/**
 	 * This file lists boards to user.
-	 * $Id: bbsupload.php,v 1.1.2.1 2015/09/14 08:49:09 bbsroot Exp $
+	 * $Id: bbsupload.php,v 1.1.2.2 2015/09/24 11:10:57 bbsroot Exp $
 	 */
 	$filenames=array();
 	$filesizes=array();

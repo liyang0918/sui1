@@ -591,7 +591,6 @@ body {
     position: relative;
     line-height:44px;
     text-align:center;
-    border-bottom:1px solid #B3B3B3;
 }
 .logoIn_nav img{
     width:12px;
@@ -753,22 +752,22 @@ body {
 .bg{
     background:#0072bb;
 }
+
 .forget .font_white{
     color:#fff;
 }
 .forget_box{
-    padding:24px 27px;
+    padding:50px 27px;
     box-sizing: border-box;
     margin:0 auto;
     text-align: center;
     position: relative;
+    min-height:600px;
 }
 .forget_box input{
     height:44px;
     line-height: 44px;
     -webkit-appearance:none;
-    border:1px solid #B3B3B3;
-    border-radius:8px;
 }
 .forget_p{
     margin-bottom: 10px;
@@ -777,10 +776,10 @@ body {
     display: inline-block;
     line-height:44px;
     font-size:1.4em;
-    color:#333;
+    color:#fff;
 }
 .forget_p input{
-    width:90%;
+    width:80%;
     text-indent: 10px;
     font-size:1.4em;
     color:#333;
@@ -791,13 +790,19 @@ body {
 }
 .forget_code a{
     font-size:1.2em;
-    color:#333;
+    color:#fff;
     text-decoration: underline;
 }
 .forget_inp{
     width:120px;
-    font-size:1.7em;
+    font-size:1.6em;
     margin-bottom:30px;
+    background:#0072bb;
+    border:1px solid #fff;
+    color:#fff;
+}
+.nousername a{
+    color:#fff;
 }
 .forget_reg{
     margin-right:20px;
@@ -920,7 +925,7 @@ body {
     font-size:1.4em;
 }
 .litwo_box{
-    width:376px;
+    widt:376px;
     overflow: hidden;
     margin:0 auto;
 }
@@ -2007,7 +2012,7 @@ section { padding: 10px;overflow: hidden;zoom: 1;border-top: 1px solid #dbdbdb;o
 .mycomm-frame .all-comment .name{margin-left:-78px;}
 .mycomm-frame li select{position:absolute;top:0;right:0;z-index:2;width:84%;height:40px;vertical-align:middle;border:0;background-color:transparent;-webkit-appearance:none;color:#a3a3a3;outline: 0;}
 .shop-mycomment .tarea,.mycomm-frame li .inp-t{width:90%;border:1px solid #ededed;height:80px;padding:10px;}
-.mycomm-frame li .inp-t{height:40px;padding:0;border:0;background:transparent;}
+.mycomm-frame li .inp-t{height:40px;padding:0;border:0;background:transparent；}
 .shop-mycomment .tarea{width:92.5%;border:0;background:transparent;outline: 0;}
 .mycomm-frame .comm-star{background-image: url(http://si1.s1.dpfile.com/m/css/app/dianping/img/sprite.1c1066e714fb2da72989667492449820.png);background-repeat: no-repeat;background-size: 250px auto;}
 .mycomm-frame .comm-star{width:36px;height:36px;display:inline-block;background-position:0 -347px;vertical-align:middle;background-size:215px auto;}
@@ -2743,3 +2748,7 @@ input.jmfd_agree{
     display: block;
 }
 /* End common class*/
+/* Footer */
+footer{
+    text-align:center;
+}

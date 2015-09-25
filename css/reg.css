@@ -1,0 +1,85 @@
+.reg_title{
+	font-size:1.6em;
+	line-height:60px;
+	text-align:center;
+}
+.reg_error p{
+	font-size:1em;
+	line-height:22px;
+	color:red;
+	text-align:center;
+}
+.reg_wrap{
+	font-size:1.2em;
+	min-height:400px;
+}
+.reg_box{
+	position:relative;
+	height:60px;
+	width:280px;
+	margin:0 auto;
+}
+.reg_box span{
+	display:inline-block;
+	width:70px;
+	text-align:right;
+	padding-right:5px;
+}
+.reg_input{
+	padding-left:5px;
+	width:180px;
+	height:30px;
+	border:1px solid #ccc;
+	border-radius:0;
+}
+.error_tips{
+	height:22px;
+	line-height:22px;
+	padding-left:77px;
+	color:red;
+}
+#passwd_btn{
+	position:absolute;
+	top:5px;
+	right:30px;
+}
+.reg_code{
+	width:60px;
+}
+.code_btn{
+	width:120px;
+	border-radius:0;
+	height:28px;
+	color:#333;
+}
+.reg_agree{
+	text-align:center;
+	font-size:1.2em;
+	color:#999;
+}
+.reg_agree a{
+	color:#0072bb;
+}
+.reg_btn{
+	text-align:center;
+}
+.reg_btn input{
+	width:200px;
+	height:40px;
+	background:#0072bb;
+	font-size:1.4em;
+	color:#fff;
+	margin:20px auto;
+}
+.reg_succeed{
+	text-align:center;
+	padding:40px 0;
+}
+.reg_succeed p{
+	padding-bottom:20px;
+	font-size:2em;
+}
+.reg_succeed a{
+	color:#0072bb;
+	font-size:1.4em;
+}
