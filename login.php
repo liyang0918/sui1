@@ -1,7 +1,8 @@
 <?php
+
 require_once(dirname(__FILE__)."/../../mitbbs_funcs.php");
 require_once("func.php");
-if(!empty($_POST["login"])) {
+if(!empty($_POST["login"])||$_POST["logintype"]=="reg") {
     if (!empty($_POST["id"]))
         $id = $_POST["id"];
     if (!empty($_POST["passwd"]))
@@ -61,7 +62,7 @@ if(!empty($_POST["login"])) {
         <nav class="logoIn_nav bg">
             <h3 class="font_white" >登录未名空间</h3>
         </nav>
-        <div class="forget_box">
+        <div class="forget_box bg">
             <form action="login.php" method="post">
             <p class="forget_p">
                 <span>账号：</span><input id="id" name="id" type="text" placeholder="用户名/手机号码"/>
@@ -70,9 +71,8 @@ if(!empty($_POST["login"])) {
                 <span>密码：</span><input id="passwd" name="passwd" type="password" placeholder="密码"/>
             </p>
             <p class="forget_code"><a href="logIn_forget.html">忘记密码</a></p>
-            <input class="forget_inp forget_reg" type="button" value="注册" onclick="location='wap_register.html'"/>
-            <input class="forget_inp forget_lg bg font_white"  name="login" id="login" type="submit" value="登录"/>
-            <p class="forget_line"></p>
+            <input class="forget_inp forget_lg"  name="login" id="login" type="submit" value="登录"/>
+	    <p class="nousername"><a href="wap_register.php">还没有账号？点此注册</a></p>
             </form>
         </div>
     </div><!--End forget-->

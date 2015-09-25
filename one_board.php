@@ -71,11 +71,10 @@ $ret = getBoardArticles();
         foreach ($ret[1] as $each) {
 ?>
             <a href="<?php echo $each['href']; ?>"> <p class="theme_p"><span class="theme_red">жц╤╔</span><?php echo $each["title"]; ?></p></a>
+<?php } ?>
+      </div>
 <?php
-        }
-        echo '</div>';
     }
-
     // отй╬фум╗ндуб
     if (!empty($ret[0])) {
         echo '<ul class="theme_conter">';
