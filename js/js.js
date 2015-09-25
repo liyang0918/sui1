@@ -1,4 +1,7 @@
-function setEffect() {
+$(document).ready(function() {
+
+//navone点击下拉菜单显示隐藏的调用，封装函数在下面；
+    downMenu($('.navone_menu'), $('.navone_ul'));
 
 //forum_elite.htm/forum_recommend.html页面中的点击显示隐藏效果；
     $('.hot_title').each(function (i) {
@@ -111,7 +114,7 @@ $('.ds_box').find('a').eq(0).click(function(){
             $(this).addClass('star-cur');
         });
     }
-}
+});
 //针对navone_menu元素实现导航点击出来下拉菜单，点旁边隐藏效果；
 function downMenu(clickClass,dropMenu){
     $(clickClass).click(function(event){
@@ -193,5 +196,3 @@ if($('input').attr('type')=='text'){
     });
 }
 
-$(document).ready(downMenu($('.navone_menu'), $('.navone_ul')));
-$(document).ready(setEffect());
