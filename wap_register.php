@@ -56,7 +56,8 @@ if($_POST["submit"]) {
         //html_error_quit("密码长度为6-18个字符");
     }
 
-    $ph_ret = get_ar_ph_user($reg_phone);
+    $conn=db_connect_web();
+    $ph_ret = get_ar_ph_user($reg_phone,$conn);
     if (empty($reg_phone)) {
         $error[$i++] = "请填写注册手机号码！";
     }
@@ -69,12 +70,10 @@ if($_POST["submit"]) {
     if (strcmp($confirm, $_SESSION['confirm_num']) != 0 || empty($confirm) || time() - $_SESSION['publish_time'] > 600) {
         $error[$i++] = "验证码错误或已经过期,请重新填写或重新申请验证码";
     }
-
     if ($i == 0) {
         //$ret=bbs_createnewid($userid,$password,$nickname,$reg_email,$reuser);
         //$ret=bbs_createnewid_ph($userid,$password,$nickname,$area_code,$reg_phone,$reuser);
         $ret = bbs_createnewid_ph($user_id, $password, $nickname, $country, $reg_phone, $reg_email, $reuser);
-        //var_dump($ret);
         switch ($ret) {
             case 0:
                 break;
@@ -149,8 +148,8 @@ if($_POST["submit"]) {
                 }
         }
     }
+    @mysql_close($conn);
 }
-$i=0;
     if($i==0&&!empty($_POST["submit"])){
         $conn=db_connect_web();
         $num=get_userid3($userid,$conn);
