@@ -1,7 +1,7 @@
 #!/bin/bash
 # Created By:      LiYang <Liyang@unknownspace.com>
 # Created Time:    2015-08-31 11:39:15
-# Modified Time:   2015-09-17 09:57:28
+# Modified Time:   2015-09-28 09:00:13
 
 working=`pwd`
 project='/usr/local/apache/htdocs/mobile/forum'
@@ -58,6 +58,16 @@ function cleanup()
     done
 }
 
+function git_show()
+{
+    if [ $1 -eq 1 ]; then
+        git log
+    else
+        git log --graph --pretty=oneline --abbrev-commit
+    fi
+}
+
+
 function git_init()
 {
     `git init`
@@ -80,6 +90,10 @@ do
         'init'|'-init'|'--init' )
             cd $working
             `git init`;;
+        'show'|'-show'|'--show')
+            git_show;;
+        'log'|'-log'|'--log')
+            git_show 1;;
     esac
 done
 
