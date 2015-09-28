@@ -1,20 +1,130 @@
-function sec_category(obj){
-    var current_active=getCookie_wap("sec_category");
-    if(current_active!=""){
-        var act_obj=document.getElementById(current_active);
-        act_obj.className="none";
+// 所有的2级标签： 1表示需要分页
+var label_list = {
+    "index":{
+        "top":"1",
+        "hot":"0",
+        "classical":"0",
+        "classes":"0"
+    },
+    "news":{
+        "news_mix":"1",
+        "news_military":"1",
+        "news_international":"1",
+        "news_sport":"1",
+        "news_recreation":"1",
+        "news_science":"1",
+        "news_finance":"1"
+    },
+    "club":{
+        "club_handpick":"1",
+        "club_emotion":"1",
+        "club_woman":"1",
+        "club_sport":"1",
+        "club_game":"1",
+        "club_recreation":"1",
+        "club_music":"1",
+        "club_hobby":"1",
+        "club_life":"1",
+        "club_finance":"1",
+        "club_schoolfellow":"1",
+        "club_hisfellow":"1",
+        "club_politics":"1",
+        "club_science":"1",
+        "club_literature":"1",
+        "club_art":"1",
+        "club_other":"1"
+    },
+    "immigration":{
+        "i_column":"0",
+        "i_lawyer":"0",
+        "i_news":"1",
+        "i_visa":"1",
+        "i_discussion":"0"
+    },
+    "dianping":{
+        "dp_setcity":"0",
+        "dp_recommend":"0",
+        "dp_near":"1",
+        "dp_search":"0",
+        "dp_rank":"1"
     }
-    obj.className="active";
-    document.cookie="sec_category="+obj.id;
+};
+
+function go_last_page() {
+    window.history.go(-1);
+}
+
+function get_info_by_id(id) {
+    var app_type = getCookie_wap("app_type");
+    var domain = label_list[app_type];
+
+    var info = [];
+    if (domain) {
+        if (domain[id]) {
+            info["domain"] = app_type;
+            info["needpage"] = domain[id]
+        }
+    }
+    return info;
+}
+
+function request_url_generate(id) {
+    var info = get_info_by_id(id);
+    var url = "/404.php";
+    var extra = getCookie_wap("extra");
+    if (extra == "") {
+        document.cookie = "extra=" + "0|all";
+        extra = "0";
+    }
+
+    if (info["domain"] != undefined)
+        switch (info["domain"]) {
+            case "index":
+            case "immigration":
+            case "dianping":
+                url = "/mobile/forum/request/" + id + ".php" + "?extra=" + extra;
+                break;
+            case "news":
+            case "club":
+                url = "/mobile/forum/request/" + info["domain"] + ".php?type=" + id;
+                break;
+            default:
+                break;
+        }
+
+    return url;
+}
+
+function need_page(id) {
+    var info = get_info_by_id(id);
+    return (info["needpage"] == "1");
+}
+
+function sec_select(obj) {
+    if (arguments[1] != undefined)
+        document.cookie = "sec_category=" + arguments[1];
+    document.cookie = "extra=" + obj.id;
+    document.cookie = "current_page=1";
+}
+
+function sec_category(obj) {
+    var current_active = getCookie_wap("sec_category");
+    if(current_active != "") {
+        var act_obj = document.getElementById(current_active);
+        act_obj.className = "none";
+    }
+    obj.className = "active";
+    document.cookie = "sec_category="+obj.id;
+    document.cookie = "current_page=1";
     //ajax 请求部分
+//    sec_category_auto();
 }
 function sec_category_auto(){
     var current_active=getCookie_wap("sec_category");
     var obj=document.getElementById(current_active);
     //obj.className="active";
     //ajax 请求部分
-    var url="/mobile/forum/request/"+obj.id+".php";
-
+    var url = request_url_generate(obj.id);
     var myAjax = new Ajax.Request(url,
         {
             method: 'post'
@@ -22,21 +132,98 @@ function sec_category_auto(){
             , asynchronous: false
             , onSuccess: function (ret) {
             var ret_json = eval("(" + ret.responseText + ")");
-            if(ret_json.carouselfigure != "undefined") {
+            if(ret_json.carouselfigure != undefined) {
                 var tag = document.getElementById("carouselfigure");
+                tag.setAttribute("style", 'display:block');
                 tag.outerHTML = ret_json.carouselfigure;
+            } else {
+                var tag = document.getElementById("carouselfigure");
+                tag.setAttribute("style", 'display:none');
             }
-            if(ret_json.detail!= undefined) {
+
+            if(ret_json.detail != undefined) {
                 var tag = document.getElementById("detail");
-                tag.outerHTML = ret_json.detail;
+                tag.innerHTML = ret_json.detail;
+                var pagebox = document.getElementById("current_next_page");
+                if(pagebox)
+                    pagebox.parentNode.removeChild(pagebox);
+
+                if (need_page(obj.id)) {
+                    var pageNext = document.createElement("div");
+                    pageNext.setAttribute("id", "current_page2");
+                    tag.appendChild(pageNext);
+
+                    var more_text = document.createElement("h3");
+                    more_text.setAttribute("id", "current_next_page")
+                    more_text.setAttribute("align", "center");
+                    more_text.setAttribute("onclick", "getMoreArticle()");
+                    if (getCookie_wap("end_flag") == "1")
+                        more_text.innerHTML = "已加载全部内容";
+                    else
+                        more_text.innerHTML = "点击加载更多内容";
+
+                    document.getElementById("pagebox").appendChild(more_text);
+                }
             }
+
+            // js.js设置点击时的效果
+            setEffect();
         }
             , onFailure: function (x) {
             alert("fail to get data from server " +
-            ",please check your connection;")
+            ",please check your connection;");
         }
         });
 }
+
+function getMoreArticle() {
+    /* end_flag 为1表示数据已经到尾 */
+    if (getCookie_wap("end_flag") != "0")
+        return;
+    var page = parseInt(getCookie_wap("current_page"))+1;
+    document.cookie = "current_page=" + page;
+    var url = request_url_generate(getCookie_wap("sec_category"));
+    var more_text = document.getElementById("current_next_page");
+    more_text.innerHTML = "正在加载中...";
+    var myAjax = new Ajax.Request(url,
+        {
+            method: 'post'
+            , parameters: null
+            , asynchronous: false
+            , onSuccess: function (ret) {
+            var ret_json = eval("(" + ret.responseText + ")");
+
+            if(ret_json.article!= undefined) {
+                var end_flag = getCookie_wap("end_flag");
+//                var page = parseInt(getCookie_wap("current_page"));
+                var pageCurrent  = document.getElementById("current_page"+page);
+                var tag = document.getElementById("detail");
+                pageCurrent.innerHTML = ret_json.article;
+
+                if (end_flag != "1") {
+                    var pageNext = document.createElement("div");
+                    pageNext.setAttribute("id", "current_page"+(page+1));
+                    tag.appendChild(pageNext);
+                }
+
+                more_text.innerHTML = "";
+                if (end_flag == "1")
+                    more_text.innerHTML = "已加载全部内容";
+                else {
+                    more_text.innerHTML = "点击加载更多内容"
+                }
+            }
+
+            // js.js设置点击时的效果
+            setEffect();
+        }
+            , onFailure: function (x) {
+            alert("fail to get data from server " +
+                ",please check your connection;")
+        }
+        });
+}
+
 function getCookie_wap(name){
     var strCookie=document.cookie;
     var arrCookie=strCookie.split("; ");
@@ -228,6 +415,7 @@ function passwd_show(btn){
         document.getElementById("password").value=val;
     }
 }
+
 function check_username(obj) {
     var err=document.getElementById("user_err");
     if (obj.value.indexOf(" ") != -1) {
@@ -308,6 +496,7 @@ function check_password(){
 
     }
 }
+
 function request_error(ret){
     Alert(ret.responseText,2);
 }
@@ -391,4 +580,5 @@ function check_country(obj){
     }else{
         document.getElementById('send_sms_btn').disabled=true;
     }
+
 }

@@ -4,6 +4,8 @@ require_once("func.php");
 
 if(!empty($_COOKIE["app_show"]))
     $page_title= iconv("UTF-8","GBK",$_COOKIE["app_show"]);
+else
+    $page_title = iconv("UTF-8", "GBK", "论坛");
 ?>
 <html lang="zh">
     <head>
@@ -16,14 +18,10 @@ if(!empty($_COOKIE["app_show"]))
         <link rel="stylesheet" href="css/reset.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="css/nivo-slider.css" type="text/css" media="screen"/>
         <link rel="stylesheet" href="css/style.css" type="text/css" media="screen"/>
-	<link rel="stylesheet" href="css/reg.css" type="text/css" media="screen"/>
-	<link rel="stylesheet" href="css/footer.css" type="text/css" media="screen"/>
-	    <script type="text/javascript" src="js/jquery.js"></script>
-        <script type="text/javascript" src="js/jquery.nivo.slider.js" charset="utf-8"></script>
-        <script type="text/javascript" src="js/js.js"></script>
-        <script type="text/javascript" src="js/slide.js"></script>
-        <script src="js/funs.js" type="text/javascript"></script>
-        <script src="../../js/prototype.js" type="text/javascript"></script>
+        <link rel="stylesheet" href="css/silder.css" type="text/css" media="screen" />
+        <link rel="stylesheet" href="css/nivo-slider.css" type="text/css" media="screen"/>
+        <link rel="stylesheet" href="css/reg.css" type="text/css" media="screen"/>
+		  <link rel="stylesheet" href="css/footer.css" type="text/css" media="screen"/>
     </head>
     <body>
     <div class="conter">
@@ -42,7 +40,13 @@ if(!empty($_COOKIE["app_show"]))
                 <li class="navone_li"><a href="index.php"><img src="img/item.png" alt="item.png"/>论坛</a></li>
                 <li class="navone_li"><a href="news.php"><img src="img/item.png" alt="item.png"/>新闻</a></li>
                 <li class="navone_li"><a href="club.php"><img src="img/item.png" alt="item.png"/>俱乐部</a></li>
-                <li class="navone_li"><a href="immigration.php"><img src="img/item.png" alt="item.png"/>移民</a></li>
+                <li class="navone_li"><a href="immigration.php"><img src="img/item.png" alt="item.png"/>移民专栏</a></li>
                 <li class="navone_li"><a href="dianping.php"><img src="img/item.png" alt="item.png"/>点评</a></li>
                 <li class="navone_li noborder"><a href="search.html"><img src="img/item.png" alt="item.png"/>搜索</a></li>
             </ul>
+        <script type="text/javascript" src="js/jquery.js"></script>
+        <script type="text/javascript" src="js/jquery.nivo.slider.js" charset="utf-8"></script>
+        <script type="text/javascript" src="js/js.js"></script>
+        <script type="text/javascript" src="js/slide.js"></script>
+        <script type="text/javascript" src="js/funs.js"></script>
+        <script type="text/javascript" src="../../js/prototype.js"></script>
