@@ -925,7 +925,7 @@ body {
     font-size:1.4em;
 }
 .litwo_box{
-    widt:376px;
+    width:376px;
     overflow: hidden;
     margin:0 auto;
 }
@@ -2012,7 +2012,7 @@ section { padding: 10px;overflow: hidden;zoom: 1;border-top: 1px solid #dbdbdb;o
 .mycomm-frame .all-comment .name{margin-left:-78px;}
 .mycomm-frame li select{position:absolute;top:0;right:0;z-index:2;width:84%;height:40px;vertical-align:middle;border:0;background-color:transparent;-webkit-appearance:none;color:#a3a3a3;outline: 0;}
 .shop-mycomment .tarea,.mycomm-frame li .inp-t{width:90%;border:1px solid #ededed;height:80px;padding:10px;}
-.mycomm-frame li .inp-t{height:40px;padding:0;border:0;background:transparent；}
+.mycomm-frame li .inp-t{height:40px;padding:0;border:0;background:transparent;}
 .shop-mycomment .tarea{width:92.5%;border:0;background:transparent;outline: 0;}
 .mycomm-frame .comm-star{background-image: url(http://si1.s1.dpfile.com/m/css/app/dianping/img/sprite.1c1066e714fb2da72989667492449820.png);background-repeat: no-repeat;background-size: 250px auto;}
 .mycomm-frame .comm-star{width:36px;height:36px;display:inline-block;background-position:0 -347px;vertical-align:middle;background-size:215px auto;}
