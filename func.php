@@ -1,4 +1,12 @@
 <?php
+
+function log2file($str) {
+    $str = (string)$str;
+    $fp = fopen("/home/bbs/ly_mitbbs.log", "ab+");
+    fputs($fp, $str);
+    fclose($fp);
+}
+
 $php_page_arr=array(
     "/mobile/forum/index.php"=>"首页"
     ,"b"=>"2"
@@ -341,6 +349,34 @@ function getSpellInitial($str)
     }
 }
 
+/* 获取当前页面的URL */
+function curPageURL()
+{
+    $pageURL = 'http';
+
+    if ($_SERVER["HTTPS"] == "on")
+    {
+        $pageURL .= "s";
+    }
+    $pageURL .= "://";
+
+    $this_page = $_SERVER["REQUEST_URI"];
+
+    // 只取 ? 前面的内容
+    if (strpos($this_page, "?") !== false)
+        $this_page = reset(explode("?", $this_page));
+
+    if ($_SERVER["SERVER_PORT"] != "80")
+    {
+        $pageURL .= $_SERVER["SERVER_NAME"] . ":" . $_SERVER["SERVER_PORT"] . $this_page;
+    }
+    else
+    {
+        $pageURL .= $_SERVER["SERVER_NAME"] . $this_page;
+    }
+    return $pageURL;
+}
+
 function get_row_count($board_id,$article_id,$conn){
     $sql = "SELECT COUNT(*) FROM dir_article_" . $board_id.
         " WHERE groupid=".$article_id;
@@ -407,8 +443,9 @@ function wap_read_article($filepath, $attach_link, $img_ago_str, $img_after_str,
     for ($j = $firsLine; $j < $lines; $j++) {
         if ($firsLine == 4 && $content_array[$j] == "--"&&$articlType!=1) {
             //结尾部分
-            $tmp = mit_iconv($content_array[$j + 1]);
-            $tmp1 = mit_iconv($content_array[$j + 2]);
+            $tmp = iconv("GBK","UTF-8//IGNORE",$content_array[$j + 1]);
+
+            $tmp1 = iconv("GBK","UTF-8//IGNORE",$content_array[$j + 2]);
             if (strpos($tmp, "来源") || strpos($tmp1, "来源") || strpos($tmp1, "修改") || strpos($tmp, "修改")) {
                 if ($mailtype != 1) {
                     break;
@@ -1330,6 +1367,7 @@ function url_generate($level, $data) {
      *      3: 分组
      *          array("board"=>$board_name, "group"=>$group_id)
      *          array("club"=>$clubname, "group"=>$group_id)
+     *          array("news"=>$newsboardname, "group"=>$group_id)
      *      4: DIY 传入action和args，返回url
      *          $data = {
      *              "action"=>"one_test.php"
@@ -1364,6 +1402,9 @@ function url_generate($level, $data) {
                 else if (isset($data["club"]))
                     // 俱乐部文章跳转地址
                     $url = 'one_group_club.php?type='.$data["type"].'&club='.$data["club"].'&group='.$data["groupid"];
+                else if (isset($data["news"]))
+                    // 新闻文章跳转地址
+                    $url = 'one_group_news.php?type='.$data["type"].'&news='.$data["news"].'&group='.$data["groupid"];
             }
 
             break;
@@ -1654,7 +1695,7 @@ function getHeadLineNews($link, $page) {
             $aNew["total_reply"] = getNewsReply($link, $row["board_id"], $row1["groupid"]);
             $aNew["read_num"] = $row1["read_num"];
             $aNew["postTime"] = $row1["posttime"];
-            $aNew["href"] = url_generate(3, array("board"=>$row1["boardname"], "groupid"=>$aNew["groupID"]));
+            $aNew["href"] = url_generate(3, array("news"=>$row1["boardname"], "groupid"=>$aNew["groupID"]));
             $filepath = BBS_HOME."/boards/".$aNew["BoardsEngName"]."/".$row1["filename"];
             $filehandle = fopen($filepath, "r");
 
@@ -1791,7 +1832,7 @@ function getNewsDataByType($link, $page, $newsTypeName) {
         $aNew["BoardsEngName"] = $boardName;
         $aNew["boardID"] = $boardid;
         if ($newsTypeName != "immigration") {
-            $aNew["href"] = url_generate(3, array("board"=>$boardName, "groupid"=>$row["groupid"]));
+            $aNew["href"] = url_generate(3, array("news"=>$boardName, "groupid"=>$row["groupid"]));
         } else {
             $aNew["href"] = url_generate(4, array(
                 "action"=>"/mobile/forum/i_article.php",

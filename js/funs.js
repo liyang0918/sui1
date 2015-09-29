@@ -168,6 +168,9 @@ function sec_category_auto(){
 
             // js.js设置点击时的效果
             setEffect();
+            if (obj.id == "top")
+                setImageEffect();
+
         }
             , onFailure: function (x) {
             alert("fail to get data from server " +
@@ -233,12 +236,17 @@ function getCookie_wap(name){
     }
     return "";
 }
-
 function post_article(board,title,reid){
+    var club_flag = arguments[3]?arguments[3]:"0";
     var url = "request/post_article.php"
     var text_id="text_"+reid;
     var content=document.getElementById("text_"+reid);
-    var para= "board="+board+"&title="+title+"&reid="+reid+"&content="+content.value;
+    var para = "";
+    if (club_flag == 0)
+        para = "board="+board+"&title="+title+"&reid="+reid+"&content="+content.value;
+    else
+        para = "club="+board+"&title="+title+"&reid="+reid+"&content="+content.value;
+
     var myAjax = new Ajax.Request(url,
         {
             method: 'post'
@@ -573,7 +581,7 @@ function check_phone(obj){
     }
 
 }
-function check_country(obj){
+function check_country(obj) {
     var phone=document.getElementById("phone_num");
     if(obj.value!="Not set"&&phone.value!=""){
         check_phone(phone);
@@ -581,4 +589,14 @@ function check_country(obj){
         document.getElementById('send_sms_btn').disabled=true;
     }
 
+}
+
+function add_read_num(obj) {
+    var url = "request/add_read_num.php";
+    var pars = "href="+encodeURIComponent(obj.href);
+    var myAjax = new Ajax.Request(url,
+        {
+            method: 'post'
+            , parameters: pars
+        });
 }

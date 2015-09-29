@@ -1,6 +1,5 @@
 
-$(document).ready(function(){
-
+function setImageEffect(){
     $dragBln = false;
     arr=["第一个图片","第一个图片","第一个图片"];
 
@@ -48,4 +47,4 @@ $(document).ready(function(){
         }, 5000);
     });
 
-});
+}
