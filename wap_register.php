@@ -74,6 +74,7 @@ if($_POST["submit"]) {
         //$ret=bbs_createnewid($userid,$password,$nickname,$reg_email,$reuser);
         //$ret=bbs_createnewid_ph($userid,$password,$nickname,$area_code,$reg_phone,$reuser);
         $ret = bbs_createnewid_ph($user_id, $password, $nickname, $country, $reg_phone, $reg_email, $reuser);
+        echo $ret;
         switch ($ret) {
             case 0:
                 break;
@@ -138,6 +139,11 @@ if($_POST["submit"]) {
             case 19:
                 if ($i == 0) {
                     $error[$i++] = "您输入的邮件地址非法或已被其他用户占用,请输入其它邮件地址";
+                    break;
+                }
+            case 106:
+                if ($i == 0) {
+                    $error[$i++] = "该用户名被占用";
                     break;
                 }
             default:

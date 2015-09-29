@@ -11,6 +11,12 @@
 <script type="text/javascript" src="js/jquery.js"></script>
 <script type="text/javascript" src="js/funs.js"></script>
 
+<script type="text/javascript" src="js/lunbo.js"></script>
+
+<?php
+
+?>
+
 <script type="text/javascript">
     /* 刷新页面时再清除已读的页数 */
     $(document).ready(document.cookie="current_page=1");
