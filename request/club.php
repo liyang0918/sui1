@@ -30,7 +30,7 @@ foreach ($t_data as $i=>$each) {
 
     $in_list_flag = 1;
     $str_img .= '<div class="club_item">';
-    $str_img .= '<a href="'.$each["href"].'"><img class="club_img" src="'.$each["clubimg"].'" alt="club_img" /></a>';
+    $str_img .= '<a href="'.$each["href"].'" onclick="add_read_num(this)"><img class="club_img" src="'.$each["clubimg"].'" alt="club_img" /></a>';
     $str_img .= '<p>'.$each["cnName"].'</p>';
     $str_img .= '</div>';
 }
@@ -75,7 +75,7 @@ $str_article = '<ul class="club_cont">';
 $each = array();
 foreach ($article_list as $each) {
     $str_article .= '<li>';
-    $str_article .= '<a href="'.$each["href"].'">';
+    $str_article .= '<a href="'.$each["href"].'" onclick="add_read_num(this)">';
     $str_article .= '<h3 class="club_cont_top">'.$each["BoardsCnName"].'</h3>';
     $str_article .= '<div class="club_cont_middle">';
     $str_article .= '<p>'.$each["content"].'</p>';

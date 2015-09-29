@@ -29,7 +29,7 @@ function getArticleLunbo($link){
 
 function getTopArticle($link, $page, $limit_article) {
     $pagenum = 40;
-    $from = $page*$pagenum;
+    $from = ($page-1)*$pagenum;
     $is_china_flag = is_china();
     if ($is_china_flag == 1)
         $station_id = 2;
@@ -167,7 +167,7 @@ foreach ($articlelist as $row) {
 $type = "index";
 // top image start
 $str_img = '<div id="carouselfigure" class="main_visual">';
-$img_page = '<div class="flickimg_con">';
+$img_page = '<div class="flicking_con">';
 $img_url = '<div class="main_image"><ul>';
 foreach ($img_arr as $i=>$imgDate) {
 //    if ($index == 1) {
@@ -179,19 +179,21 @@ foreach ($img_arr as $i=>$imgDate) {
     $img_page .= '<a href="javascript:;">'.($i+1).'</a>';
     $img_url .=
         '<li>
-            <a href="'.$php_page.'">
-                <span class="img" background="'.$imgDate["imgURL"].'"></span>
+            <a href="'.$php_page.'" onclick="add_read_num(this)">
+                <span class="img_1" background="'.$imgDate["imgURL"].'"></span>
             </a>
         </li>';
 }
+//                <span class="img_1" background="'.$imgDate["imgURL"].'"></span>
 $img_page .= '</div>';
 $img_url .= '</ul></div>';
+$str_img .= $img_page.$img_url;
 $str_img .=
     '<div class="text">
         <p id="text">
         </p>
     </div>';
-$str_img .= $img_page.$img_url."</div>";
+$str_img .= "</div>";
 //top image end
 
 //detail start
@@ -205,24 +207,24 @@ foreach ($top_article as $each) {
     if ($each["imgNum"] == 1) {
         $str_article .= '<li class="article_list_singlepic">';
         $str_article .= '<a href="'.$each["href"].'">';
-        $str_article .= '<img class="single_img" src="'.$each["imgList"].'" alt="pic"/>';
+        $str_article .= '<img class="single_img" src="'.$each["imgList"][0].'" alt="pic"/>';
         $str_article .= '</a>';
         $str_article .= '<div class="content_list singlepic">';
-        $str_article .= '<h4><a href="'.$each["href"].'">'.$each["title"].'</a></h4>';
+        $str_article .= '<h4><a href="'.$each["href"].'" onclick="add_read_num(this)">'.$each["title"].'</a></h4>';
     } elseif ($each["imgNum"] == 0) {
         $str_article .= '<li class="article_list_nopic">';
         $str_article .= '<div class="content_list nopic">';
-        $str_article .= '<h4><a href="'.$each["href"].'">'.$each["title"].'</a></h4>';
+        $str_article .= '<h4><a href="'.$each["href"].'" onclick="add_read_num(this)">'.$each["title"].'</a></h4>';
     } else {
         $str_article .= '<li class="article_list_allpic">';
         $str_article .= '<div class="content_list allpic">';
-        $str_article .= '<h4><a href="'.$each["href"].'">'.$each["title"].'</a></h4>';
+        $str_article .= '<h4><a href="'.$each["href"].'" onclick="add_read_num(this)">'.$each["title"].'</a></h4>';
         $str_article .= '<ul class="img_list">';
         $i = 0;
         foreach ($each["imgList"] as $imgUrl) {
             if($i >= 3)
                 break;
-            $str_article .= '<li><a href="'.$each["href"].'"><img src="'.$imgUrl.'" alt="pic"/></a></li>';
+            $str_article .= '<li><a href="'.$each["href"].'" onclick="add_read_num(this)"><img src="'.$imgUrl.'" alt="pic"/></a></li>';
             $i++;
         }
         $str_article .= '</ul>';
@@ -246,5 +248,6 @@ if ($page == 1)
     echo json_encode($all_arr);
 else
     echo json_encode(array("article"=>$str_article));
+
 mysql_close($link);
 ?>

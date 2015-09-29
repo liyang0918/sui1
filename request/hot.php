@@ -20,7 +20,7 @@ if ($topic_num > 0) {
     if ($topic_num > 1) {
         for ($i = 0; $i < $topic_num-1; $i++) {
             $str_content .= '<div class="content_list nopic padding10">';
-            $str_content .= '<h4><a href="'.$t_data[$i]["href"].'">'.$t_data[$i]["title"].'</a></h4>';
+            $str_content .= '<h4><a href="'.$t_data[$i]["href"].'" onclick="add_read_num(this)">'.$t_data[$i]["title"].'</a></h4>';
             $str_content .= '<p class="commen_p padding-bottom border_bottom">';
             $str_content .= '<span>'.$t_data[$i]["author"].'</span>';
             $str_content .= '<span class="commen_margin">'.$t_data[$i]["boardsname"].'</span>';
@@ -29,7 +29,7 @@ if ($topic_num > 0) {
         }
     }
     $str_content .= '<div class="content_list nopic padding10 noborder_bottom">';
-    $str_content .= '<h4><a href="'.$t_data[$topic_num-1]["href"].'">'.$t_data[$topic_num-1]["title"].'</a></h4>';
+    $str_content .= '<h4><a href="'.$t_data[$topic_num-1]["href"].'" onclick="add_read_num(this)">'.$t_data[$topic_num-1]["title"].'</a></h4>';
     $str_content .= '<p class="commen_p padding-bottom">';
     $str_content .= '<span>'.$t_data[$topic_num-1]["author"].'</span>';
     $str_content .= '<span class="commen_margin">'.$t_data[$topic_num-1]["boardsname"].'</span>';
@@ -50,7 +50,7 @@ if ($topic_num > 0) {
     if ($topic_num > 1) {
         for ($i = 0; $i < $topic_num-1; $i++) {
             $str_content .= '<div class="content_list nopic padding10">';
-            $str_content .= '<h4><a href="'.$t_data[$i]["href"].'">'.$t_data[$i]["title"].'</a></h4>';
+            $str_content .= '<h4><a href="'.$t_data[$i]["href"].'" onclick="add_read_num(this)">'.$t_data[$i]["title"].'</a></h4>';
             $str_content .= '<p class="commen_p padding-bottom border_bottom">';
             $str_content .= '<span>'.$t_data[$i]["author"].'</span>';
             $str_content .= '<span class="commen_margin">'.$t_data[$i]["boardsname"].'</span>';
@@ -59,7 +59,7 @@ if ($topic_num > 0) {
         }
     }
     $str_content .= '<div class="content_list nopic padding10 noborder_bottom">';
-    $str_content .= '<h4><a href="'.$t_data[$topic_num-1]["href"].'">'.$t_data[$topic_num-1]["title"].'</a></h4>';
+    $str_content .= '<h4><a href="'.$t_data[$topic_num-1]["href"].'" onclick="add_read_num(this)">'.$t_data[$topic_num-1]["title"].'</a></h4>';
     $str_content .= '<p class="commen_p padding-bottom">';
     $str_content .= '<span>'.$t_data[$topic_num-1]["author"].'</span>';
     $str_content .= '<span class="commen_margin">'.$t_data[$topic_num-1]["boardsname"].'</span>';

@@ -78,7 +78,7 @@ foreach ($forum_class_list as $each) {
         if ($article_num > 1) {
             for ($i = 0; $i < $article_num-1; $i++) {
                 $str_content .= '<div class="content_list nopic padding10">';
-                $str_content .= '<h4><a href="'.$t_data[$i]["href"].'">'.$t_data[$i]["title"].'</a></h4>';
+                $str_content .= '<h4><a href="'.$t_data[$i]["href"].'" onclick="add_read_num(this)">'.$t_data[$i]["title"].'</a></h4>';
                 $str_content .= '<p class="commen_p padding-bottom border_bottom">';
                 $str_content .= '<span>'.$t_data[$i]["author"].'</span>';
                 $str_content .= '<span class="commen_margin">'.$t_data[$i]["boardsname"].'</span>';
@@ -87,7 +87,7 @@ foreach ($forum_class_list as $each) {
             }
         }
         $str_content .= '<div class="content_list nopic padding10 noborder_bottom">';
-        $str_content .= '<h4><a href="'.$t_data[$article_num-1]["href"].'">'.$t_data[$article_num-1]["title"].'</a></h4>';
+        $str_content .= '<h4><a href="'.$t_data[$article_num-1]["href"].'" onclick="add_read_num(this)">'.$t_data[$article_num-1]["title"].'</a></h4>';
         $str_content .= '<p class="commen_p padding-bottom">';
         $str_content .= '<span>'.$t_data[$article_num-1]["author"].'</span>';
         $str_content .= '<span class="commen_margin">'.$t_data[$article_num-1]["boardsname"].'</span>';

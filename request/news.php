@@ -17,18 +17,18 @@ foreach ($head_line_news as $each) {
         if ($each["imgNum"] == 1)
             $str_article .= '<img src="'.$each["imgList"][0].'" alt="img">';
         $str_article .= '<div class="lione_r_box">';
-        $str_article .= '<a href="'.$each["href"].'"><h3>'.$each["title"].'</h3></a>';
-        $str_article .= '<a href="'.$each["href"].'"><p>'.$each["notes"].'</p></a>';
+        $str_article .= '<a href="'.$each["href"].'" onclick="add_read_num(this)"><h3>'.$each["title"].'</h3></a>';
+        $str_article .= '<a href="'.$each["href"].'" onclick="add_read_num(this)"><p>'.$each["notes"].'</p></a>';
         $str_article .= '</div>';
         $str_article .= '<span class="critize right_b">'.$each["total_reply"].'ÆÀÂÛ</span>';
     } else {
         $str_article .= '<li class="news_ltems news_list_litwo">';
-        $str_article .= '<a href="'.$each["href"].'"><h3>'.$each["title"].'</h3></a>';
+        $str_article .= '<a href="'.$each["href"].'" onclick="add_read_num(this)"><h3>'.$each["title"].'</h3></a>';
         $str_article .= '<ul class="litwo_box">';
         for ($i = 0; $i < $each["imgNum"]-1; $i++)
-            $str_article .= '<li><a href="'.$each["href"].'"><img src="'.$each["imgList"][$i].'" alt="img"></a></li>';
+            $str_article .= '<li><a href="'.$each["href"].'" onclick="add_read_num(this)"><img src="'.$each["imgList"][$i].'" alt="img"></a></li>';
 
-        $str_article .= '<li class="margin_right"><a href="'.$each["href"].'"><img src="'.$each["imgList"][$i].'" alt=""></a></li>';
+        $str_article .= '<li class="margin_right"><a href="'.$each["href"].'" onclick="add_read_num(this)"><img src="'.$each["imgList"][$i].'" alt=""></a></li>';
         $str_article .= '</ul>';
         $str_article .= '<span class="critize right_t">'.$each["notes"].'ÆÀÂÛ</span>';
     }

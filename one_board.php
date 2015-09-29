@@ -70,7 +70,7 @@ $ret = getBoardArticles();
         echo '<div class="theme_top">';
         foreach ($ret[1] as $each) {
 ?>
-            <a href="<?php echo $each['href']; ?>"> <p class="theme_p"><span class="theme_red">÷√∂•</span><?php echo $each["title"]; ?></p></a>
+            <a href="<?php echo $each['href']; ?>" onclick="add_read_num(this)"> <p class="theme_p"><span class="theme_red">÷√∂•</span><?php echo $each["title"]; ?></p></a>
 <?php } ?>
       </div>
 <?php
@@ -81,7 +81,7 @@ $ret = getBoardArticles();
         foreach ($ret[0] as $each) {
 ?>
             <li class="theme_li">
-                <a class="theme_a" href="<?php echo $each["href"]; ?>">
+                <a class="theme_a" href="<?php echo $each["href"]; ?>" onclick="add_read_num(this)">
                     <div class="theme_up">
                         <img class="theme_small" src="<?php echo $each["img"]; ?>" alt="pic"/>
                         <div class="theme_right">

@@ -17,7 +17,7 @@ $url_page = url_generate(3, array("type"=>$_COOKIE["app_type"], "club"=>$club_na
 $article_type = 1; //3是新闻
 $clubarr = array();
 $club_id = bbs_getclub($club_name, $clubarr);
-
+var_dump($clubarr);
 $per_page=10;
 $page = intval($_GET["page"]);
 if(empty($page)){
@@ -56,6 +56,9 @@ if($row == false){
         $tmp_arr["file"] = check_club_filename($club_name, $row["filename"]);
         $content_arr = get_file_content($tmp_arr["file"], $row["attachment"], $club_name, $row["article_id"], $article_type, $att_arr);
         $tmp_arr["content"] = trans_content_html($content_arr[1]);
+        $tmp_content = iconv("UTF-8", "GBK//IGNORE", $tmp_arr["content"]);
+        if (!empty($tmp_content))
+            $tmp_arr["content"] = $tmp_content;
         $tmp_arr["attach"] = $att_arr;
         $tmp_arr["article_id"]=$row["article_id"];
         $prt_arr[] = $tmp_arr;
@@ -67,7 +70,7 @@ $total_row = get_row_count($clubarr["BOARD_ID"],$group_id,$conn);
 $total_page = intval($total_row/$per_page)+1;
 
 //end page
-$sql = "SELECT owner_id,owner,groupid,article_id,title,posttime,total_reply,read_num,filename,attachment  FROM dir_article_" . $clubarr["BOARD_ID"] . " ".
+$sql = "SELECT owner_id,owner,groupid,article_id,title,posttime,total_reply,read_num,filename,attachment  FROM club_dir_article_" .$sql_table_id. " ".
     "WHERE groupid=".$group_id." AND article_id<>".$group_id;
 $order = " ORDER BY article_id";
 $limit =
@@ -90,9 +93,12 @@ while ($row = mysql_fetch_array($ret)) {
     $tmp_arr["img"] = get_user_img($row["owner"]);
     $tmp_arr["posttime"] = $row["posttime"];
     $tmp_arr["floor"] = $floor_cnt."楼";
-    $tmp_arr["file"] = check_board_filename($club_name,$row["filename"]);
+    $tmp_arr["file"] = check_club_filename($club_name,$row["filename"]);
     $content_arr = get_file_content($tmp_arr["file"],$row["attachment"],$club_name,$row["article_id"],$article_type,$att_arr);
     $tmp_arr["content"] = trans_content_html($content_arr[1]);
+    $tmp_content = iconv("UTF-8", "GBK//IGNORE", $tmp_arr["content"]);
+    if (!empty($tmp_content))
+        $tmp_arr["content"] = $tmp_content;
     $tmp_arr["attach"] = $att_arr;
     $tmp_arr["article_id"] = $row["article_id"];
     $tmp_arr["re_content"] = get_add_textarea_context($tmp_arr["file"],$tmp_arr["owner"]) ;
@@ -130,7 +136,18 @@ $i_cnt = count($prt_arr);
                 <p id="content_<?php echo $prt_arr[$i_loop]["article_id"];?>"class="theme_middle black_font"><?php echo $prt_arr[$i_loop]["content"];?></p>
                 <div id="re_<?php echo $prt_arr[$i_loop]["article_id"];?>" class="news_reply">
 <!--                    <a type="button" onclick="alert(2124)">修改</a>-->
-                    <a type="button" name="<?php echo $prt_arr[$i_loop]["article_id"];?>" onclick="reply_show(this)">回复</a>
+<?php
+$reply_href = url_generate(4, array(
+    "action"=>"one_reply.php",
+    "args"=>array(
+        "article_id"=>$prt_arr[$i_loop]["article_id"],
+        "group_id"=>$group_id,
+        "club"=>$club_name,
+        "title"=>$title,
+        "page"=>$page)
+));
+?>
+                    <a type="button" href="<?php echo $reply_href; ?>">回复</a>
 <!--                    <a class="cancel" href="javascript:;">删除</a>-->
                 </div>
             </li>

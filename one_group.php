@@ -5,7 +5,9 @@ include_once("head.php");
 //data part
 $board_name = $_GET["board"];
 $group_id = $_GET["group"];
-$url_page = url_generate(3, array("type"=>$_COOKIE["app_type"], "board"=>$board_name, "groupid"=>$group_id))."&page=";
+
+$curr_url = url_generate(3, array("type"=>$_COOKIE["app_type"], "board"=>$board_name, "groupid"=>$group_id));
+$url_page = $curr_url."&page=";
 $article_type = 1; //3是新闻
 $brdarr = array();
 $brdnum = bbs_getboard($board_name, $brdarr);
@@ -75,6 +77,7 @@ while ($row = mysql_fetch_array($ret)) {
     //if more than one article
     $content_arr = array();
     $tmp_arr = array();
+    $tmp_arr["title"] = $row["title"];
     $tmp_arr["owner"] = $row["owner"];
     $tmp_arr["img"] = get_user_img($row["owner"]);
     $tmp_arr["posttime"] = $row["posttime"];
@@ -84,7 +87,7 @@ while ($row = mysql_fetch_array($ret)) {
     $tmp_arr["content"] = trans_content_html($content_arr[1]);
     $tmp_arr["attach"] = $att_arr;
     $tmp_arr["article_id"] = $row["article_id"];
-    $tmp_arr["re_content"] = get_add_textarea_context($tmp_arr["file"],$tmp_arr["owner"]) ;
+    $tmp_arr["re_content"] = get_add_textarea_context($tmp_arr["file"],$tmp_arr["owner"]);
     $prt_arr[] = $tmp_arr;
     $floor_cnt++;
 }
@@ -92,6 +95,7 @@ mysql_free_result($ret);
 mysql_close($conn);
 $i_cnt = count($prt_arr);
 //data end
+
 ?>
     <div class="ds_box border_bottom">
         <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
@@ -119,7 +123,18 @@ $i_cnt = count($prt_arr);
                 <p id="content_<?php echo $prt_arr[$i_loop]["article_id"];?>"class="theme_middle black_font"><?php echo $prt_arr[$i_loop]["content"];?></p>
                 <div id="re_<?php echo $prt_arr[$i_loop]["article_id"];?>" class="news_reply">
 <!--                    <a type="button" onclick="alert(2124)">修改</a>-->
-                    <a type="button" name="<?php echo $prt_arr[$i_loop]["article_id"];?>" onclick="reply_show(this)">回复</a>
+<?php
+            $reply_href = url_generate(4, array(
+                "action"=>"one_reply.php",
+                "args"=>array(
+                    "article_id"=>$prt_arr[$i_loop]["article_id"],
+                    "group_id"=>$group_id,
+                    "board"=>$board_name,
+                    "title"=>$title,
+                    "page"=>$page)
+            ));
+?>
+                    <a type="button" href="<?php echo $reply_href; ?>">回复</a>
 <!--                    <a class="cancel" href="javascript:;">删除</a>-->
                 </div>
             </li>
@@ -130,7 +145,6 @@ $i_cnt = count($prt_arr);
     // 分页显示
     echo page_partition($total_row, $page, $per_page);
 ?>
-
 <head>
     <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript">
@@ -155,53 +169,41 @@ $i_cnt = count($prt_arr);
         });
     </script>
     <script type="text/javascript">
-        var text_id = "";
-        var btn_id = "";
-        function reply_show(obj){
-            <?php if($currentuser["userid"] == "guest"){ ?>
-                var url_page = "<?php echo $url_page.$page;?>";
-            alert(url_page);
-                document.cookie = "before_login="+url_page;
+        function board_reply(obj) {
+            var board = "<?php echo $board_name; ?>";
+            var groupid = obj.id;
+            var curr_url = "<?php echo $curr_url; ?>";
+            var currentuser = "<?php echo $currentuser["userid"]; ?>";
+            if (currentuser == "guest") {
+                document.cookie = "before_login="+"<?php echo $url_page.$page; ?>";
                 window.location = "login.php";
-            <?php } ?>
-            if(obj.text == "回复"){
-                obj.text = "取消"
-            $("#"+text_id).remove();
-            $("#"+btn_id).remove();
-            var re_id = obj.name;
-            text_id = "text_"+obj.name;
-            btn_id = "btn_"+obj.name;
-            var board_name = '<?php echo $board_name;?>';
-            var title = '<?php echo $title;?>';
-            var re_li = $("#re_"+re_id);
-            var re_con = $("#re_content_"+obj.name).text();
-//            var atta_str='<tr> <td align="right">附件：</td> ' +
-//                '<td colspan="2"><span id="pro_span"> ' +
-//                ' <a href="javascript:void(0);" class="news" onclick="document.getElementById(\'pic_span\').style.display=\'block\';document.getElementById(\'pro_span\').innerHTML=\'\';">点击添加附件</a></span> ' +
-//                ' <span style="display:none" id="pic_span"><input name="attachname" size="85" maxlength="100"  value="" type="text">' +
-//                ' <a href="#" onclick="return GoAttachWindow()" class="news">操作附件</a></span>' +
-//                '</td></tr>';
-            var atta_str='<input name="attachfile[]" capture="camera" accept="image/*" type="file" style="margin-left: 10px;width: 200px" multiple="multiple">';
-            var rep_body=atta_str+     '<tr><td><textarea id='+text_id+'>'+re_con+'</textarea><button id='+btn_id+' onclick="post_article('+'\''+board_name+'\',\''+title+'\','+obj.name+')">发表</button></td></tr>';
-                re_li.after(rep_body);
-            }else if(obj.text == "取消"){
-                obj.text = "回复";
-                $("#"+text_id).remove();
-                $("#"+btn_id).remove();
             }
+            curr_url = curr_url + "&reply=1";
+            window.location = curr_url;
         }
-        function GoAttachWindow(){
 
-            var hWnd = window.open("bbsupload.php","_blank","width=600,height=300,scrollbars=yes");
+        function reply_submit() {
+            var board = "<?php echo $board_name; ?>";
+            var groupid = "<?php echo $group_id; ?>";
+            var curr_url = "<?php echo $curr_url; ?>";
+            var title = "<?php echo $t_data['title']; ?>";
+            var currentuser = "<?php echo $currentuser["userid"]; ?>";
+            if (currentuser == "guest") {
+                document.cookie = "before_login="+curr_url;
+                window.location = "login.php";
+                return false;
+            }
 
-            if ((document.window != null) && (!hWnd.opener))
-
-                hWnd.opener = document.window;
-
-            hWnd.focus();
-
+            var obj = document.getElementById("text_"+groupid);
+            var content = obj.value;
+            if (content.replace(/(^\s*)|(\s*$)/g, "").length < 10) {
+                alert("评论内容不少于10个字!");
+                return false;
+            }
+            post_article(board, title, groupid);
+            curr_url = curr_url + "&reply=0";
+            window.location = curr_url;
             return false;
-
         }
     </script>
 </head>
