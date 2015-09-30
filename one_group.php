@@ -46,6 +46,9 @@ if($row == false){
         $tmp_arr["img"] = get_user_img($row["owner"]);
         $tmp_arr["file"] = check_board_filename($board_name, $row["filename"]);
         $content_arr = get_file_content($tmp_arr["file"], $row["attachment"], $board_name, $row["article_id"], $article_type, $att_arr);
+        $tmp_content = iconv("UTF-8", "GBK//IGNORE", $tmp_arr["content"]);
+        if (!empty($tmp_content))
+            $tmp_arr["content"] = $tmp_content;
         $tmp_arr["content"] = trans_content_html($content_arr[1]);
         $tmp_arr["attach"] = $att_arr;
         $tmp_arr["article_id"]=$row["article_id"];
@@ -85,6 +88,9 @@ while ($row = mysql_fetch_array($ret)) {
     $tmp_arr["file"] = check_board_filename($board_name,$row["filename"]);
     $content_arr = get_file_content($tmp_arr["file"],$row["attachment"],$board_name,$row["article_id"],$article_type,$att_arr);
     $tmp_arr["content"] = trans_content_html($content_arr[1]);
+    $tmp_content = iconv("UTF-8", "GBK//IGNORE", $tmp_arr["content"]);
+    if (!empty($tmp_content))
+        $tmp_arr["content"] = $tmp_content;
     $tmp_arr["attach"] = $att_arr;
     $tmp_arr["article_id"] = $row["article_id"];
     $tmp_arr["re_content"] = get_add_textarea_context($tmp_arr["file"],$tmp_arr["owner"]);
@@ -95,7 +101,6 @@ mysql_free_result($ret);
 mysql_close($conn);
 $i_cnt = count($prt_arr);
 //data end
-
 ?>
     <div class="ds_box border_bottom">
         <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
@@ -115,7 +120,7 @@ $i_cnt = count($prt_arr);
                     <img class="theme_small" src="<?php echo $prt_arr[$i_loop]["img"];?>" alt="theme_pic"/>
                     <div class="theme_right fc_span">
                         <h4><?php echo $prt_arr[$i_loop]["owner"];?></h4>
-                        <span class="theme_time"><?php echo $prt_arr[$i_loop]["posttime"];?></span>
+                        <span class="theme_time"><?php echo date("Y-m-d", strtotime($prt_arr[$i_loop]["posttime"]));?>&nbsp;&nbsp;<?php echo date("H:i", strtotime($prt_arr[$i_loop]["posttime"]));?></span>
                     </div>
                 </div>
                 <span class="news_position news_host"><?php echo $prt_arr[$i_loop]["floor"];?></span>

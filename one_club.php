@@ -22,14 +22,15 @@ $start_num = $article_num*($page-1)+1;
 /* 文章总数 */
 $totalarticle = bbs_countarticles($club_name, $dir_modes["ORIGIN"], 1);
 $articles = bbs_getarticles($club_name, $start_num, $article_num, $dir_modes["ORIGIN"], 1);
-function getBoardArticles() {
+
+function getClueArticles() {
     global $articles, $clubarr;
     $link = db_connect_web();
     $sql_table_id = intval($clubarr["CLUB_ID"])%256;
     if ($sql_table_id == 0)
         $sql_table_id = 256;
 
-    $sql_pub = "select owner_id,owner,posttime,title,read_num,reply_num from club_dir_article_".$sql_table_id." where groupid=";
+    $sql_pub = "select owner_id,owner,posttime as posttime,title,read_num,total_reply from club_dir_article_".$sql_table_id." where groupid=";
 
     // ret[1] 存放置顶文章，ret[0]存放普通文章
     $ret[0] = array();
@@ -44,7 +45,7 @@ function getBoardArticles() {
             if ($result) {
                 $row = mysql_fetch_array($result);
                 $row["href"] = $href;
-                $row["img"] = getHeadImage($row["owner_id"]);
+                $row["img"] = get_user_img($row["owner"]);
                 $ret[0][] = $row;
             }
             mysql_free_result($result);
@@ -55,7 +56,7 @@ function getBoardArticles() {
     return $ret;
 }
 
-$ret = getBoardArticles();
+$ret = getClueArticles();
 
 ?>
 
@@ -88,12 +89,12 @@ $ret = getBoardArticles();
                         <img class="theme_small" src="<?php echo $each["img"]; ?>" alt="pic"/>
                         <div class="theme_right">
                             <h4><?php echo $each["owner"]; ?></h4>
-                            <span><?php echo date("H:i", strtotime($each["posttime"])); ?>&nbsp;</span><span class="theme_time"><?php echo date("Y-m-d", strtotime($each["posttime"])); ?></span>
+                            <span><?php echo date("Y-m-d", strtotime($each["posttime"])); ?>&nbsp;&nbsp;</span><span class="theme_time"><?php echo date("H:i", strtotime($each["posttime"])); ?></span>
                         </div>
                     </div>
                     <p class="theme_middle"><?php echo $each["title"]; ?></p>
                     <div class="theme_bottom">
-                        <p class="p_r"><img src="img/email.png" alt="email.png"/><span><?php echo $each["reply_num"]; ?></span></p>
+                        <p class="p_r"><img src="img/email.png" alt="email.png"/><span><?php echo $each["total_reply"]; ?></span></p>
                         <p class="p_l"><img src="img/eye.png" alt="eye.png"/><span><?php echo $each["read_num"]; ?></span></p>
                     </div>
                 </a>
@@ -129,57 +130,6 @@ $ret = getBoardArticles();
                 this.href = url_page;
             });
         });
-    </script>
-    <script type="text/javascript">
-        var text_id = "";
-        var btn_id = "";
-        function reply_show(obj){
-            <?php if($currentuser["userid"] == "guest"){ ?>
-            var url_page = "<?php echo $url_page.$page;?>";
-            alert(url_page);
-            document.cookie = "before_login="+url_page;
-            window.location = "login.php";
-            <?php } ?>
-            if(obj.text == "回复"){
-                obj.text = "取消"
-                $("#"+text_id).remove();
-                $("#"+btn_id).remove();
-                var re_id = obj.name;
-                text_id = "text_"+obj.name;
-                btn_id = "btn_"+obj.name;
-                var board_name = '<?php echo $club_name;?>';
-                var title = '<?php echo $title;?>';
-                var re_li = $("#re_"+re_id);
-                var re_con = $("#re_content_"+obj.name).text();
-//            var atta_str='<tr> <td align="right">附件：</td> ' +
-//                '<td colspan="2"><span id="pro_span"> ' +
-//                ' <a href="javascript:void(0);" class="news" onclick="document.getElementById(\'pic_span\').style.display=\'block\';document.getElementById(\'pro_span\').innerHTML=\'\';">点击添加附件</a></span> ' +
-//                ' <span style="display:none" id="pic_span"><input name="attachname" size="85" maxlength="100"  value="" type="text">' +
-//                ' <a href="#" onclick="return GoAttachWindow()" class="news">操作附件</a></span>' +
-//                '</td></tr>';
-                var atta_str='<input name="attachfile[]" capture="camera" accept="image/*" type="file" style="margin-left: 10px;width: 200px" multiple="multiple">';
-                var rep_body=atta_str+     '<tr><td><textarea id='+text_id+'>'+re_con+'</textarea><button id='+btn_id+' onclick="post_article('+'\''+board_name+'\',\''+title+'\','+obj.name+')">发表</button></td></tr>';
-                re_li.after(rep_body);
-            }else if(obj.text == "取消"){
-                obj.text = "回复";
-                $("#"+text_id).remove();
-                $("#"+btn_id).remove();
-            }
-        }
-        function GoAttachWindow(){
-
-            var hWnd = window.open("bbsupload.php","_blank","width=600,height=300,scrollbars=yes");
-
-            if ((document.window != null) && (!hWnd.opener))
-
-                hWnd.opener = document.window;
-
-            hWnd.focus();
-
-            return false;
-
-        }
-    </script>
     </script>
 <?php
 include_once("foot.php");

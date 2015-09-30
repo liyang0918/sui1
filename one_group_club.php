@@ -17,7 +17,6 @@ $url_page = url_generate(3, array("type"=>$_COOKIE["app_type"], "club"=>$club_na
 $article_type = 1; //3是新闻
 $clubarr = array();
 $club_id = bbs_getclub($club_name, $clubarr);
-var_dump($clubarr);
 $per_page=10;
 $page = intval($_GET["page"]);
 if(empty($page)){
@@ -138,8 +137,8 @@ $i_cnt = count($prt_arr);
 <!--                    <a type="button" onclick="alert(2124)">修改</a>-->
 <?php
 $reply_href = url_generate(4, array(
-    "action"=>"one_reply.php",
-    "args"=>array(
+    "action" => "one_reply.php",
+    "args" => array(
         "article_id"=>$prt_arr[$i_loop]["article_id"],
         "group_id"=>$group_id,
         "club"=>$club_name,
@@ -154,6 +153,22 @@ $reply_href = url_generate(4, array(
             <?php }?>
         </ul>
     </div>
+    <div class="news_foot">
+        <input type="button" value="写跟帖" onclick="document.location='<?php
+        echo url_generate(4, array(
+           "action" => "one_reply.php",
+            "args" => array(
+                "article_id"=>$prt_arr[0]["article_id"],
+                "group_id"=>$group_id,
+                "club"=>$club_name,
+                "title"=>$title,
+                "page"=>$page
+            )
+        ));
+        ?>'" />
+        <span class="news_share"><img src="img/share.png" alt="share.png"/>分享</span>
+        <span class="news_collect"><img src="img/star.png" alt="star.png"/>收藏</span>
+    </div><!--  End news_foot-->
 <?php
     // 分页显示
     echo page_partition($total_row, $page, $per_page);
@@ -181,56 +196,6 @@ $reply_href = url_generate(4, array(
                 this.href = url_page;
             });
         });
-    </script>
-    <script type="text/javascript">
-        var text_id = "";
-        var btn_id = "";
-        function reply_show(obj){
-            <?php if($currentuser["userid"] == "guest"){ ?>
-                var url_page = "<?php echo $url_page.$page;?>";
-            alert(url_page);
-                document.cookie = "before_login="+url_page;
-                window.location = "login.php";
-            <?php } ?>
-            if(obj.text == "回复"){
-                obj.text = "取消"
-            $("#"+text_id).remove();
-            $("#"+btn_id).remove();
-            var re_id = obj.name;
-            text_id = "text_"+obj.name;
-            btn_id = "btn_"+obj.name;
-            var board_name = '<?php echo $club_name;?>';
-            var title = '<?php echo $title;?>';
-            var re_li = $("#re_"+re_id);
-            var re_con = $("#re_content_"+obj.name).text();
-//            var atta_str='<tr> <td align="right">附件：</td> ' +
-//                '<td colspan="2"><span id="pro_span"> ' +
-//                ' <a href="javascript:void(0);" class="news" onclick="document.getElementById(\'pic_span\').style.display=\'block\';document.getElementById(\'pro_span\').innerHTML=\'\';">点击添加附件</a></span> ' +
-//                ' <span style="display:none" id="pic_span"><input name="attachname" size="85" maxlength="100"  value="" type="text">' +
-//                ' <a href="#" onclick="return GoAttachWindow()" class="news">操作附件</a></span>' +
-//                '</td></tr>';
-            var atta_str='<input name="attachfile[]" capture="camera" accept="image/*" type="file" style="margin-left: 10px;width: 200px" multiple="multiple">';
-            var rep_body=atta_str+     '<tr><td><textarea id='+text_id+'>'+re_con+'</textarea><button id='+btn_id+' onclick="post_article('+'\''+board_name+'\',\''+title+'\','+obj.name+')">发表</button></td></tr>';
-                re_li.after(rep_body);
-            }else if(obj.text == "取消"){
-                obj.text = "回复";
-                $("#"+text_id).remove();
-                $("#"+btn_id).remove();
-            }
-        }
-        function GoAttachWindow(){
-
-            var hWnd = window.open("bbsupload.php","_blank","width=600,height=300,scrollbars=yes");
-
-            if ((document.window != null) && (!hWnd.opener))
-
-                hWnd.opener = document.window;
-
-            hWnd.focus();
-
-            return false;
-
-        }
     </script>
 </head>
 <?php

@@ -27,7 +27,7 @@ $articles = bbs_getarticles($brdarr["NAME"], $start_num, $article_num, $dir_mode
 function getBoardArticles() {
     global $articles, $brdarr;
     $link = db_connect_web();
-    $sql_pub = "select owner_id,owner,posttime,title,read_num,reply_num from dir_article_".$brdarr["BOARD_ID"]." where groupid=";
+    $sql_pub = "select owner_id,owner,posttime,title,read_num,total_reply as reply_num from dir_article_".$brdarr["BOARD_ID"]." where groupid=";
 
     // 置顶文章标志
     // ret[1] 存放置顶文章，ret[0]存放普通文章
