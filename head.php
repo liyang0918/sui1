@@ -42,7 +42,7 @@ else
                 <li class="navone_li"><a href="club.php"><img src="img/item.png" alt="item.png"/>俱乐部</a></li>
                 <li class="navone_li"><a href="immigration.php"><img src="img/item.png" alt="item.png"/>移民专栏</a></li>
                 <li class="navone_li"><a href="dianping.php"><img src="img/item.png" alt="item.png"/>点评</a></li>
-                <li class="navone_li noborder"><a href="search.html"><img src="img/item.png" alt="item.png"/>搜索</a></li>
+                <li class="navone_li noborder"><a href="search.php"><img src="img/item.png" alt="item.png"/>搜索</a></li>
             </ul>
         <script type="text/javascript" src="js/jquery.js"></script>
         <script type="text/javascript" src="js/jquery.nivo.slider.js" charset="utf-8"></script>

@@ -52,7 +52,11 @@ $('.ds_box').find('a').eq(0).click(function(){
     var iW = $('.club_div li').width() + 10;
     var iLen = $('.club_div li').size() - 1;
     var iH = $(document).height();
-    setInterval(move, 3000);
+    /* 页面ready和ajax请求成功都会调用setEffect(),造成两次执行setInterval(),
+     * ready先执行,图片加载位于ajax请求中,所以第一次iLen为-1(列表项li个数为0 size-1=-1 )
+     * */
+    if (iLen > 0)
+        setInterval(move, 3000);
     $('.club_nav_wrap').css('height', iH);
     function move() {
         n++;

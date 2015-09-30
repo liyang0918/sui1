@@ -715,7 +715,7 @@ function wap_read_article2($filepath, $attach_link, $img_ago_str, $img_after_str
 
 function get_file_content($filename,$att_flag,$board_name,$article_id,$article_type,&$att_arr){
     if(false==$filename){
-        $ret_str="未名提示:由于某些不明原因,该文章未能正确读取,请稍后再刷新重试!";
+        $ret_str[1]="未名提示:由于某些不明原因,该文章未能正确读取,请稍后再刷新重试!";
         return $ret_str;
     }
     $attachlink_rewrite = "http://" . $_SERVER['HTTP_HOST'] . "/article2/" . $board_name. "/" . $article_id;
@@ -733,7 +733,7 @@ function check_board_filename($board_name,$filename){
 function get_user_img($user_id){
     $headimg = BBS_HOME . '/pic_home/home/' . strtoupper(substr($user_id, 0, 1)) . '/' . $user_id . '/headimg';
     if (!is_file($headimg)) {
-        $url_img="";
+        $url_img="/mobile/forum/images/headimg.png";
     } else {
 //                $newArticle["headimgURL"] = "http://".$_SERVER['SERVER_NAME']."/picture/".strtoupper(substr($newArticle["author"],0,1))."/".$newArticle["author"]."/headimg";
         $url_img= "http://" . $_SERVER['SERVER_NAME'] . "/picture/" . strtoupper(substr($user_id, 0, 1)) . "/" . $user_id . "/headimg";
@@ -916,18 +916,30 @@ function getClubImg($club_name) {
                 break;
             }
         }
-        if($filename_return == ""){
-            $filename_return = "clubimg";
-        }
-
-        $filename_return = "/clubimg/".strtoupper(substr($club_name, 0, 1))."/".$club_name."/$filename_return";
         closedir($handler);
     }
+    if($filename_return == ""){
+        $filename_return = "/mobile/forum/img/club.png";
+        log2file($filename_return."<=============\n");
+        return $filename_return;
+    }
+
+    $filename_return = "/clubimg/".strtoupper(substr($club_name, 0, 1))."/".$club_name."/$filename_return";
     return $filename_return;
 }
 
 function getBoardImg($board_name) {
-    return "/boardimg/".$board_name."/boardimg";
+    $filepath = BBS_HOME.'/pic_home/boards/'.$board_name.'/boardimg';
+    $filename_return = "";
+    if (file_exists($filepath))
+        $filename_return = "boardimg";
+    if ($filename_return == "") {
+        $filename_return = "/mobile/forum/img/jy_f_img.png";
+        return $filename_return;
+    }
+
+    $filename_return = "/boardimg/".$board_name."/$filename_return";
+    return $filename_return;
 }
 
 /* 获取十大热门话题 */
@@ -1200,7 +1212,7 @@ function getArticleInfo($group_id,$club_id,$link){
     if ($table_id == 0)
         $table_id = 256;
 
-    $sql = " select article_id,filename,club_name,filename,groupid,owner,read_num,reply_num,posttime,title from club_dir_article_$table_id
+    $sql = " select article_id,filename,club_name,filename,groupid,owner,read_num,total_reply as reply_num,posttime,title from club_dir_article_$table_id
          WHERE club_id=$club_id  AND article_id=$group_id";
     $result = mysql_query($sql,$link);
     if($result && $row = mysql_fetch_array($result)){
@@ -1966,7 +1978,7 @@ function getImmigrationVisa($link) {
                 "args"=>array("reqtype"=>"visa", "board"=>$brdarr["NAME"], "groupid"=>$data[$i]["groupid"])
             ));
 
-        $sql = "select read_num,reply_num,owner from dir_article_".$brdarr["BOARD_ID"]." where article_id='{$record["groupID"]}'";
+        $sql = "select read_num,total_reply as reply_num,owner from dir_article_".$brdarr["BOARD_ID"]." where article_id='{$record["groupID"]}'";
         $result = mysql_query($sql, $link);
         if($row = mysql_fetch_array($result)) {
             $record["readNum"] = $row[0];
