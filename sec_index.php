@@ -11,8 +11,6 @@
 <script type="text/javascript" src="js/jquery.js"></script>
 <script type="text/javascript" src="js/funs.js"></script>
 
-<script type="text/javascript" src="js/lunbo.js"></script>
-
 <?php
 
 ?>
@@ -25,5 +23,6 @@
         $("#"+sec_category).addClass("active");
         sec_category_auto();
     });
+
 
 </script>
