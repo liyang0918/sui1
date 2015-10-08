@@ -35,6 +35,13 @@ if (!empty($lawyer)) {
         "picname" =>"/yimin/images/ChenLaw.jpg"
     );
 }
+// 将编码转为GBK
+foreach ($lawyer as $index=>$each) {
+    $tmp = "";
+    $tmp = iconv("UTF-8", "GBK//IGNORE", $each);
+    $lawyer[$index] = empty($tmp)?$each:$tmp;
+}
+
 ?>
     <div class="ds_box border_bottom">
         <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
@@ -66,7 +73,9 @@ if (!empty($lawyer)) {
     <div class="lawer_ask">
         <a href="">免费法律咨询</a>
     </div>
+</div>
+</body>
+</html>
 <?php
-include_once("foot.php");
 mysql_close($link);
 ?>

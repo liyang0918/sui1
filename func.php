@@ -345,7 +345,7 @@ function getSpellInitial($str)
         if($val>=-11847 and $val<=-11056)return "Y";
         if($val>=-11055 and $val<=-10247)return "Z";
     } else {
-        return "#";
+        return "Other";
     }
 }
 
@@ -735,7 +735,6 @@ function get_user_img($user_id){
     if (!is_file($headimg)) {
         $url_img="/mobile/forum/images/headimg.png";
     } else {
-//                $newArticle["headimgURL"] = "http://".$_SERVER['SERVER_NAME']."/picture/".strtoupper(substr($newArticle["author"],0,1))."/".$newArticle["author"]."/headimg";
         $url_img= "http://" . $_SERVER['SERVER_NAME'] . "/picture/" . strtoupper(substr($user_id, 0, 1)) . "/" . $user_id . "/headimg";
     }
     return $url_img;
@@ -920,7 +919,6 @@ function getClubImg($club_name) {
     }
     if($filename_return == ""){
         $filename_return = "/mobile/forum/img/club.png";
-        log2file($filename_return."<=============\n");
         return $filename_return;
     }
 
@@ -1296,8 +1294,21 @@ $label_list = array(
     // 移民专栏 加盟律师 移民新闻 移民签证信息 讨论区
     "immigration" => array("i_column", "i_lawyer", "i_news", "i_visa", "i_discussion"),
     // 推荐 附近 搜索 排行
-    "dianping" => array("dp_setcity", "dp_recommend", "dp_near", "dp_search", "dp_rank")
+    "dianping" => array("dp_setcity", "dp_recommend", "dp_near", "dp_search", "dp_rank"),
+    // 家页
+    "jiaye" => array("jiaye")
 );
+
+function is_own_label($label, $own="index") {
+    global $label_list;
+    if(!array_key_exists($own, $label_list))
+        return false;
+
+    if(in_array($label, $label_list[$own]))
+        return true;
+    else
+        return false;
+}
 
 $club_class_list = array(
     "handpick" => array("id"=>"0", "name"=>"精选"),
@@ -1318,17 +1329,6 @@ $club_class_list = array(
     "art" => array("id"=>"15", "name"=>"艺术类"),
     "other" => array("id"=>"100", "name"=>"其他"),
 );
-
-function is_own_label($label, $own="index") {
-    global $label_list;
-    if(!array_key_exists($own, $label_list))
-        return false;
-
-    if(in_array($label, $label_list[$own]))
-        return true;
-    else
-        return false;
-}
 
 $forum_class_list = array(
     "1" => array("section_name"=>"新闻中心", "section_num"=>"1"),
@@ -1573,13 +1573,16 @@ function getLawyerGroupByName($link, $city) {
     for ($i=0; $i<26; $i++) {
         $ret[chr($A+$i)] = array();
     }
-    $ret["#"] = array();
+    $ret["Other"] = array();
     if ($city == "all")
         $sql = "select lawyer_name,identity_flag,creator from lawyer order by lawyer_name";
     else
         $sql = "select lawyer_name,identity_flag,creator from lawyer where city=\"{$city}\" order by lawyer_name";
     $result = mysql_query($sql, $link);
     while ($row = mysql_fetch_array($result)) {
+        $name_tmp = iconv("UTF8", "GBK//IGNORE", $row["lawyer_name"]);
+        if (!empty($name_tmp))
+            $row["lawyer_name"] = $name_tmp;
         $index = getSpellInitial($row["lawyer_name"]);
         $row["href"] = url_generate(4, array(
             "action" => "/mobile/forum/i_lawyerinfo.php",
@@ -1607,7 +1610,7 @@ function getLawyerGroupByArea($link) {
     for ($i=0; $i<26; $i++) {
         $ret[chr($A+$i)] = array();
     }
-    $ret["#"] = array();
+    $ret["Other"] = array();
 
     $sql = "select distinct(city) from lawyer order by lawyer_name";
     $result = mysql_query($sql, $link);
@@ -1940,7 +1943,7 @@ function getNewsDataByType($link, $page, $newsTypeName) {
     return array($ret, $end_flag);
 }
 
-function getNewsReply($link, $board_id, $group_id){
+function getNewsReply($link, $board_id, $group_id) {
     $sql = "SELECT count(*) as count_num FROM dir_article_".$board_id." WHERE groupid=".$group_id." and article_id!=".$group_id;
     $result = mysql_query($sql,$link);
     $row = mysql_fetch_array($result);
@@ -1995,6 +1998,99 @@ function getImmigrationVisa($link) {
     }
 
     return $ret;
+}
+
+function getCurrUserInfo() {
+    global $currentuser;
+
+    $data = array();
+    $num = bbs_getcurrentuinfo($data);
+    $userData["LOGINTIME"] = $data["logintime"];
+    $userData["UTMPKEY"] = $data["utmpkey"];
+    $userData["UTMPNUM"] = $num;
+    $userData["loginNum"] = $currentuser["numlogins"];
+    $userData["UTMPUSERID"] = $data["userid"];
+    $userData["LOGINTIME"] = $data["logintime"];
+    $userData["loginResult"] = "1"; //ok
+    $userData["headimg"] = get_user_img($userData["UTMPUSERID"]);
+    $con = db_connect_web();
+
+    $strSql = "select numeral_user_id from users where user_id='{$userData["UTMPUSERID"]}'";
+    $resultcnt = mysql_query($strSql, $con);
+    if($rowsCnt = mysql_fetch_array($resultcnt)) {
+        $user_id = $rowsCnt["numeral_user_id"];
+
+    } else {
+        return null;
+    }
+    $strSql="SELECT count(*) retCount  FROM dir_article_memory USE INDEX (index_ownerid_posttime)  WHERE owner_id=$user_id";
+    $resultcnt = mysql_query($strSql, $con);
+    if($rowsCnt = mysql_fetch_array($resultcnt)) {
+        $userData["articleNum"]=$rowsCnt["retCount"];
+
+    } else {
+        $userData["articleNum"]="0";
+    }
+    $strSql=" select count(fav_article_id) retCount from fav_article where  user_numid=$user_id and (type=1 or type=2 or type=11)";
+    $resultcnt = mysql_query($strSql, $con);
+    if($rowsCnt = mysql_fetch_array($resultcnt)) {
+        $userData["favNum"]=$rowsCnt["retCount"];
+
+    } else {
+        $userData["favNum"]="0";
+    }
+    $strSql = "SELECT count(club.club_id) retCount FROM club, club_group, club_member WHERE club.club_group_id=club_group.club_group_id
+                AND club.club_id=club_member.club_id AND member_num_id=$user_id";
+    $resultcnt = mysql_query($strSql, $con);
+    if($rowsCnt = mysql_fetch_array($resultcnt)) {
+        $userData["clubNum"]=$rowsCnt["retCount"];
+
+    } else {
+        $userData["clubNum"]="0";
+    }
+    $sqlStr="SELECT count(numeral_friend_id) retCount  FROM friend_list
+                  WHERE numeral_user_id=$user_id AND type<>2";
+    $resultcnt = mysql_query($sqlStr, $con);
+    if($rowsCnt = mysql_fetch_array($resultcnt)) {
+        $userData["friendNum"]=$rowsCnt["retCount"];
+
+    } else {
+        $userData["friendNum"]="0";
+    }
+    $sqlstr="select count(users.user_id) retCount from friend_list,users  where friend_list.numeral_user_id=$user_id and
+                 friend_list.numeral_friend_id=users.numeral_user_id and friend_list.type=2";
+    $resultcnt = mysql_query($sqlstr, $con);
+    if($rowsCnt = mysql_fetch_array($resultcnt)) {
+        $userData["blackNum"] = $rowsCnt["retCount"];
+
+    }else{
+        $userData["blackNum"] = "0";
+    }
+    $sqlstr="select count(1) retCount from funs_list f,users u where f.numeral_user_id=$user_id and
+                 f.numeral_friend_id=u.numeral_user_id and f.type=1";
+    $resultcnt = mysql_query($sqlstr, $con);
+    if($rowsCnt = mysql_fetch_array($resultcnt))
+    {
+        $userData["solicitudeNum"]=$rowsCnt["retCount"];
+
+    }else {
+        $userData["solicitudeNum"] = "0";
+    }
+    $sqlstr = "select count(1) retCount from funs_list f,users u where f.numeral_friend_id=$user_id and
+                 f.numeral_user_id=u.numeral_user_id and f.type=1";
+    $resultcnt = mysql_query($sqlstr, $con);
+    if($rowsCnt = mysql_fetch_array($resultcnt)) {
+        $userData["funsNum"]=$rowsCnt["retCount"];
+
+    } else {
+        $userData["funsNum"] = "0";
+    }
+    $unread = 0;
+    $total = 0;
+    bbs_getmailnum($userData["UTMPUSERID"], $total,$unread, 0, 0);
+    $userData["mailNum"]="$unread";
+    mysql_close($con);
+    return $userData;
 }
 
 ?>

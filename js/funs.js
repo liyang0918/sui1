@@ -47,6 +47,9 @@ var label_list = {
         "dp_near":"1",
         "dp_search":"0",
         "dp_rank":"1"
+    },
+    "jiaye":{
+        "jiaye":"0"
     }
 };
 
@@ -66,6 +69,14 @@ function get_info_by_id(id) {
         }
     }
     return info;
+}
+
+function have_carouselfigure(id) {
+    if (id == "top" || id == "i_column")
+        return true;
+
+    var info = get_info_by_id(id);
+    return (info["domain"] == "club");
 }
 
 function request_url_generate(id) {
@@ -132,16 +143,19 @@ function sec_category_auto(){
             , asynchronous: false
             , onSuccess: function (ret) {
             var ret_json = eval("(" + ret.responseText + ")");
-            if(ret_json.carouselfigure != undefined) {
+            if(have_carouselfigure(obj.id)) {
                 var tag = document.getElementById("carouselfigure");
                 tag.setAttribute("style", 'display:block');
-                tag.outerHTML = ret_json.carouselfigure;
+                if (ret_json.carouselfigure != undefined)
+                    tag.outerHTML = ret_json.carouselfigure;
             } else {
                 var tag = document.getElementById("carouselfigure");
-                tag.setAttribute("style", 'display:none');
+                if (tag)
+                    tag.setAttribute("style", 'display:none');
             }
 
             if(ret_json.detail != undefined) {
+
                 var tag = document.getElementById("detail");
                 tag.innerHTML = ret_json.detail;
                 var pagebox = document.getElementById("current_next_page");
@@ -168,9 +182,6 @@ function sec_category_auto(){
 
             // js.js设置点击时的效果
             setEffect();
-            if (obj.id == "top")
-                setImageEffect();
-
         }
             , onFailure: function (x) {
             alert("fail to get data from server " +

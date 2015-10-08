@@ -1,10 +1,13 @@
+<br />
+<br />
+<br />
 </div>
-<div class="footer">
-	<ul>
-		<li>mitbbs.com</li>
-		<li><a href="index.php">客户端</a></li>
-		<li><a href="http://www.mitbbs.com">电脑版</a></li>
-	<ul>
+<div class="footer news_foot">
+    <ul>
+        <li>mitbbs.com</li>
+        <li><a href="index.php">客户端</a></li>
+        <li><a href="http://www.mitbbs.com">电脑版</a></li>
+    </ul>
 </div>
 </body>
 </html>
