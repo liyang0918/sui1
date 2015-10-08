@@ -134,20 +134,15 @@ $i_cnt = count($prt_arr);
                 <p id="re_content_<?php echo $prt_arr[$i_loop]["article_id"];?>" hidden="hidden"><?php echo $prt_arr[$i_loop]["re_content"];?></p>
                 <p id="content_<?php echo $prt_arr[$i_loop]["article_id"];?>"class="theme_middle black_font"><?php echo $prt_arr[$i_loop]["content"];?></p>
                 <div id="re_<?php echo $prt_arr[$i_loop]["article_id"];?>" class="news_reply">
-<!--                    <a type="button" onclick="alert(2124)">ĞŞ¸Ä</a>-->
-<?php
-$reply_href = url_generate(4, array(
-    "action" => "one_reply.php",
-    "args" => array(
-        "article_id"=>$prt_arr[$i_loop]["article_id"],
-        "group_id"=>$group_id,
-        "club"=>$club_name,
-        "title"=>$title,
-        "page"=>$page)
-));
-?>
-                    <a type="button" href="<?php echo $reply_href; ?>">»Ø¸´</a>
-<!--                    <a class="cancel" href="javascript:;">É¾³ı</a>-->
+                    <a type="button" href="<?php echo url_generate(4, array(
+                        "action" => "one_reply.php",
+                        "args" => array(
+                            "article_id"=>$prt_arr[$i_loop]["article_id"],
+                            "group_id"=>$group_id,
+                            "club"=>$club_name,
+                            "title"=>$title,
+                            "page"=>$page)
+                    )); ?>">»Ø¸´</a>
                 </div>
             </li>
             <?php }?>
@@ -156,7 +151,7 @@ $reply_href = url_generate(4, array(
     <div class="news_foot">
         <input type="button" value="Ğ´¸úÌû" onclick="document.location='<?php
         echo url_generate(4, array(
-           "action" => "one_reply.php",
+            "action" => "one_reply.php",
             "args" => array(
                 "article_id"=>$prt_arr[0]["article_id"],
                 "group_id"=>$group_id,
@@ -174,7 +169,6 @@ $reply_href = url_generate(4, array(
     echo page_partition($total_row, $page, $per_page);
 ?>
 
-<head>
     <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
@@ -197,7 +191,6 @@ $reply_href = url_generate(4, array(
             });
         });
     </script>
-</head>
-<?php
-include_once("foot.php");
-?>
+</div>
+</body>
+</html>

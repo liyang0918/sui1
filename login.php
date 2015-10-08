@@ -37,7 +37,7 @@ if(!empty($_POST["login"])||$_POST["logintype"]=="reg") {
         if(!empty($_COOKIE["before_login"]))
             echo 'window.location = "'.$_COOKIE["before_login"].'";';
         else
-            echo 'window.location = "jiaye.html";';
+            echo 'window.location = "index.php";';
     }?>
     </SCRIPT>
 <?php

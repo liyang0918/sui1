@@ -28,6 +28,10 @@ function getArticleLunbo($link){
 
 
 function getTopArticle($link, $page, $limit_article) {
+    global $articlelist;
+    // 轮播图中显示的文章不再显示到文章列表中
+    $limit_article = $articlelist;
+
     $pagenum = 40;
     $from = ($page-1)*$pagenum;
     $is_china_flag = is_china();
@@ -131,70 +135,7 @@ function getTopArticle($link, $page, $limit_article) {
     return array($ret, $end_flag);
 }
 
-$articlelist = getArticleLunbo($link);
 $all_arr = array();
-$img_arr = array();
-foreach ($articlelist as $row) {
-    $tmp=array();
-    $board_id = $row["board_id"];
-    $article_id = $row["article_id"];
-    $local_img = $row["new_url"];
-//boardname
-    $sql_str = "select board_desc,boardname from board where board_id=" . $board_id;
-    $result2 = mysql_query($sql_str, $link);
-    if ($row_board = mysql_fetch_array($result2)) {
-        $board_name = $row_board["boardname"];
-    }
-    mysql_free_result($result2);
-
-    $img = BBS_HOME.'/pic_home/boards/'.$board_name."/".$local_img;
-    if (is_file($img)) {
-        $tmp["imgURL"] = "http://".$_SERVER["SERVER_NAME"]."/boardimg/".$board_name."/".$local_img;
-    }
-//article detail
-    $sql_str1 = "select title,groupid,owner,read_num,reply_num,total_reply,board_id,o_bid,o_groupid from dir_article_" . $board_id .
-        " where article_id=" . $article_id;
-    $result3 = mysql_query($sql_str1, $link);
-    if ($row1 = mysql_fetch_array($result3)) {
-        $tmp["title"] = $row1["title"];
-        $tmp["groupid"] = $row1["groupid"];
-        $tmp["article_id"] = $article_id;
-        $tmp["type"] = "BBS";
-    }
-    mysql_free_result($result3);
-    $img_arr[] = $tmp;
-}
-$type = "index";
-// top image start
-$str_img = '<div id="carouselfigure" class="main_visual">';
-$img_page = '<div class="flicking_con">';
-$img_url = '<div class="main_image"><ul>';
-foreach ($img_arr as $i=>$imgDate) {
-//    if ($index == 1) {
-//        $str_img .= '<a class="hr_a" href="'.$php_page.'"><img src="'.$img_one["imgURL"].'" alt="img" /></a>';
-//    } else {
-//        $str_img .= '<a href="'.$php_page.'"><img src="'.$img_one["imgURL"].'" alt="img" /></a>';
-//    }
-    $php_page = "one_group.php?&board=".$board_name."&group=".$imgDate["groupid"];
-    $img_page .= '<a href="javascript:;">'.($i+1).'</a>';
-    $img_url .=
-        '<li>
-            <a href="'.$php_page.'" onclick="add_read_num(this)">
-                <span class="img_1" background="'.$imgDate["imgURL"].'"></span>
-            </a>
-        </li>';
-}
-//                <span class="img_1" background="'.$imgDate["imgURL"].'"></span>
-$img_page .= '</div>';
-$img_url .= '</ul></div>';
-$str_img .= $img_page.$img_url;
-$str_img .=
-    '<div class="text">
-        <p id="text">
-        </p>
-    </div>';
-$str_img .= "</div>";
-//top image end
 
 //detail start
 $str_article = '<ul class="article_wrap">';
@@ -240,9 +181,7 @@ foreach ($top_article as $each) {
 }
 $str_article .= '</div>';
 //detail end
-$str_img = mb_convert_encoding($str_img, "UTF-8", "GBK");
 $str_article = mb_convert_encoding($str_article, "UTF-8", "GBK");
-$all_arr["carouselfigure"] = $str_img;
 $all_arr["detail"] = $str_article;
 if ($page == 1)
     echo json_encode($all_arr);

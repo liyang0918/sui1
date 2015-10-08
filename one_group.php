@@ -127,30 +127,40 @@ $i_cnt = count($prt_arr);
                 <p id="re_content_<?php echo $prt_arr[$i_loop]["article_id"];?>" hidden="hidden"><?php echo $prt_arr[$i_loop]["re_content"];?></p>
                 <p id="content_<?php echo $prt_arr[$i_loop]["article_id"];?>"class="theme_middle black_font"><?php echo $prt_arr[$i_loop]["content"];?></p>
                 <div id="re_<?php echo $prt_arr[$i_loop]["article_id"];?>" class="news_reply">
-<!--                    <a type="button" onclick="alert(2124)">修改</a>-->
-<?php
-            $reply_href = url_generate(4, array(
-                "action"=>"one_reply.php",
-                "args"=>array(
-                    "article_id"=>$prt_arr[$i_loop]["article_id"],
-                    "group_id"=>$group_id,
-                    "board"=>$board_name,
-                    "title"=>$title,
-                    "page"=>$page)
-            ));
-?>
-                    <a type="button" href="<?php echo $reply_href; ?>">回复</a>
-<!--                    <a class="cancel" href="javascript:;">删除</a>-->
+                    <a type="button" href="<?php echo $reply_href = url_generate(4, array(
+                        "action" => "one_reply.php",
+                        "args" => array(
+                            "article_id"=>$prt_arr[$i_loop]["article_id"],
+                            "group_id"=>$group_id,
+                            "board"=>$board_name,
+                            "title"=>$title,
+                            "page"=>$page)
+                    )); ?>">回复</a>
                 </div>
             </li>
             <?php }?>
         </ul>
     </div>
+    <div class="news_foot">
+        <input type="button" value="写跟帖" onclick="document.location='<?php
+        echo url_generate(4, array(
+            "action" => "one_reply.php",
+            "args" => array(
+                "article_id"=>$prt_arr[0]["article_id"],
+                "group_id"=>$group_id,
+                "board"=>$board_name,
+                "title"=>$title,
+                "page"=>$page
+            )
+        ));
+        ?>'" />
+        <span class="news_share"><img src="img/share.png" alt="share.png"/>分享</span>
+        <span class="news_collect"><img src="img/star.png" alt="star.png"/>收藏</span>
+    </div><!--  End news_foot-->
 <?php
     // 分页显示
     echo page_partition($total_row, $page, $per_page);
 ?>
-<head>
     <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
@@ -173,45 +183,6 @@ $i_cnt = count($prt_arr);
             });
         });
     </script>
-    <script type="text/javascript">
-        function board_reply(obj) {
-            var board = "<?php echo $board_name; ?>";
-            var groupid = obj.id;
-            var curr_url = "<?php echo $curr_url; ?>";
-            var currentuser = "<?php echo $currentuser["userid"]; ?>";
-            if (currentuser == "guest") {
-                document.cookie = "before_login="+"<?php echo $url_page.$page; ?>";
-                window.location = "login.php";
-            }
-            curr_url = curr_url + "&reply=1";
-            window.location = curr_url;
-        }
-
-        function reply_submit() {
-            var board = "<?php echo $board_name; ?>";
-            var groupid = "<?php echo $group_id; ?>";
-            var curr_url = "<?php echo $curr_url; ?>";
-            var title = "<?php echo $t_data['title']; ?>";
-            var currentuser = "<?php echo $currentuser["userid"]; ?>";
-            if (currentuser == "guest") {
-                document.cookie = "before_login="+curr_url;
-                window.location = "login.php";
-                return false;
-            }
-
-            var obj = document.getElementById("text_"+groupid);
-            var content = obj.value;
-            if (content.replace(/(^\s*)|(\s*$)/g, "").length < 10) {
-                alert("评论内容不少于10个字!");
-                return false;
-            }
-            post_article(board, title, groupid);
-            curr_url = curr_url + "&reply=0";
-            window.location = curr_url;
-            return false;
-        }
-    </script>
-</head>
-<?php
-include_once("foot.php");
-?>
+</div>
+</body>
+</html>

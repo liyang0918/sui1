@@ -17,7 +17,7 @@ if ($brdnum == 0) {
 }
 
 /* 每页文章数 */
-$article_num = 10;
+$article_num = 20;
 /* 起始页 */
 $start_num = $article_num*($page-1)+1;
 /* 文章总数 */

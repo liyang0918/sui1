@@ -35,12 +35,11 @@ if ($mode == "0") {
     foreach ($t_data as $group=>$layers) {
         if (empty($layers))
             continue;
-        if($group == '#')
-            $group = "其他";
 
         $str_lawyer .= '<dl><dt>'.$group.'</dt>';
         $each = array();
         foreach ($layers as $each) {
+            log2file('1 ====>'.$group." | ".$each["lawyer_name"]."\n");
             $str_lawyer .= '<dd class="border_bottom">';
             $str_lawyer .= '<a href="'.$each["href"].'">';
             $str_lawyer .= '<img src="'.$each["img"].'" alt="lawyer"/>';
@@ -72,13 +71,12 @@ if ($mode == "0") {
     foreach ($t_data as $group=>$lawyers) {
         if (empty($lawyers))
             continue;
-        if ($group == "#")
-            $group = "其他";
 
         $str_lawyer .= '<dl class="chose_dl">';
         $str_lawyer .= '<dt>'.$group.'</dt>';
         $each = array();
         foreach ($lawyers as $each) {
+            log2file('2 ====>'.$group."\n");
             $str_lawyer .= '<dd class="border_bottom area_dd"><a id="0|'.$each["city"].'" href="" onclick="sec_select(this);">'.$each["city"].'</a></dd>';
         }
         $str_lawyer .= '</dl>';
