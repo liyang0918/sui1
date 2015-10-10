@@ -386,22 +386,22 @@ function get_row_count($board_id,$article_id,$conn){
     return $row[0];
 }
 function trans_content_html($str){
-    $arr=array();
+    $arr = array();
 
     $arr=explode("\n",$str);
     $img_html="";
     $content_html="";
     foreach ( $arr as $content) {
-        if(strpos($content,"http://")!==false){
-            $img_html.="<a target=\"_blank\" href=\"".$content."\">";
-            $img_html.="\n";
-            $img_html="<img src=\"".$content."\">";
-            $img_html.="\n";
-            $img_html.="</a>";
+        if (preg_match("/^http:\/\//", $content)) {
+            $img_html .= "<a target=\"_blank\" href=\"".$content."\">";
+            $img_html .= "\n";
+            $img_html .= "<img src=\"".$content."\">";
+            $img_html .= "\n";
+            $img_html .= "</a>";
         }else{
-            if($content_html!="")
-               $content_html.="<br>";
-            $content_html.=$content;
+            if($content_html != "")
+               $content_html .= "<br>";
+            $content_html .= $content;
         }
     }
     return $content_html.$img_html;
@@ -480,21 +480,14 @@ function wap_read_article($filepath, $attach_link, $img_ago_str, $img_after_str,
                 }
             }
         }
-        $content_array[$j] = $tmpstr;
-        /*
-        *add by baibing at 20140513
-        *code:baibing-0707
-        */
+
         $pic_num=0;
+
+        $content_array[$j] = $tmpstr;
         if (strcmp(substr($tmpstr, 0, 7), "http://") == 0) {
             ++$pic_num;
             $pic_list[] = $tmpstr;
         }
-        /*
-        *end add by baibing at 20140513
-        *code:baibing-0707
-        */
-
         if (($j > $firsLine && strlen($content_array[$j - 1]) == 76) //上一行为76个字符&&当前行以空格或者tab开头，补回换行
             && (substr_compare($content_array[$j], '  ', 1, 2) == 0
                 || substr_compare($content_array[$j], "\t", 1, 1) == 0
@@ -1295,8 +1288,8 @@ $label_list = array(
     "immigration" => array("i_column", "i_lawyer", "i_news", "i_visa", "i_discussion"),
     // 推荐 附近 搜索 排行
     "dianping" => array("dp_setcity", "dp_recommend", "dp_near", "dp_search", "dp_rank"),
-    // 家页
-    "jiaye" => array("jiaye")
+    // 家页 关注 粉丝 我的讨论区 我的俱乐部 我的点评 我的文章 我的收藏 我的好友 我的黑名单 我的消息 我的邮件
+    "jiaye" => array("jiaye", "focus", "fans", "discuss", "club", "dianping", "article", "collect", "friend", "black", "message", "email")
 );
 
 function is_own_label($label, $own="index") {
@@ -1370,7 +1363,7 @@ function getClassName($class) {
 }
 
 function url_generate($level, $data) {
-    /*  level 分为4级
+    /*  level 分为4级, $data格式如下
      *      1: 分类
      *          array("class"=>$class_num)
      *      2: 版面/俱乐部
@@ -1496,6 +1489,8 @@ function page_partition($total_row, $page, $per_page=10, $show_page=3) {
  *               当前页 ^
 */
 function page_partition($total_row, $page, $per_page=10, $show_page=1) {
+    if ($total_row <= $per_page)
+        return false;
     $total_page = intval($total_row/$per_page)+1;
     $frt_page = 1;
     $end_page = $total_page;
@@ -2091,6 +2086,121 @@ function getCurrUserInfo() {
     $userData["mailNum"]="$unread";
     mysql_close($con);
     return $userData;
+}
+
+function getMyFriendList($link, $user_id, $app_type, $page, $num){
+    global $currentuser;
+    $ret = array();
+
+    if ($currentuser['userid']=='guest'||$currentuser['userid']!=$user_id)
+        return NULL;
+
+    if (!$link) {
+        return;
+    }
+
+    if (empty($num))
+        $num = 10;
+    $page = ($page-1)*$num;
+
+    $numeral_user_id = $currentuser["num_id"];
+
+    // 0 friend 1 solicitude 2 apply 3 fans
+    if ($app_type==0)
+        $sqlStr="SELECT numeral_friend_id,expr,app_reason,type,add_date,is_show,is_approve FROM friend_list WHERE type=0 AND is_approve='Y' AND numeral_user_id=$numeral_user_id AND type<>2 ORDER BY add_date DESC";
+    elseif ($app_type==1)
+        $sqlStr="SELECT numeral_friend_id,expr,app_reason,type,add_date,is_show,is_approve FROM funs_list WHERE type=1 AND numeral_user_id=$numeral_user_id ORDER BY add_date DESC";
+    elseif ($app_type==2)
+        $sqlStr="SELECT numeral_friend_id,expr,app_reason,type,add_date,is_show,is_approve FROM friend_list WHERE (is_show='N' AND is_approve='N' )  AND numeral_user_id=$numeral_user_id AND type=0 ORDER BY add_date DESC limit 100";
+    elseif ($app_type==3)
+        $sqlStr="SELECT numeral_user_id as numeral_friend_id,expr,app_reason,type,add_date,is_show,is_approve FROM funs_list WHERE type=1 AND numeral_friend_id=$numeral_user_id ORDER BY add_date DESC";
+    else {
+        return;
+    }
+
+    $sqlStr .= " LIMIT $page,$num";
+    $circle_re = mysql_query($sqlStr, $link);
+    if(!$circle_re) {
+        return;
+    }
+    $n=1;
+    while ($circle_row = mysql_fetch_array($circle_re)) {
+        $num_user_id = $circle_row["numeral_friend_id"];
+        $friend_userid = get_userid2($circle_row["numeral_friend_id"], $link);
+        $data = array();
+        $data["num_user_id"] = $circle_row["numeral_friend_id"];
+        $data["user_id"] = $friend_userid;
+        if ($data["user_id"] == null ) {
+            $data["user_id"] = "";
+        }
+
+        $data["expr"] = $circle_row["expr"];
+        $data["app_reason"] = $circle_row["app_reason"];
+
+        $data["headimg"] = get_user_img($friend_userid);
+
+        if ($circle_row["type"] == 0)
+            $data["is_friend"] = "1";
+        else
+            $data["is_friend"] = "2";
+        $data["type"] = $circle_row["type"];
+        if($app_type == 1||$app_type == 3) {
+            if ($app_type == 1) {
+                $is_sql = "SELECT numeral_user_id FROM funs_list WHERE numeral_user_id=$num_user_id AND numeral_friend_id =$numeral_user_id ORDER BY add_date DESC";
+                $is_f_sql = "SELECT numeral_user_id FROM friend_list WHERE type='0' AND numeral_friend_id=$num_user_id AND numeral_user_id =$numeral_user_id AND (is_approve='Y' OR is_approve='N') ORDER BY add_date DESC";
+            }
+            elseif ($app_type == 3) {
+                $is_sql = "SELECT numeral_user_id FROM funs_list WHERE numeral_friend_id=$num_user_id AND numeral_user_id =$numeral_user_id ORDER BY add_date DESC";
+                $is_f_sql = "SELECT numeral_user_id FROM friend_list WHERE type='0' AND numeral_user_id=$num_user_id AND numeral_friend_id =$numeral_user_id AND (is_approve='Y' OR is_approve='N') ORDER BY add_date DESC";
+            }
+            $is_result = mysql_query($is_sql, $link);
+            $is_f_ret = mysql_query($is_f_sql, $link);
+            if($is_row = mysql_fetch_array($is_result))
+                $data["type"] = 1;
+            else
+                $data["type"] = 0;
+            if($is_f_row=mysql_fetch_array($is_f_ret))
+                $data["is_friend"] = "1";
+            else
+                $data["is_friend"] = "2";
+        } elseif ($app_type == 2) { //send msg_id to app for reply
+            $msg_arr = array();
+            $msg_arr['msg_type'] = '1';
+            $msg_arr['f_user'] = $friend_userid;
+            $msg_arr['t_user'] = $user_id;
+            $action = new Action($msg_arr);
+            $action->get_msg_id();
+            if(empty($action->msg_id))
+                $data['msg_id']='no id';
+            else
+                $data['msg_id']=$action->msg_id;
+            $action=NULL;
+        } elseif ($app_type == 0) {
+            $each_sql = "SELECT numeral_friend_id FROM friend_list WHERE numeral_user_id=$num_user_id AND numeral_friend_id =$numeral_user_id AND is_approve ='Y' limit 1 ";
+            $each_ret = mysql_query($each_sql,$link);
+            if($bf_row = mysql_fetch_array($each_ret))
+                $data['is_each'] = '1';
+            else
+                $data['is_each'] = '0';
+        }
+
+        $data["is_show"] = $circle_row["is_show"];
+        $data["is_approve"] = $circle_row["is_approve"];
+        $data["add_date"] = $circle_row["add_date"];
+
+
+        if(getOnlineStatus($friend_userid))
+            $is_online = '在线';
+        else
+            $is_online = '离线';
+        $data["user_status"]=$is_online;
+        $ret[]=$data;
+    }
+    mysql_free_result($circle_re);
+
+    $i = 0 ;
+
+    return $ret;
 }
 
 ?>

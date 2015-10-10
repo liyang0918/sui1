@@ -49,7 +49,18 @@ var label_list = {
         "dp_rank":"1"
     },
     "jiaye":{
-        "jiaye":"0"
+        "jiaye":"0",
+        "focus":"0",
+        "fans":"0",
+        "discuss":"0",
+        "club":"0",
+        "dianping":"0",
+        "article":"0",
+        "collect":"0",
+        "friend":"0",
+        "black":"0",
+        "message":"0",
+        "email":"0"
     }
 };
 
@@ -130,6 +141,7 @@ function sec_category(obj) {
     //ajax 请求部分
 //    sec_category_auto();
 }
+
 function sec_category_auto(){
     var current_active=getCookie_wap("sec_category");
     var obj=document.getElementById(current_active);
@@ -170,7 +182,7 @@ function sec_category_auto(){
                     var more_text = document.createElement("h3");
                     more_text.setAttribute("id", "current_next_page")
                     more_text.setAttribute("align", "center");
-                    more_text.setAttribute("onclick", "getMoreArticle()");
+                    more_text.setAttribute("onclick", "getMoreArticleCommon()");
                     if (getCookie_wap("end_flag") == "1")
                         more_text.innerHTML = "已加载全部内容";
                     else
@@ -190,7 +202,7 @@ function sec_category_auto(){
         });
 }
 
-function getMoreArticle() {
+function getMoreArticleCommon() {
     /* end_flag 为1表示数据已经到尾 */
     if (getCookie_wap("end_flag") != "0")
         return;
@@ -199,6 +211,7 @@ function getMoreArticle() {
     var url = request_url_generate(getCookie_wap("sec_category"));
     var more_text = document.getElementById("current_next_page");
     more_text.innerHTML = "正在加载中...";
+    more_text.removeAttribute("onclick");
     var myAjax = new Ajax.Request(url,
         {
             method: 'post'
@@ -226,6 +239,113 @@ function getMoreArticle() {
                 else {
                     more_text.innerHTML = "点击加载更多内容"
                 }
+                more_text.setAttribute("onclick", "getMoreArticleCommon()");
+            }
+
+            // js.js设置点击时的效果
+            setEffect();
+            }
+            , onFailure: function (x) {
+            alert("fail to get data from server " +
+                ",please check your connection;")
+            }
+        });
+}
+
+function myarticle(obj) {
+    var current_active = getCookie_wap("article_type");
+    if (current_active != "") {
+        var act_obj = document.getElementById(current_active);
+        act_obj.className = "none";
+    }
+    obj.className = "active";
+    document.cookie = "article_type="+obj.id;
+    document.cookie = "current_page=1";
+}
+
+function myarticle_auto() {
+    var article_type = getCookie_wap("article_type");
+    var current_page = getCookie_wap("current_page");
+
+    var url = "/mobile/forum/request/myarticle.php?article_type=" + article_type;
+    var myAjax = new Ajax.Request(url,
+        {
+            method: 'post'
+            , parameters: null
+            , asynchronous: false
+            , onSuccess: function (ret) {
+            var ret_json = eval("(" + ret.responseText + ")");
+            if (ret_json.detail != undefined) {
+                var tag = document.getElementById("detail");
+                tag.innerHTML = ret_json.detail;
+                var pagebox = document.getElementById("current_next_page");
+                if(pagebox)
+                    pagebox.parentNode.removeChild(pagebox);
+
+                var pageNext = document.createElement("div");
+                pageNext.setAttribute("id", "current_page2");
+                tag.appendChild(pageNext);
+
+                var more_text = document.createElement("h3");
+                more_text.setAttribute("id", "current_next_page")
+                more_text.setAttribute("align", "center");
+                more_text.setAttribute("onclick", "getMoreArticleOwn()");
+                if (getCookie_wap("end_flag") == "1")
+                    more_text.innerHTML = "已加载全部内容";
+                else
+                    more_text.innerHTML = "点击加载更多内容";
+
+                document.getElementById("pagebox").appendChild(more_text);
+
+            }
+
+            setEffect();
+        }
+            , onFailure: function (x) {
+            alert("fail to get data from server " +
+                ",please check your connection;")
+            }
+        });
+}
+
+function getMoreArticleOwn() {
+    /* end_flag 为1表示数据已经到尾 */
+    if (getCookie_wap("end_flag") != "0")
+        return;
+    var page = parseInt(getCookie_wap("current_page"))+1;
+    document.cookie = "current_page=" + page;
+    var article_type = getCookie_wap("article_type");
+    var url = "/mobile/forum/request/myarticle.php?article_type=" + article_type;
+    var more_text = document.getElementById("current_next_page");
+    more_text.innerHTML = "正在加载中...";
+    more_text.removeAttribute("onclick");
+    var myAjax = new Ajax.Request(url,
+        {
+            method: 'post'
+            , parameters: null
+            , asynchronous: false
+            , onSuccess: function (ret) {
+            var ret_json = eval("(" + ret.responseText + ")");
+            if(ret_json.article!= undefined) {
+                var end_flag = getCookie_wap("end_flag");
+//                var page = parseInt(getCookie_wap("current_page"));
+                var pageCurrent  = document.getElementById("current_page"+page);
+                var tag = document.getElementById("detail");
+                pageCurrent.innerHTML = ret_json.article;
+
+                if (end_flag != "1") {
+                    var pageNext = document.createElement("div");
+                    pageNext.setAttribute("id", "current_page"+(page+1));
+                    tag.appendChild(pageNext);
+                }
+
+                more_text.innerHTML = "";
+                if (end_flag == "1")
+                    more_text.innerHTML = "已加载全部内容";
+                else {
+                    more_text.innerHTML = "点击加载更多内容"
+                }
+                more_text.setAttribute("onclick", "getMoreArticleOwn()");
             }
 
             // js.js设置点击时的效果

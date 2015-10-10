@@ -10,10 +10,10 @@ function setEffect() {
                 $('.hot_list_wrap').hide();
                 $('.hot_list_wrap').eq(i).slideDown("200");
                 $('.hot_list_wrap').eq(i).show();
-                $('.hot_trigle').eq(i).css("background-image", "url(yp_img/uptrigle.png)");
+                $('.hot_trigle').eq(i).css("background-image", "url(img/uptrigle.png)");
             } else {
                 $('.hot_list_wrap').slideUp("200");
-                $('.hot_trigle').eq(i).css("background-image", "url(yp_img/downtrigle.png)");
+                $('.hot_trigle').eq(i).css("background-image", "url(img/downtrigle.png)");
             }
         })
     });

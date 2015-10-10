@@ -1,8 +1,5 @@
-<br />
-<br />
-<br />
 </div>
-<div class="footer news_foot">
+<div class="footer">
     <ul>
         <li>mitbbs.com</li>
         <li><a href="index.php">¿Í»§¶Ë</a></li>

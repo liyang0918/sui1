@@ -19,9 +19,8 @@ else
         <link rel="stylesheet" href="css/nivo-slider.css" type="text/css" media="screen"/>
         <link rel="stylesheet" href="css/style.css" type="text/css" media="screen"/>
         <link rel="stylesheet" href="css/silder.css" type="text/css" media="screen" />
-        <link rel="stylesheet" href="css/nivo-slider.css" type="text/css" media="screen"/>
         <link rel="stylesheet" href="css/reg.css" type="text/css" media="screen"/>
-		  <link rel="stylesheet" href="css/footer.css" type="text/css" media="screen"/>
+        <link rel="stylesheet" href="css/footer.css" type="text/css" media="screen"/>
     </head>
     <body>
     <div class="conter">
@@ -31,7 +30,9 @@ else
                 </div>
                 <img class="navone_space" src="img/space.png" alt="space.png"/>
                 <?php if($currentuser["userid"]=="guest")  {?>
-                <a class="navone_home" href="login.php">µÇÂ¼</a>
+                <a class="navone_home" href="login.php">
+                    <img src="img/home.png" alt="home.png">             
+                </a>
                     <?php }else{ ?>
                 <a class="navone_home" href="jiaye.php"><img src="img/home.png" alt="home.png"/></a>
                 <?php } ?>

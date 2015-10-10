@@ -5,7 +5,6 @@ function setImageEffect(){
     if (arguments.length == 1) {
         arr = arguments[0];
     }
-    alert("0000");
 
     $(".main_image").touchSlider({
         flexible : true,
@@ -16,7 +15,6 @@ function setImageEffect(){
             $("#text").html(arr[e.current-1]);
         }
     });
-    alert("1111");
 
     $(".main_image").bind("mousedown", function() {
         $dragBln = false;
