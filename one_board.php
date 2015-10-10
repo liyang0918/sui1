@@ -27,7 +27,7 @@ $articles = bbs_getarticles($brdarr["NAME"], $start_num, $article_num, $dir_mode
 function getBoardArticles() {
     global $articles, $brdarr;
     $link = db_connect_web();
-    $sql_pub = "select owner_id,owner,posttime,title,read_num,total_reply as reply_num from dir_article_".$brdarr["BOARD_ID"]." where groupid=";
+    $sql_pub = "select owner,posttime,title,read_num,total_reply as reply_num from dir_article_".$brdarr["BOARD_ID"]." where groupid=";
 
     // 置顶文章标志
     // ret[1] 存放置顶文章，ret[0]存放普通文章
@@ -43,7 +43,7 @@ function getBoardArticles() {
             if ($result) {
                 $row = mysql_fetch_array($result);
                 $row["href"] = $href;
-                $row["img"] = getHeadImage($row["owner_id"]);
+                $row["img"] = get_user_img($row["owner"]);
                 $ret[0][] = $row;
             }
             mysql_free_result($result);
@@ -129,57 +129,7 @@ $ret = getBoardArticles();
             });
         });
     </script>
-    <script type="text/javascript">
-        var text_id = "";
-        var btn_id = "";
-        function reply_show(obj){
-            <?php if($currentuser["userid"] == "guest"){ ?>
-            var url_page = "<?php echo $url_page.$page;?>";
-            alert(url_page);
-            document.cookie = "before_login="+url_page;
-            window.location = "login.php";
-            <?php } ?>
-            if(obj.text == "回复"){
-                obj.text = "取消"
-                $("#"+text_id).remove();
-                $("#"+btn_id).remove();
-                var re_id = obj.name;
-                text_id = "text_"+obj.name;
-                btn_id = "btn_"+obj.name;
-                var board_name = '<?php echo $board_name;?>';
-                var title = '<?php echo $title;?>';
-                var re_li = $("#re_"+re_id);
-                var re_con = $("#re_content_"+obj.name).text();
-//            var atta_str='<tr> <td align="right">附件：</td> ' +
-//                '<td colspan="2"><span id="pro_span"> ' +
-//                ' <a href="javascript:void(0);" class="news" onclick="document.getElementById(\'pic_span\').style.display=\'block\';document.getElementById(\'pro_span\').innerHTML=\'\';">点击添加附件</a></span> ' +
-//                ' <span style="display:none" id="pic_span"><input name="attachname" size="85" maxlength="100"  value="" type="text">' +
-//                ' <a href="#" onclick="return GoAttachWindow()" class="news">操作附件</a></span>' +
-//                '</td></tr>';
-                var atta_str='<input name="attachfile[]" capture="camera" accept="image/*" type="file" style="margin-left: 10px;width: 200px" multiple="multiple">';
-                var rep_body=atta_str+     '<tr><td><textarea id='+text_id+'>'+re_con+'</textarea><button id='+btn_id+' onclick="post_article('+'\''+board_name+'\',\''+title+'\','+obj.name+')">发表</button></td></tr>';
-                re_li.after(rep_body);
-            }else if(obj.text == "取消"){
-                obj.text = "回复";
-                $("#"+text_id).remove();
-                $("#"+btn_id).remove();
-            }
-        }
-        function GoAttachWindow(){
 
-            var hWnd = window.open("bbsupload.php","_blank","width=600,height=300,scrollbars=yes");
-
-            if ((document.window != null) && (!hWnd.opener))
-
-                hWnd.opener = document.window;
-
-            hWnd.focus();
-
-            return false;
-
-        }
-    </script>
-    </script>
 <?php
 include_once("foot.php");
 ?>

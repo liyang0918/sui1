@@ -1,88 +1,117 @@
 <?php
-    include_once(dirname(__FILE__)."/../../mitbbs_funcs.php");
-    include_once("func.php");
-    include_once("head.php");
-        global $codeEnts;
-        global $codeDecs;
-        $lookupuser = array();
-        $userinfo = array();
-        $userid = $_GET["userid"];
-        $conn = db_connect_web_wap();
-        if (!$conn) {
-              $m_error =1;
-        } else if (!isset($userid) || trim($userid) == "") {
-              $m_error =2;
-        }else if(bbs_getuser($userid, $lookupuser) == 0) {
-              $m_error =3;
-        }else {
-            $userinfo["nickname"] = iconv("GBK","UTF-8//IGNORE",zj_substr($lookupuser['username'],0,20)."...");
-//            $userinfo["nickname"] = mit_iconv($lookupuser['username']);
-            $userinfo["identity"] = mit_iconv(bbs_user_level_char($lookupuser["userid"]));
-            $getbank = load_bank_web($conn, $lookupuser["num_id"]);
-            $userinfo["allcash"] = $getbank[0]['all_newcash'];
-            $userinfo["approvecash"] = $getbank[0]['new_cash'];
-            $userinfo["loginNums"] = $lookupuser["numlogins"];
-            $userinfo["postNums"] = $lookupuser["numposts"];
-            $userexp = bbs_getuser_exp($lookupuser["userid"]);
-            $userinfo["shenf"] = mit_iconv(bbs_user_level_char($lookupuser["userid"]));
-            $userinfo["exp"] = $userexp;
-            $userinfo["jingyjb"] = mit_iconv(bbs_getuser_expstr($lookupuser["userid"], $userexp));
+include_once(dirname(__FILE__)."/../../mitbbs_funcs.php");
+include_once(dirname(__FILE__)."/func.php");
+$member = $_GET["userid"];
+$curruser = $currentuser["userid"];
+$member_exist = false;
 
-            $headimg = BBS_HOME.'/pic_home/home/'.strtoupper(substr($lookupuser["userid"],0,1)).'/'.$lookupuser["userid"].'/headimg';
-            if(!file_exists($headimg)){
-                $userinfo["headimgURL"] ="";
-            }else{
-                $userinfo["headimgURL"] = "http://".$_SERVER['SERVER_NAME']."/picture/".strtoupper(substr($lookupuser["userid"],0,1))."/".$lookupuser["userid"]."/headimg";
-            }
-        }
-        mysql_close($conn);
-        echo "<div class=\"member_pic\"><img src=\"".$userinfo["headimgURL"]."\" width=\"100\"></div>";
-//        echo "<div class=\"member_info\"><span>".$lookupuser["userid"]."</span>(<span>".$userinfo["nickname"]."</span>)</div>";
-        echo "<div class=\"member_info\"><span>".$lookupuser["userid"]."</span></div>";
-        echo "<div class=\"member_list\">";
-        echo "<ul class=\"memberinfo_list\">";
-        echo "<li><span class=\"infolist_left\">æ˜µç§°</span>ï¼š<span class=\"infolist_right\">". $userinfo["nickname"]."</span></li>";
-        echo "<li><span class=\"infolist_left\">èº«ä»½</span>ï¼š<span class=\"infolist_right\">". $userinfo["shenf"]."</span></li>";
-        echo "<li><span class=\"infolist_left\">ä¼ªå¸</span>ï¼š<span class=\"infolist_right\">".$userinfo["allcash"]."</span></li>";
-        echo "<li><span class=\"infolist_left\">å¯ç”¨ä¼ªå¸</span>ï¼š<span class=\"infolist_right\">".$userinfo["approvecash"]."</span></li>";
-        echo "<li><span class=\"infolist_left\">ç™»å½•æ¬¡æ•°</span>ï¼š<span class=\"infolist_right\">".$userinfo["loginNums"]."</span></li>";
-        echo "<li><span class=\"infolist_left\">å‘æ–‡æ•°</span>ï¼š<span class=\"infolist_right\">".$userinfo["postNums"]."</span></li>";
-        echo "<li><span class=\"infolist_left\">ç»éªŒå€¼</span>ï¼š<span class=\"infolist_right\">".$userinfo["exp"]."ï¼ˆ".$userinfo["jingyjb"]."ï¼‰</span></li>";
-        echo "<li><span class=\"infolist_left\">è¯´æ˜æ¡£</span>ï¼š<span class=\"infolist_right\">".$userinfo["desContent"]."</span></li>";
-        echo "</ul></div>";
-        ?>
+function get_userinfo($link, $user_id) {
+    $sql = "SELECT numeral_user_id AS num_id,username,numlogins,numposts FROM users WHERE user_id=\"$user_id\";";
+    $result = mysql_query($sql, $link);
+    $ret = array();
+    if ($row = mysql_fetch_array($result)) {
+        $ret = $row;
+        $ret["headimg"] = get_user_img($user_id);
+        $ret["exp"] = bbs_getuser_exp($user_id);
+        $ret["exp_level"] = bbs_getuser_expstr($user_id, $ret["exp"]);
+        $ret["identity"] = bbs_user_level_char($user_id);
+        $tmpcash = load_bank_web($link, $row["num_id"]);
+        $ret["allcash"] = $tmpcash[0]["all_newcash"];
+        $ret["newcash"] = $tmpcash[0]["new_cash"];
+    }
 
-<div class="ds_box border_bottom">
-    <a href="search_result_member.html"><img src="img/btn_left.png" alt="bth_left.png"/></a>
-    ä¸ªäººä¿¡æ¯
-</div><!--<End ds_box-->
-<div class="jy_generalInfo border_bottom">
-    <div class="gen_img"><img src="img/beauty.png" alt="beauty.png"/></div>
-    <div class="gen_info">
-        <h4>jameshxz</h4>
-        <span>æ˜µç§°ï¼šä¸‰æ¡‚</span>
+    return $ret;
+}
+
+if (empty($member))
+    return false;
+
+$link = db_connect_web();
+$user_arr = get_userinfo($link, $member);
+mysql_close($link);
+if (empty($user_arr))
+    return false;
+else
+    $member_exist = true;
+
+?>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="viewport" content="width=device-width,	min-width:350px,initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Î´Ãû¿Õ¼ä</title>
+
+
+    <link rel="stylesheet" href="css/reset.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="css/nivo-slider.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="css/silder.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="css/reg.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="css/footer.css" type="text/css" media="screen"/>
+
+</head>
+<body>
+<div class="conter">
+    <nav class="navone">
+        <div class="navone_menu">
+            <h3 class="navone_h3"><img class="navone_forum" src="img/menu.png" alt="menu.png"/>¼ÒÒ³</h3>
+        </div>
+        <img class="navone_space" src="img/space.png" alt="space.png"/>
+    </nav>
+    <ul class="navone_ul">
+        <li class="navone_li"><a href="index.php"><img src="img/item.png" alt="item.png"/>ÂÛÌ³</a></li>
+        <li class="navone_li"><a href="news.php"><img src="img/item.png" alt="item.png"/>ĞÂÎÅ</a></li>
+        <li class="navone_li"><a href="club.php"><img src="img/item.png" alt="item.png"/>¾ãÀÖ²¿</a></li>
+        <li class="navone_li"><a href="immigration.php"><img src="img/item.png" alt="item.png"/>ÒÆÃñ×¨À¸</a></li>
+        <li class="navone_li"><a href="dianping.php"><img src="img/item.png" alt="item.png"/>µãÆÀ</a></li>
+        <li class="navone_li noborder"><a href="search.php"><img src="img/item.png" alt="item.png"/>ËÑË÷</a></li>
+    </ul>
+    <script type="text/javascript" src="js/jquery.nivo.slider.js" charset="utf-8"></script>
+    <script type="text/javascript" src="js/slide.js"></script>
+    <script type="text/javascript" src="js/funs.js"></script>
+    <script type="text/javascript" src="../../js/prototype.js"></script>
+
+    <div class="ds_box border_bottom">
+        <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+        ¸öÈËĞÅÏ¢
     </div>
-</div><!--End jy_generalInfo-->
-<ul class="jy_gen_group">
-    <li><span>èº«ä»½</span><em>ç«™åŠ¡</em></li>
-    <li><span>ç»éªŒå€¼</span><em>49455ï¼ˆå¼€å›½å¤§ä½¬ï¼‰</em></li>
-    <li><span>ç™»é™†æ¬¡æ•°</span><em>66416</em></li>
-    <li><span>å‘æ–‡æ•°</span><em>88888</em></li>
-    <li><span>ä¼ªå¸</span><em>667788</em></li>
-    <li><span>å¯ç”¨ä¼ªå¸</span><em>990000</em></li>
-</ul><!--End jy_gen_group-->
 
-		</section>
-		<!--åº•éƒ¨å¼€å§‹-->
-    	<footer>
-        <ul>
-            <li class="footer-li01">mitbbs.com</li>
-            <li class="footer-li03"><a href="/wap/download.php">å®¢æˆ·ç«¯</a></li>
-            <li class="footer-li02"><a href="http://www.mitbbs.com">ç”µè„‘ç‰ˆ</a></li>
-        </ul>
-   		</footer>
-   		<!--åº•éƒ¨ç»“æŸ-->
-	</div>
+    <div class="jy_generalInfo border_bottom">
+        <div class="gen_img">
+            <img src="img/beauty.png" alt="beauty.png" />
+        </div>
+        <div class="gen_info">
+            <h4><?php echo $member; ?></h4>
+            <span>êÇ³Æ£º<?php echo $user_arr["username"]; ?></span>
+        </div>
+    </div>
+    <!--End jy_generalInfo-->
+    <ul class="jy_gen_group">
+        <li><span>Éí·İ</span><em><?php echo $user_arr["identity"]; ?></em></li>
+        <li><span>¾­ÑéÖµ</span><em><?php echo $user_arr["exp"]; ?>£¨<?php echo $user_arr["exp_level"]; ?>£©</em></li>
+        <li><span>µÇÂ½´ÎÊı</span><em><?php echo $user_arr["numlogins"]; ?></em></li>
+        <li><span>·¢ÎÄÊı</span><em><?php echo $user_arr["numposts"]; ?></em></li>
+        <li><span>Î±±Ò</span><em><?php echo $user_arr["allcash"]; ?></em></li>
+        <li><span>¿ÉÓÃÎ±±Ò</span><em><?php echo $user_arr["newcash"]; ?></em></li>
+    </ul>
+<?php if ($curruser != $member and $member_exist) { ?>
+    <div class="search_result_memberInfo">
+        <input class="search_btn1" type="button" value="¼ÓÎªºÃÓÑ" />
+        <p class="search_inp_box">
+            <input class="margin_right" type="button" value="+¹Ø×¢" />
+            <input type="button" value="·¢ÓÊ¼ş" onclick="window.location.href='jiaye_email_write.html';"/>
+        </p>
+    </div>
+    <br />
+    <br />
+<?php } ?>
 
-</body>
-</html>
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/js.js"></script>
+<?php
+include_once("foot.php");
+?>
+

@@ -30,7 +30,6 @@ $tmpl=0;
 $ret = bbs_postarticle($board_name, preg_replace("/\\\(['|\"|\\\])/", "$1", $title)
     , preg_replace("/\\\(['|\"|\\\])/", "$1", $content), $signature, $reid, $outgo, $anony
     , $type_flag, $club_flag, $keywords, $keyword_num,$tmpl);
-log2file("$board_name".mb_detect_encoding($content,array('ASCII', 'UTF-8', 'GB2312', 'GBK', 'BIG5')));
 $echo_ret=$ret;
 switch ($ret) {
     case -1:

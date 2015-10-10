@@ -39,7 +39,6 @@ if ($mode == "0") {
         $str_lawyer .= '<dl><dt>'.$group.'</dt>';
         $each = array();
         foreach ($layers as $each) {
-            log2file('1 ====>'.$group." | ".$each["lawyer_name"]."\n");
             $str_lawyer .= '<dd class="border_bottom">';
             $str_lawyer .= '<a href="'.$each["href"].'">';
             $str_lawyer .= '<img src="'.$each["img"].'" alt="lawyer"/>';
@@ -76,7 +75,6 @@ if ($mode == "0") {
         $str_lawyer .= '<dt>'.$group.'</dt>';
         $each = array();
         foreach ($lawyers as $each) {
-            log2file('2 ====>'.$group."\n");
             $str_lawyer .= '<dd class="border_bottom area_dd"><a id="0|'.$each["city"].'" href="" onclick="sec_select(this);">'.$each["city"].'</a></dd>';
         }
         $str_lawyer .= '</dl>';

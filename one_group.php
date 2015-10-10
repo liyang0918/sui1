@@ -1,6 +1,6 @@
 <?php
 include_once(dirname(__FILE__)."/../../mitbbs_funcs.php");
-include_once(dirname(__FILE__)."func.php");
+include_once(dirname(__FILE__)."/func.php");
 include_once("head.php");
 //data part
 $board_name = $_GET["board"];
@@ -46,10 +46,11 @@ if($row == false){
         $tmp_arr["img"] = get_user_img($row["owner"]);
         $tmp_arr["file"] = check_board_filename($board_name, $row["filename"]);
         $content_arr = get_file_content($tmp_arr["file"], $row["attachment"], $board_name, $row["article_id"], $article_type, $att_arr);
+
+        $tmp_arr["content"] = trans_content_html($content_arr[1]);
         $tmp_content = iconv("UTF-8", "GBK//IGNORE", $tmp_arr["content"]);
         if (!empty($tmp_content))
             $tmp_arr["content"] = $tmp_content;
-        $tmp_arr["content"] = trans_content_html($content_arr[1]);
         $tmp_arr["attach"] = $att_arr;
         $tmp_arr["article_id"]=$row["article_id"];
         $prt_arr[] = $tmp_arr;
@@ -87,6 +88,7 @@ while ($row = mysql_fetch_array($ret)) {
     $tmp_arr["floor"] = $floor_cnt."楼";
     $tmp_arr["file"] = check_board_filename($board_name,$row["filename"]);
     $content_arr = get_file_content($tmp_arr["file"],$row["attachment"],$board_name,$row["article_id"],$article_type,$att_arr);
+
     $tmp_arr["content"] = trans_content_html($content_arr[1]);
     $tmp_content = iconv("UTF-8", "GBK//IGNORE", $tmp_arr["content"]);
     if (!empty($tmp_content))
@@ -141,6 +143,10 @@ $i_cnt = count($prt_arr);
             <?php }?>
         </ul>
     </div>
+<?php
+    // 分页显示
+    echo page_partition($total_row, $page, $per_page);
+?>
     <div class="news_foot">
         <input type="button" value="写跟帖" onclick="document.location='<?php
         echo url_generate(4, array(
@@ -157,10 +163,6 @@ $i_cnt = count($prt_arr);
         <span class="news_share"><img src="img/share.png" alt="share.png"/>分享</span>
         <span class="news_collect"><img src="img/star.png" alt="star.png"/>收藏</span>
     </div><!--  End news_foot-->
-<?php
-    // 分页显示
-    echo page_partition($total_row, $page, $per_page);
-?>
     <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {

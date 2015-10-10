@@ -21,7 +21,8 @@ include_once("sec_news.php")
 ?>
 <div id="linklist">
 </div>
-<div id="carouselfigure">
+<div class="newsIndex_showBox">
+    <img src="images/1.png" alt="images/1.png"/>
 </div>
 <div id="detail">
 </div>

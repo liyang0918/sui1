@@ -4,8 +4,20 @@ include_once("func.php");
 include_once("head.php");
 
 $link = db_connect_web();
+$hls_flag = true;   // 搜索关键字高亮显示
+$high_light_show_style = "color:black;background-color:#ffff66;";
 
-function search_result_board($link, $sql) {
+// 将str中的关键字keyword设置高亮
+function setHighLightShow($str, $keyword) {
+    global $hls_flag, $high_light_show_style;
+
+    if ($hls_flag==false or empty($keyword))
+        return $str;
+
+    return preg_replace("/($keyword)/i", "<span style=\"$high_light_show_style\">$1</span>", $str);
+}
+
+function search_result_board($link, $sql, $keyword="") {
     $ret = array();
     $result = mysql_query($sql, $link);
     while ($row = mysql_fetch_array($result)) {
@@ -18,6 +30,10 @@ function search_result_board($link, $sql) {
         $tmp["href"] = url_generate(2, array("board"=>$row["enName"]));
         $tmp["boardimg"] = getBoardImg($row["enName"]);
 
+        // 高亮显示
+        $tmp["enName"] = setHighLightShow($tmp["enName"], $keyword);
+        $tmp["cnName"] = setHighLightShow($tmp["cnName"], $keyword);
+
         $ret[] = $tmp;
     }
 
@@ -25,7 +41,7 @@ function search_result_board($link, $sql) {
     return $ret;
 }
 
-function search_result_club($link, $sql) {
+function search_result_club($link, $sql, $keyword="") {
     $ret = array();
     $result = mysql_query($sql, $link);
     while ($row = mysql_fetch_array($result)) {
@@ -36,6 +52,10 @@ function search_result_club($link, $sql) {
         $tmp["clubimg"] = getClubImg($row["enName"]);
         $tmp["href"] = url_generate(2, array("club"=>$row["enName"]));
 
+        // 高亮显示
+        $tmp["enName"] = setHighLightShow($tmp["enName"], $keyword);
+        $tmp["cnName"] = setHighLightShow($tmp["cnName"], $keyword);
+
         $ret[] = $tmp;
     }
 
@@ -43,14 +63,18 @@ function search_result_club($link, $sql) {
     return $ret;
 }
 
-function search_result_member($link, $sql) {
+function search_result_member($link, $sql, $keyword="") {
     $ret = array();
     $result = mysql_query($sql, $link);
     while ($row = mysql_fetch_array($result)) {
-        $tmp["href"] = "";
         $tmp["headimg"] = get_user_img($row["enName"]);
         $tmp["enName"] = $row["enName"];
         $tmp["cnName"] = $row["cnName"];
+        $tmp["href"] = "memberinfo.php?userid=".$tmp["enName"];
+
+        // 高亮显示
+        $tmp["enName"] = setHighLightShow($tmp["enName"], $keyword);
+        $tmp["cnName"] = setHighLightShow($tmp["cnName"], $keyword);
 
         $ret[] = $tmp;
     }
@@ -61,21 +85,21 @@ function search_result_member($link, $sql) {
 
 //data part
 $search_type_list = array(
-    "0" => "board",
-    "1" => "club",
-    "2" => "member"
+    "board"=>"版面",
+    "club"=>"俱乐部",
+    "member"=>"会员"
 );
 
-$search_type = 0; // 0 搜版面   1 搜俱乐部   2 搜会员
+$search_type = ""; // board 搜版面   club 搜俱乐部   member 搜会员
 $search_name = "";
 if (isset($_GET["board"])) {
-    $search_type = 0;
+    $search_type = "board";
     $search_name = $_GET["board"];
 } else if (isset($_GET["club"])) {
-    $search_type = 1;
+    $search_type = "club";
     $search_name = $_GET["club"];
 } else if (isset($_GET["member"])) {
-    $search_type = 2;
+    $search_type = "member";
     $search_name = $_GET["member"];
 }
 
@@ -84,7 +108,7 @@ if ($search_name == "")
 
 $url_page = url_generate(4, array(
     "action" => "one_search.php",
-    "args"=>array($search_type_list[$search_type]=>$search_name)
+    "args"=>array($search_type=>$search_name)
 ))."&page=";
 
 $per_page=10;
@@ -93,19 +117,19 @@ if(empty($page)){
     $page = 1;
 }
 
-if ($search_type == 0) { // 搜版面
+if ($search_type == "board") { // 搜版面
     $sql = "select board_id,boardname as enName,board_desc as cnName from board";
-    $condition = " WHERE boardname LIKE '%{$search_name}%' OR board_desc LIKE '%{$search_name}%'";
+    $condition = " WHERE boardname LIKE '%{$search_name}%' OR board_desc LIKE BINARY '%{$search_name}%'";
     $sql .= $condition;
     $sql_count = "select count(*) as count from board $condition";
-} elseif ($search_type == 1) { // 搜俱乐部
+} elseif ($search_type == "club") { // 搜俱乐部
     $sql = "select club_id,club_group_id,club_name as enName,club_cname as cnName,post_sum,member_sum from club";
-    $condition = " WHERE club_name LIKE '%{$search_name}%' OR club_cname LIKE '%{$search_name}%'";
+    $condition = " WHERE club_name LIKE '%{$search_name}%' OR club_cname LIKE BINARY '%{$search_name}%'";
     $sql .= $condition;
     $sql_count = "select count(*) as count from club $condition";
-} elseif ($search_type == 2) { // 搜会员
+} elseif ($search_type == "member") { // 搜会员
     $sql = "select user_id as enName,username as cnName from users";
-    $condition = " WHERE user_id LIKE '%{$search_name}%' OR username LIKE '%{$search_name}%'";
+    $condition = " WHERE user_id LIKE '%{$search_name}%' OR username LIKE BINARY '%{$search_name}%'";
     $sql .= $condition;
     $sql_count = "select count(*) as count from users $condition";
 } else {
@@ -121,27 +145,22 @@ $sql .= $order;
 $limit = "";
 
 $start = ($page-1)*$per_page;
-if($page == 1){
-    $per_page--;
-    $limit = " limit $start,$per_page";
-}else{
-    $limit = " limit $start,$per_page";
-}
-$sql .= $limit;
+$limit = " limit $start,$per_page";
 
+$sql .= $limit;
 //data end
 ?>
 <div class="ds_box border_bottom">
     <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
-    搜索结果列表
+    <?php echo $search_type_list[$search_type]; ?>搜索结果 <span>【<?php echo $search_name; ?>】</span>
 </div>
-<?php if ($search_type == 0) { ?>
+<?php if ($search_type == "board") { ?>
 <div class="hot_li">
     <ul class="hot_list_wrap border_bottom block">
 <?php
 if ($total_row == 0)
     echo '<h3><span>没有找到相匹配的结果</span></h3>';
-$t_data = search_result_board($link, $sql);
+$t_data = search_result_board($link, $sql, $search_name);
 foreach ($t_data as $each) {
 ?>
         <li class="content_list_wrap padding10 border_bottom padding-bottom board_link">
@@ -158,14 +177,14 @@ foreach ($t_data as $each) {
     </ul>
 </div>
 <?php
-} elseif ($search_type == 1) {
+} elseif ($search_type == "club") {
 ?>
 <div class="hot_li">
     <ul class="hot_list_wrap border_bottom block">
 <?php
 if ($total_row == 0)
     echo '<h3><span>没有找到相匹配的结果</span></h3>';
-$t_data = search_result_club($link, $sql);
+$t_data = search_result_club($link, $sql, $search_name);
 foreach ($t_data as $each) {
 ?>
         <li class="content_list_wrap padding10 border_bottom padding-bottom board_link">
@@ -182,13 +201,13 @@ foreach ($t_data as $each) {
     </ul>
 </div>
 <?php
-} elseif ($search_type == 2) {
+} elseif ($search_type == "member") {
 ?>
 <ul class="jy_f_group">
 <?php
 if ($total_row == 0)
     echo '<h3><span>没有找到相匹配的结果</span></h3>';
-$t_data = search_result_member($link, $sql);
+$t_data = search_result_member($link, $sql, $search_name);
 foreach ($t_data as $each) {
 ?>
     <li class="border_bottom">

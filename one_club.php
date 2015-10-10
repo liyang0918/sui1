@@ -30,7 +30,7 @@ function getClueArticles() {
     if ($sql_table_id == 0)
         $sql_table_id = 256;
 
-    $sql_pub = "select owner_id,owner,posttime as posttime,title,read_num,total_reply from club_dir_article_".$sql_table_id." where groupid=";
+    $sql_pub = "select owner,posttime as posttime,title,read_num,total_reply from club_dir_article_".$sql_table_id." where groupid=";
 
     // ret[1] 存放置顶文章，ret[0]存放普通文章
     $ret[0] = array();
