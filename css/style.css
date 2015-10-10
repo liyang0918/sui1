@@ -447,6 +447,7 @@ body {
     position: fixed;
     left:0;
     bottom:0;
+
 }
 .news_foot input{
     -webkit-appearance:none;
@@ -910,6 +911,19 @@ body {
 .news_list_lione{
     overflow: hidden;
 }
+.news_list_lione div{
+    width:90%
+}
+.newsIndex_showBox{
+    width:100%;
+    height:240px;
+}
+
+.newsIndex_showBox img {
+    width:100%;
+    height:100%;
+}
+
 .news_list_lione img{
     float: left;
     width:93px;
@@ -923,6 +937,7 @@ body {
 .new_list_content_listbox p{
     color:#BFBFBF;
     font-size:1.4em;
+    min-height:1.4em;
 }
 .litwo_box{
     width:376px;
@@ -2001,6 +2016,10 @@ a.ds_footer_a{
     font-size:1.2em;
     margin-right:5px;
 }
+#pagebox h3 {
+    margin-top:5px;
+}
+
 /*End pages*/
 section { padding: 10px;overflow: hidden;zoom: 1;border-top: 1px solid #dbdbdb;outline:none;}
 .mycomm-frame li{position:relative;padding:0 0 0 50px;overflow:hidden;margin:10px 0;border:1px solid #adadad;background:#f9f9f9;font-size:1.4em;}

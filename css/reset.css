@@ -57,7 +57,7 @@ aside, nav, article, figure {
 /*=== Main Styles ===*/
 /*===================*/
 a,a:visited {
-	color:blue;
+    /*color:blue;*/
 	text-decoration:none;
 }
 a:hover, a:active {
