@@ -81,7 +81,7 @@ else
 
     <div class="jy_generalInfo border_bottom">
         <div class="gen_img">
-            <img src="img/beauty.png" alt="beauty.png" />
+            <img src="<?php echo $user_arr["headimg"]; ?>" alt="userimg" />
         </div>
         <div class="gen_info">
             <h4><?php echo $member; ?></h4>
