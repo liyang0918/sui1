@@ -34,7 +34,9 @@ $page_title = "ËÑË÷";
         </div>
         <img class="navone_space" src="img/space.png" alt="space.png"/>
         <?php if($currentuser["userid"]=="guest")  {?>
-            <a class="navone_home" href="login.php">µÇÂ¼</a>
+            <a class="navone_home" href="login.php">
+                <img src="img/home.png" alt="home.png">
+            </a>
         <?php }else{ ?>
             <a class="navone_home" href="jiaye.php"><img src="img/home.png" alt="home.png"/></a>
         <?php } ?>
