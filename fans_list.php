@@ -48,7 +48,7 @@ $ret = getMyFriendList($link, $user_id, $app_type, $page, $num);
     <ul class="fs_group margin-bottom">
         <?php foreach ($ret as $each) { ?>
             <li class="border_bottom">
-            <a href="memberinfo.php?userid=<?php echo $each["user_id"]; ?>"><img src="<?php echo $each["headimg"]; ?>" /><?php echo $each["user_id"]; ?></a>
+            <a href="<?php echo $each["href"]; ?>"><img src="<?php echo $each["headimg"]; ?>" /><?php echo $each["user_id"]; ?></a>
             <?php if ($each["type"] == 1) { ?>
                 <span>»¥Ïà¹Ø×¢</span>
             <?php } else { ?>

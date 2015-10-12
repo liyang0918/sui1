@@ -7,6 +7,49 @@ function log2file($str) {
     fclose($fp);
 }
 
+function get_table_content($link, $table_name, $condition="", $row_num=20, $show_type="web") {
+    $all_flag = 0;
+    if ($row_num == "all")
+        $all_flag = 1;
+    elseif (!is_numeric($row_num) or $row_num < 0)
+        $row_num = 20;
+
+    $sep = "";
+    switch ($show_type) {
+        case "web":
+            $sep = "<br />";
+            break;
+        case "doc":
+            $sep = "\n\r";
+            break;
+        default:
+            $sep = "\n\r";
+    }
+
+    $sql = "SELECT * FROM $table_name $condition";
+
+    if ($all_flag == 0)
+        $sql .= " LIMIT $row_num";
+
+    $result = mysql_query($sql, $link);
+    $ret = "";
+    while ($row = mysql_fetch_array($result)) {
+        foreach ($row as $key=>$value) {
+            if (is_numeric($key))
+                continue;
+
+            $tmp = iconv("UTF-8", "GBK//IGNORE", $value);
+            if (!empty($tmp))
+                $value = $tmp;
+            $ret .= $key." => ".$value.$sep;
+        }
+        $ret .= $sep;
+    }
+
+    mysql_free_result($result);
+    return $ret;
+}
+
 $php_page_arr=array(
     "/mobile/forum/index.php"=>"首页"
     ,"b"=>"2"
@@ -2088,7 +2131,7 @@ function getCurrUserInfo() {
     return $userData;
 }
 
-function getMyFriendList($link, $user_id, $app_type, $page, $num){
+function getMyFriendList($link, $user_id, $app_type, $page, $num=10){
     global $currentuser;
     $ret = array();
 
@@ -2098,16 +2141,13 @@ function getMyFriendList($link, $user_id, $app_type, $page, $num){
     if (!$link) {
         return;
     }
-
-    if (empty($num))
-        $num = 10;
     $page = ($page-1)*$num;
 
     $numeral_user_id = $currentuser["num_id"];
 
     // 0 friend 1 solicitude 2 apply 3 fans
     if ($app_type==0)
-        $sqlStr="SELECT numeral_friend_id,expr,app_reason,type,add_date,is_show,is_approve FROM friend_list WHERE type=0 AND is_approve='Y' AND numeral_user_id=$numeral_user_id AND type<>2 ORDER BY add_date DESC";
+        $sqlStr="SELECT numeral_friend_id,expr,app_reason,type,add_date,is_show,is_approve FROM friend_list WHERE type=0 AND is_approve='Y' AND numeral_user_id=$numeral_user_id AND type=0 ORDER BY add_date DESC";
     elseif ($app_type==1)
         $sqlStr="SELECT numeral_friend_id,expr,app_reason,type,add_date,is_show,is_approve FROM funs_list WHERE type=1 AND numeral_user_id=$numeral_user_id ORDER BY add_date DESC";
     elseif ($app_type==2)
@@ -2138,6 +2178,7 @@ function getMyFriendList($link, $user_id, $app_type, $page, $num){
         $data["app_reason"] = $circle_row["app_reason"];
 
         $data["headimg"] = get_user_img($friend_userid);
+        $data["href"] = "memberinfo.php?userid=$friend_userid";
 
         if ($circle_row["type"] == 0)
             $data["is_friend"] = "1";
@@ -2198,9 +2239,74 @@ function getMyFriendList($link, $user_id, $app_type, $page, $num){
     }
     mysql_free_result($circle_re);
 
-    $i = 0 ;
-
     return $ret;
 }
+
+/* 检查 f_user 是否在 t_user 的好友列表中 */
+function check_friend($link, $t_user, $f_user) {
+    $sql = "SELECT COUNT(*) AS count FROM users u1,users u2,friend_list f WHERE
+        u1.user_id='$t_user' AND u2.user_id='$f_user' AND
+        f.numeral_user_id=u1.numeral_user_id AND f.numeral_friend_id=u2.numeral_user_id";
+    $is_friend = false;
+    $result = mysql_query($sql, $link);
+    if ($row = mysql_fetch_array($result)) {
+        if ($row["count"] == "0")
+            $is_friend = false;
+        else
+            $is_friend = true;
+    }
+
+    mysql_free_result($result);
+    return $is_friend;
+}
+
+// 获取好友申请列表
+function getFriendApply($link, $page, $num=10) {
+    global $currentuser;
+    $page = ($page-1)*$num;
+
+    $user_id = $currentuser["userid"];
+    $sql = "SELECT t_user,f_user,is_handle,content,UNIX_TIMESTAMP(msg_date) as date FROM sys_msg WHERE msg_type=1 AND (t_user='{$user_id}' OR f_user='{$user_id}') ORDER BY msg_date DESC limit $page,$num";
+    $result = mysql_query($sql, $link);
+    $ret = array();
+    while ($row = mysql_fetch_array($result)) {
+        $tmp["to"] = $row["t_user"];
+        $tmp["from"] = $row["f_user"];
+        $tmp["date"] = $row["date"];
+        $tmp["content"] = iconv("UTF-8", "GBK//IGNORE", $row["content"]);
+        $tmp["handle_result"] = "W"; // W尚未处理 Y已同意 N已拒绝
+
+        if ($row["t_user"] == $user_id) {
+            // 收到的好友请求
+            // is_handle:"W"表示正在处理,"Y"表示已处理
+            if ($row["is_handle"] == "Y") {
+                // 已处理的请求需要查询friend_list来获取查询结果
+                if (check_friend($link, $row["t_user"], $row["f_user"])) {
+                    $tmp["handle_result"] = "Y";
+                } else {
+                    $tmp["handle_result"] = "N";
+                }
+            } elseif ($row["is_handle"] == "N")
+                continue;
+        } else {
+            // 自己发送的好友请求
+            if ($row["is_handle"] == "Y") {
+                // 查询自己是否已经在对方的好友列表中
+                if (check_friend($link, $row["f_user"], $row["t_user"])) {
+                    $tmp["handle_result"] = "Y";
+                } else {
+                    $tmp["handle_result"] = "N";
+                }
+            } elseif ($row["is_handle"] == "N")
+                continue;
+        }
+
+        $ret[] = $tmp;
+    }
+
+    mysql_free_result($result);
+    return $ret;
+}
+
 
 ?>
