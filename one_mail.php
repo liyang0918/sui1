@@ -56,7 +56,7 @@ if (bbs_get_records_from_num($mail_fullpath, $mailid, $mails)) {
         邮件内容
     </div>
     <div class="mr_group">
-        <div class="mr_list">
+        <div class="mr_list margin_bottom">
             <div class="mr_list_div">
                 <img class="mr_list_img" src="<?php echo $ret["owner_img"]; ?>" alt="pic"/>
                 <div>
@@ -68,7 +68,7 @@ if (bbs_get_records_from_num($mail_fullpath, $mailid, $mails)) {
                 </div>
             </div>
         </div>
-        <div class="email_content_box margin-bottom">
+        <div class="email_content_box">
             <p>
                 <?php echo $ret["content"]; ?>
             </p>
@@ -76,16 +76,14 @@ if (bbs_get_records_from_num($mail_fullpath, $mailid, $mails)) {
     </div> <!--End mr_group-->
         <?php if ($type != "delete") { ?>
         <div class="common_bottom_box">
-            <a href="jiaye_email_reply.html"><img src="img/backlogo.png" alt="backlogo.png"/>回复</a>
+            <a href="/mobile/forum/writemail.php?mailto=<?php echo $ret["owner"]; ?>&title=<?php echo "回复:".urlencode($ret["title"]); ?>"><img src="img/backlogo.png" alt="backlogo.png"/>回复</a>
             <a id="<?php echo $type."_".$mailid; ?>" onclick="_alertClearEmail(this);"><img src="img/trash.png" alt="trash.png"/>删除</a>
         <?php } else { ?>
-        <div class="common_bottom_box margin-bottom">
-            <a href="#"><img src="img/circle.png" alt="circle.png"/>还原</a>
+        <div class="common_bottom_box">
+            <a id="<?php echo $type."_".$mailid; ?>" onclick="_alertRecoverEmail(this)"><img src="img/circle.png" alt="circle.png"/>还原</a>
             <a id="<?php echo $type."_".$mailid; ?>" onclick="_alertDelEmail(this)"><img src="img/trash.png" alt="trash.png"/>彻底删除</a>
         <?php } ?>
     </div>
-
-    <script type="text/javascript" src="js/jquery.js"></script>
 
 <?php
 include_once("head.php");

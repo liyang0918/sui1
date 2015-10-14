@@ -25,6 +25,7 @@ $conn = db_connect_web();
 $sql = "SELECT owner_id,owner,groupid,article_id,boardname,title,type_flag,posttime,total_reply,read_num,filename,attachment FROM dir_article_" . $brdarr["BOARD_ID"] . " ".
     "WHERE groupid=".$group_id." AND article_id=".$group_id;
 $ret = mysql_query($sql,$conn);
+$floor_cnt = 1;
 $row = mysql_fetch_array($ret);
 mysql_free_result($ret);
 if($row == false){
@@ -40,6 +41,7 @@ if($row == false){
     $read_num = $row["read_num"];
     $board_link = "";
     if($page == 1) {
+        $floor_cnt++;
         $tmp_arr["owner"] = $row["owner"];
         $tmp_arr["posttime"] = $row["posttime"];
         $tmp_arr["floor"] = "Â¥Ö÷";
@@ -76,7 +78,6 @@ if($page == 1){
 }
 $sql .= $limit;
 $ret = mysql_query($sql,$conn);
-$floor_cnt = 2;
 while ($row = mysql_fetch_array($ret)) {
     //if more than one article
     $content_arr = array();
@@ -85,7 +86,7 @@ while ($row = mysql_fetch_array($ret)) {
     $tmp_arr["owner"] = $row["owner"];
     $tmp_arr["img"] = get_user_img($row["owner"]);
     $tmp_arr["posttime"] = $row["posttime"];
-    $tmp_arr["floor"] = $floor_cnt."Â¥";
+    $tmp_arr["floor"] = ($floor_cnt+($page-1)*$per_page)."Â¥";
     $tmp_arr["file"] = check_board_filename($board_name,$row["filename"]);
     $content_arr = get_file_content($tmp_arr["file"],$row["attachment"],$board_name,$row["article_id"],$article_type,$att_arr);
 

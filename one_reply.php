@@ -55,7 +55,7 @@ else
             alert("评论内容不少于10个字!");
             return false;
         }
-        alert(content);
+
         post_article(board, title, groupid, "<?php echo $club_flag; ?>");
         document.location = "<?php echo $father_page; ?>";
         return false;

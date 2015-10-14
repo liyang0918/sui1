@@ -26,7 +26,7 @@ $arr = getMailNumByType($user_id);
     </div><!--<End ds_box-->
     <div class="board_wrap">
         <div class="bd_list border_bottom border_top _margin_bottom ">
-            <a href="jiaye_email_write.html"><img class="jy_email_img" src="img/jy_email1.png" alt="jy_email1.png"/><strong>写邮件</strong><span class="bd_right"></span></a>
+            <a href="writemail.php"><img class="jy_email_img" src="img/jy_email1.png" alt="jy_email1.png"/><strong>写邮件</strong><span class="bd_right"></span></a>
         </div>
         <div class="bd_list border_bottom border_top">
             <a href="one_mail_list.php?type=unread"><img class="jy_email_img" src="img/jy_email2.png" alt="jy_email2.png"/><strong>新邮件</strong><span class="bd_right"></span><i class="i red"><?php echo $arr["unread"]; ?></i></a>

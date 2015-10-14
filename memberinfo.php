@@ -101,8 +101,8 @@ else
     <div class="search_result_memberInfo">
         <input class="search_btn1" type="button" value="加为好友" />
         <p class="search_inp_box">
-            <input class="margin_right" type="button" value="+关注" />
-            <input type="button" value="发邮件" onclick="window.location.href='jiaye_email_write.html';"/>
+            <input id="add_focus" class="margin_right" type="button" value="+关注" onclick="return add_focus('<?php echo $member; ?>', 2)" />
+            <input type="button" value="发邮件" onclick="window.location.href='writeemail.php?mailto=<?php echo $member; ?>';"/>
         </p>
     </div>
     <br />
