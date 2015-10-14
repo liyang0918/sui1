@@ -58,7 +58,7 @@ function show_result($arr) {
         if (is_array($each)) {
             foreach ($each as $key=>$value) {
                 if (is_array($value)) {
-                    echo "&nbsp;&nbsp;&nbsp;&nbsp;$key => ",
+                    echo "&nbsp;&nbsp;&nbsp;&nbsp;$key => ";
                     var_dump($value);
                     echo "<br />";
                 } else
@@ -441,14 +441,26 @@ function curPageURL()
     return $pageURL;
 }
 
-function get_row_count($board_id,$article_id,$conn){
-    $sql = "SELECT COUNT(*) FROM dir_article_" . $board_id.
-        " WHERE groupid=".$article_id;
-    $ret=mysql_query($sql,$conn);
-    $row=mysql_fetch_array($ret);
+function get_row_count($board_id, $article_id, $link, $type=1){
+    if ($type == 1) {
+        // type == 1 为版面
+        $sql = "SELECT COUNT(*) AS count FROM dir_article_{$board_id} WHERE groupid=$article_id";
+    } elseif ($type == 2) {
+        // type == 2 为俱乐部
+        $table_id = $board_id%256;
+        if ($table_id == 0)
+            $table_id = 256;
+
+        $sql = "SELECT COUNT(*) AS count FROM club_dir_article_{$table_id} WHERE groupid=$article_id";
+    } else {
+        return 0;
+    }
+    $ret = mysql_query($sql, $link);
+    $row = mysql_fetch_array($ret);
     mysql_free_result($ret);
-    return $row[0];
+    return $row["count"];
 }
+
 function trans_content_html($str){
     $arr = array();
 
@@ -2496,5 +2508,83 @@ function getMailByType($user_id, $type, $page, $num) {
     return $ret;
 }
 
+function sendmail($userid,$title,$content,$backup,$signature) {
+    $returnValue = array();
+    $returnValue['error'] = false;
+    $returnValue['userId'] = $userid;
+
+    if( strlen($userid) > 12 || strlen($userid) < 1 )
+    {
+        $returnValue['error'] = true;
+        $returnValue['errorMsg'] = "收件人帐号长度不对 [[[ $userid ]]]";
+        return $returnValue;
+    }
+    $userInfo = array();
+    $unum = bbs_getuser($userid,$userInfo);
+    if($unum == 0){
+        $returnValue['error'] = true;
+        $returnValue['errorMsg'] = "错误的收件人帐号";
+        return $returnValue;
+    }
+    $ret = bbs_mail_check_and_update_num();
+    if($ret == -2) {
+        $returnValue['error'] = true;
+        $returnValue['errorMsg'] = "数据库错误";
+        return $returnValue;
+    } else if($ret == 1) {
+        $returnValue['error'] = true;
+        $returnValue['errorMsg'] = "普通用户每天最多只能发送100封邮件, 您已达到上限。";
+        return $returnValue;
+    } else if($ret==2) {
+        $returnValue['error'] = true;
+        $returnValue['errorMsg'] = "版主每天最多只能发送200封邮件, 您已达到上限。";
+        return $returnValue;
+    }
+
+
+    if ($_COOKIE["mitbbs_big5"] == "true"||$_COOKIE["tw_hk_big5"] == "true") {
+        $title =b2g($title);
+        $content = b2g($content);
+    }
+
+    $ret2=bbs_postmail($userid,
+        preg_replace("/\\\(['|\"|\\\])/", "$1", iconv("UTF-8","GB18030",$title)),
+        preg_replace("/\\\(['|\"|\\\])/", "$1", iconv("UTF-8","GB18030",$content)),
+        $signature,
+        $backup);
+    $returnValue["backup"] = $backup;
+    if ($ret2 != 6) {
+        switch ($ret2) {
+            case -1:
+                $returnValue['error'] = true;
+                $returnValue['errorMsg'] = "无法创建文件";
+                break;
+            case -10-1:
+                $returnValue['error'] = true;
+                $returnValue['errorMsg'] = "对方拒收你的邮件";
+                break;
+            case -3-1:
+                $returnValue['error'] = true;
+                $returnValue['errorMsg'] = "对方信箱满";
+                break;
+            case -5-1:
+                $returnValue['error'] = true;
+                $returnValue['errorMsg'] = "不能添加到";
+                break;
+            case -6-1:
+                $returnValue['error'] = false;
+                $returnValue['errorMsg'] = "不能保存到发件箱";
+                break;
+            case -2-1:
+                $returnValue['error'] = true;
+                $returnValue['errorMsg'] = "对方已把你加入黑名单";
+                break;
+            default:
+                $returnValue['error'] = true;
+                $returnValue['errorMsg'] = "未知原因";
+        }
+    }
+    return $returnValue;
+}
 
 ?>

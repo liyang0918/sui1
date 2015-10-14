@@ -184,14 +184,28 @@ function _alertClearEmail(obj)
 function _alertDelEmail(obj)
 {
     // obj.id格式: type_mailid
-    if(confirm('确定彻底删除此邮件?')){
+    if(confirm('确定彻底删除此邮件?')) {
         delEmail(obj.id);
-    } else{
+    } else {
 
     }
 
     return false;
 }
+
+//  "恢复"点击的弹窗
+function _alertRecoverEmail(obj) {
+
+    // obj.id格式: type_mailid
+    if(confirm('确定将此邮件移动到收件箱?')) {
+        recoverEmail(obj.id);
+    } else {
+
+    }
+
+    return false;
+}
+
 //所有输入框获得失去焦点效果；
 if($('input').attr('type')=='text'){
 

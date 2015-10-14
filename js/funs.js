@@ -473,6 +473,92 @@ function delEmail(msg) {
         });
 }
 
+function recoverEmail(msg) {
+    var arr = msg.split("_");
+    if (arr.length < 2)
+        return false;
+
+    var type = arr[0];
+    var mailid = arr[1];
+
+    var s_dir = "";
+    switch (type) {
+        case "unread":
+            s_dir = "r";
+            break;
+        case "total":
+            s_dir = "r";
+            break;
+        case "send":
+            s_dir = "s";
+            break;
+        case "delete":
+            s_dir = "d";
+            break;
+        default:
+            break;
+    }
+
+    var url = "/mobile/forum/request/mail_action.php";
+    var para = "option=move&d_dir=r&s_dir="+s_dir+"&mailid="+mailid;
+    var myAjax = new Ajax.Request(url,
+        {
+            method: 'post',
+            parameters: para,
+            asynchronous: false,
+            onSuccess: function (ret) {
+                if (ret.responseText == true) {
+                    location.reload();
+                    Alert("恢复邮件成功", 2);
+                } else {
+                    Alert("操作失败,"+ret.responseText, 1);
+                }
+            },
+            onFailure: function (ret) {
+                Alert("请求失败!", 1);
+            }
+        });
+}
+
+function add_focus(userid, page_type) {
+    var url = "/mobile/forum/request/friend_action.php";
+    var para = "option=add&type=1&userid="+userid;
+
+    var myAjax = new Ajax.Request(url,
+        {
+            method: 'post',
+            parameters: para,
+            asynchronous: false,
+            onSuccess: function (ret) {
+                if (ret.responseText == true) {
+                    if (page_type == 1) {
+                        // 粉丝列表的加关注按钮
+                        var tag = document.getElementById("add_focus");
+                        parent_node = tag.parentNode;
+                        parent_node.removeChild(tag);
+                        var span = document.createElement("span");
+                        span.innerHTML = "互相关注";
+                        parent_node.appendChild(span);
+                        Alert("关注成功", 1);
+                    } else if (page_type == 2) {
+                        // 个人信息列表的加关注按钮
+                        var tag = document.getElementById("add_focus");
+                        tag.value = "已关注";
+                        tag.setAttribute("class", "margin_right button_disable");
+                        tag.removeAttribute("onclick");
+                        Alert("关注成功", 1);
+                    }
+                } else {
+                    Alert("添加关注失败,"+ret.responseText, 2);
+                }
+            },
+            onFailure: function (ret) {
+                Alert("请求失败!",1);
+            }
+        }
+    );
+}
+
 function getCookie_wap(name){
     var strCookie=document.cookie;
     var arrCookie=strCookie.split("; ");
@@ -512,6 +598,42 @@ function post_article(board,title,reid){
         }
         });
 }
+
+function post_email(mailto, title, content) {
+    // email_type: 0 普通信件 1 律师咨询
+    var email_type = 0;
+    if (arguments.length == 4) {
+        if (arguments[3] != 0)
+            email_type = 1;
+    }
+
+    var url = "/mobile/forum/request/sendmail.php";
+    if (email_type == 0)
+        var para = "owner="+mailto+"&title="+title+"&content="+content;
+    else
+        var para = "owner="+mailto+"&title="+title+"&content="+content;
+
+    var myAjax = new Ajax.Request(url,
+        {
+            method: "post",
+            parameters: para,
+            asynchronous: false,
+            onSuccess: function (ret) {
+            if (ret.responseText == true) {
+                Alert("邮件发送成功", 1);
+
+            } else {
+                alert(ret.responseText, 5);
+            }
+            },
+            onFailure: function (x) {
+                Alert("请求失败!", 1);
+            }
+        }
+    );
+
+}
+
 function remove_node(obj){
     obj.parentNode.removeChild(obj);
 // 删除元素
