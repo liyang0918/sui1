@@ -45,7 +45,7 @@ $t_data = getMailByType($user_id, $type, $page, $per_page);
             echo "邮件列表"
         ?>
     </div>
-    <ul class="mr_group">
+    <ul class="mr_group" id="mail_list">
     <?php if (empty($t_data)) {
         echo "<h2><center><font color=#ff0000>本邮箱中目前没有邮件</font><center></h2>";
     }

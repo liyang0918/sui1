@@ -3,6 +3,9 @@ include_once(dirname(__FILE__)."/../../mitbbs_funcs.php");
 include_once(dirname(__FILE__)."/func.php");
 include_once("head.php");
 //data part
+if (!isset($_GET["mailid"]))
+    return false;
+
 $type = $_GET["type"];
 $mailid = $_GET["mailid"];
 $user_id = $currentuser["userid"];
@@ -13,8 +16,11 @@ if ($user_id == "guest")
 if (empty($type))
     $type = "total";
 
-if (empty($mailid))
-    return false;
+$father_page = '/mobile/forum/one_mail_list.php?type='.$type;
+
+if ($mailid < 0) {
+    header("Location:".$father_page);
+}
 
 $dirname = "";
 switch ($type) {
@@ -32,17 +38,21 @@ switch ($type) {
         $dirname = ".DIR";
 }
 
+
 $mail_fullpath = bbs_setmailfile($user_id, $dirname);
 $mails = array();
+$ret = array();
 if (bbs_get_records_from_num($mail_fullpath, $mailid, $mails)) {
     bbs_setmailreaded($mail_fullpath, $mailid);
     $ret = getMailInfo($user_id, $mails[0], $type, 1);
+} else {
+    header("Location:".$father_page);
 }
 
 //data end
 ?>
     <div class="ds_box border_bottom">
-        <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+        <a href="<?php echo $father_page; ?>" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
         ÓÊ¼þÄÚÈÝ
     </div>
     <div class="mr_group">
@@ -64,9 +74,15 @@ if (bbs_get_records_from_num($mail_fullpath, $mailid, $mails)) {
             </p>
         </div>
     </div> <!--End mr_group-->
-    <div class="common_bottom_box">
-        <a href="jiaye_email_reply.html"><img src="img/backlogo.png" alt="backlogo.png"/>»Ø¸´</a>
-        <a onclick="_alertClearEmail()"><img src="img/trash.png" alt="trash.png"/>É¾³ý</a>
+        <?php if ($type != "delete") { ?>
+        <div class="common_bottom_box">
+            <a href="jiaye_email_reply.html"><img src="img/backlogo.png" alt="backlogo.png"/>»Ø¸´</a>
+            <a id="<?php echo $type."_".$mailid; ?>" onclick="_alertClearEmail(this);"><img src="img/trash.png" alt="trash.png"/>É¾³ý</a>
+        <?php } else { ?>
+        <div class="common_bottom_box margin-bottom">
+            <a href="#"><img src="img/circle.png" alt="circle.png"/>»¹Ô­</a>
+            <a id="<?php echo $type."_".$mailid; ?>" onclick="_alertDelEmail(this)"><img src="img/trash.png" alt="trash.png"/>³¹µ×É¾³ý</a>
+        <?php } ?>
     </div>
 
     <script type="text/javascript" src="js/jquery.js"></script>
