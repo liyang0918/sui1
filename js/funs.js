@@ -321,10 +321,10 @@ function getMoreArticleOwn() {
     more_text.removeAttribute("onclick");
     var myAjax = new Ajax.Request(url,
         {
-            method: 'post'
-            , parameters: null
-            , asynchronous: false
-            , onSuccess: function (ret) {
+            method: 'post',
+            parameters: null,
+            asynchronous: false,
+            onSuccess: function (ret) {
             var ret_json = eval("(" + ret.responseText + ")");
             if(ret_json.article!= undefined) {
                 var end_flag = getCookie_wap("end_flag");
@@ -350,11 +350,126 @@ function getMoreArticleOwn() {
 
             // js.js设置点击时的效果
             setEffect();
-        }
-            , onFailure: function (x) {
+            },
+            onFailure: function (x) {
             alert("fail to get data from server " +
                 ",please check your connection;")
-        }
+            }
+        });
+}
+
+function clearTrash() {
+    var url = "/mobile/forum/request/mail_action.php";
+    var para = "option=clear&dir=d";
+    var myAjax = new Ajax.Request(url,
+        {
+            method: 'post',
+            parameters: para,
+            asynchronous: false,
+            onSuccess: function (ret) {
+            if (ret.responseText == true) {
+                location.reload();
+            } else {
+                Alert("操作失败,"+ret.responseText, 1);
+            }
+            },
+            onFailure: function (ret) {
+                Alert("请求失败!", 1);
+            }
+        });
+}
+
+function clearEmail(msg) {
+    var arr = msg.split("_");
+    if (arr.length < 2)
+        return false;
+
+    var type = arr[0];
+    var mailid = arr[1];
+
+    var s_dir = "";
+    switch (type) {
+        case "unread":
+            s_dir = "r";
+            break;
+        case "total":
+            s_dir = "r";
+            break;
+        case "send":
+            s_dir = "s";
+            break;
+        case "delete":
+            s_dir = "d";
+            break;
+        default:
+            break;
+    }
+
+    var url = "/mobile/forum/request/mail_action.php";
+    var para = "option=move&d_dir=d&s_dir="+s_dir+"&mailid="+mailid;
+    var myAjax = new Ajax.Request(url,
+        {
+            method: 'post',
+            parameters: para,
+            asynchronous: false,
+            onSuccess: function (ret) {
+                if (ret.responseText == true) {
+                    location.reload();
+                    Alert("删除成功", 2);
+                } else {
+                    Alert("操作失败,"+ret.responseText, 1);
+                }
+            },
+            onFailure: function (ret) {
+                Alert("请求失败!", 1);
+            }
+        });
+}
+
+function delEmail(msg) {
+    var arr = msg.split("_");
+    if (arr.length < 2)
+        return false;
+
+    var type = arr[0];
+    var mailid = arr[1];
+
+    var dir = "";
+    switch (type) {
+        case "unread":
+            dir = "r";
+            break;
+        case "total":
+            dir = "r";
+            break;
+        case "send":
+            dir = "s";
+            break;
+        case "delete":
+            dir = "d";
+            break;
+        default:
+            break;
+    }
+
+    var url = "/mobile/forum/request/mail_action.php";
+    var para = "option=del&dir="+dir+"&mailid="+mailid;
+    var myAjax = new Ajax.Request(url,
+        {
+            method: 'post',
+            parameters: para,
+            asynchronous: false,
+            onSuccess: function (ret) {
+                if (ret.responseText == true) {
+                    location.reload();
+                    Alert("删除成功", 2);
+                } else {
+                    Alert("操作失败,"+ret.responseText, 1);
+                }
+            },
+            onFailure: function (ret) {
+                Alert("请求失败!", 1);
+            }
         });
 }
 

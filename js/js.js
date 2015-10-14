@@ -1,6 +1,6 @@
 function setEffect() {
 
-//forum_elite.htm/forum_recommend.htmlé¡µé¢ä¸­çš„ç‚¹å‡»æ˜¾ç¤ºéšè—æ•ˆæœï¼›
+//forum_elite.htm/forum_recommend.htmlÒ³ÃæÖĞµÄµã»÷ÏÔÊ¾Òş²ØĞ§¹û£»
     $('.hot_title').each(function (i) {
         $(this).click(function () {
             $('.hot_title').removeClass('action');
@@ -18,7 +18,7 @@ function setEffect() {
         })
     });
 
-//news.htmlä¸­åˆ é™¤>cancelç›’å­çš„æ˜¾ç¤ºéšè—
+//news.htmlÖĞÉ¾³ı>cancelºĞ×ÓµÄÏÔÊ¾Òş²Ø
     if ($('.cancel')) {
         $('.cancel').click(function () {
             $('.news_cancel_wrap').css('display', 'block');
@@ -30,7 +30,7 @@ function setEffect() {
             $('.news_cancel_wrap').css('display', 'none');
         });
     };
-//replyNew_replyçš„è¿”å›æŒ‰é’®ï¼‰
+//replyNew_replyµÄ·µ»Ø°´Å¥£©
 $('.ds_box').find('a').eq(0).click(function(){
     history.back();
 });
@@ -52,8 +52,8 @@ $('.ds_box').find('a').eq(0).click(function(){
     var iW = $('.club_div li').width() + 10;
     var iLen = $('.club_div li').size() - 1;
     var iH = $(document).height();
-    /* é¡µé¢readyå’Œajaxè¯·æ±‚æˆåŠŸéƒ½ä¼šè°ƒç”¨setEffect(),é€ æˆä¸¤æ¬¡æ‰§è¡ŒsetInterval(),
-     * readyå…ˆæ‰§è¡Œ,å›¾ç‰‡åŠ è½½ä½äºajaxè¯·æ±‚ä¸­,æ‰€ä»¥ç¬¬ä¸€æ¬¡iLenä¸º-1(åˆ—è¡¨é¡¹liä¸ªæ•°ä¸º0 size-1=-1 )
+    /* Ò³ÃæreadyºÍajaxÇëÇó³É¹¦¶¼»áµ÷ÓÃsetEffect(),Ôì³ÉÁ½´ÎÖ´ĞĞsetInterval(),
+     * readyÏÈÖ´ĞĞ,Í¼Æ¬¼ÓÔØÎ»ÓÚajaxÇëÇóÖĞ,ËùÒÔµÚÒ»´ÎiLenÎª-1(ÁĞ±íÏîli¸öÊıÎª0 size-1=-1 )
      * */
     if (iLen > 0)
         setInterval(move, 3000);
@@ -73,7 +73,7 @@ $('.ds_box').find('a').eq(0).click(function(){
         $('.club_dot span').eq(n).addClass('act');
     };
 
-//dianping_near.htmlä¸­â€é™„è¿‘â€œç­‰ç‚¹å‡»çš„ä¸‹æ‹‰èœå•çš„æ˜¾ç¤ºéšè—ï¼›
+//dianping_near.htmlÖĞ¡±¸½½ü¡°µÈµã»÷µÄÏÂÀ­²Ëµ¥µÄÏÔÊ¾Òş²Ø£»
     if( $('.nav_open yp_img') ) {
         $('.open_01').click(function () {
             $('.box_mask').show();
@@ -107,7 +107,7 @@ $('.ds_box').find('a').eq(0).click(function(){
             $('.dn_box').hide();
         })
     };
-//write_dp>ç‚¹è¯„â€”â€”å†™ç‚¹è¯„é‡Œçš„äº”è§’æ˜Ÿè¯„åˆ†æ•ˆæœ
+//write_dp>µãÆÀ¡ª¡ªĞ´µãÆÀÀïµÄÎå½ÇĞÇÆÀ·ÖĞ§¹û
     if( $('.write_dp')){
         $('.comm-star').click(function(){
             $('.comm-star').removeClass('star-cur');
@@ -116,7 +116,7 @@ $('.ds_box').find('a').eq(0).click(function(){
         });
     }
 }
-//é’ˆå¯¹navone_menuå…ƒç´ å®ç°å¯¼èˆªç‚¹å‡»å‡ºæ¥ä¸‹æ‹‰èœå•ï¼Œç‚¹æ—è¾¹éšè—æ•ˆæœï¼›
+//Õë¶Ônavone_menuÔªËØÊµÏÖµ¼º½µã»÷³öÀ´ÏÂÀ­²Ëµ¥£¬µãÅÔ±ßÒş²ØĞ§¹û£»
 function downMenu(clickClass,dropMenu){
     $(clickClass).click(function(event){
         event=event||window.event;
@@ -130,61 +130,69 @@ function downMenu(clickClass,dropMenu){
         $(dropMenu).hide();
     });
 }
-//jiaye_megs_friend.htmlâ€”â€”â€œåŒæ„â€ç‚¹å‡»çš„å¼¹çª—
+//jiaye_megs_friend.html¡ª¡ª¡°Í¬Òâ¡±µã»÷µÄµ¯´°
 function _alertToBeFriend()
 {
-    if(confirm('æ˜¯å¦æ·»åŠ æ­¤å¥½å‹ï¼Ÿ')){
+    if(confirm('ÊÇ·ñÌí¼Ó´ËºÃÓÑ£¿')){
 
     } else{
 
     }
 }
-//jiaye_megs_club.htmlâ€”â€”â€œåŒæ„â€ç‚¹å‡»çš„å¼¹çª—
+//jiaye_megs_club.html¡ª¡ª¡°Í¬Òâ¡±µã»÷µÄµ¯´°
 function _alertInClub()
 {
-    if(confirm('æ˜¯å¦å…è®¸æ­¤äººåŠ å…¥ï¼Ÿ')){
+    if(confirm('ÊÇ·ñÔÊĞí´ËÈË¼ÓÈë£¿')){
 
     } else{
 
     }
 }
-//jiaye_megs_club.htmlâ€”â€”â€œåŒæ„â€ç‚¹å‡»çš„å¼¹çª—
+//jiaye_megs_club.html¡ª¡ª¡°Í¬Òâ¡±µã»÷µÄµ¯´°
 function _alertToInClub()
 {
-    if(confirm('æ˜¯å¦æ­¤åŠ å…¥ä¿±ä¹éƒ¨ï¼Ÿ')){
+    if(confirm('ÊÇ·ñ´Ë¼ÓÈë¾ãÀÖ²¿£¿')){
 
     } else{
 
     }
 }
-//jiaye_email_trash.htmlâ€”â€”â€œæ¸…ç©ºâ€ç‚¹å‡»çš„å¼¹çª—
+//jiaye_email_trash.html¡ª¡ª¡°Çå¿Õ¡±µã»÷µÄµ¯´°
 function _alertClearTrash()
 {
-    if(confirm('ç¡®å®šæ¸…ç©ºæ­¤å†…å®¹?')){
-
+    if(confirm('È·¶¨Çå¿ÕÀ¬»øÏä?')){
+        clearTrash();
     } else{
 
     }
+
+    return false;
 }
-//jiaye_email_new_content.htmlâ€”â€”â€œæ¸…é™¤â€ç‚¹å‡»çš„å¼¹çª—
-function _alertClearEmail()
+//jiaye_email_new_content.html¡ª¡ª¡°Çå³ı¡±µã»÷µÄµ¯´°
+function _alertClearEmail(obj)
 {
-    if(confirm('ç¡®å®šæ¸…ç©ºæ­¤é‚®ä»¶å—?')){
-
+    // obj.id¸ñÊ½: type_mailid
+    if(confirm('È·¶¨É¾³ı´ËÓÊ¼ş?')){
+        clearEmail(obj.id);
     } else{
 
     }
+
+    return false;
 }
-//iaye_email_trash_content.htmlâ€”â€”â€œå½»åº•åˆ é™¤â€ç‚¹å‡»çš„å¼¹çª—
-function _alertClearTrash()
+//iaye_email_trash_content.html¡ª¡ª¡°³¹µ×É¾³ı¡±µã»÷µÄµ¯´°
+function _alertDelEmail(obj)
 {
-    if(confirm('ç¡®å®šå½»åº•åˆ é™¤æ­¤é‚®ä»¶å—?')){
-
+    // obj.id¸ñÊ½: type_mailid
+    if(confirm('È·¶¨³¹µ×É¾³ı´ËÓÊ¼ş?')){
+        delEmail(obj.id);
     } else{
 
     }
+
+    return false;
 }
-//æ‰€æœ‰è¾“å…¥æ¡†è·å¾—å¤±å»ç„¦ç‚¹æ•ˆæœï¼›
+//ËùÓĞÊäÈë¿ò»ñµÃÊ§È¥½¹µãĞ§¹û£»
 if($('input').attr('type')=='text'){
 
     var m='';
