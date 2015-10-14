@@ -1,5 +1,7 @@
 <?php
 
+//==================================================================================================================
+// for debug start
 function log2file($str) {
     $str = (string)$str;
     $fp = fopen("/home/bbs/ly_mitbbs.log", "ab+");
@@ -49,6 +51,25 @@ function get_table_content($link, $table_name, $condition="", $row_num=20, $show
     mysql_free_result($result);
     return $ret;
 }
+
+function show_result($arr) {
+    foreach ($arr as $i=>$each) {
+        echo "<br />[$i] =><br />";
+        if (is_array($each)) {
+            foreach ($each as $key=>$value) {
+                if (is_array($value)) {
+                    echo "&nbsp;&nbsp;&nbsp;&nbsp;$key => ",
+                    var_dump($value);
+                    echo "<br />";
+                } else
+                    echo "&nbsp;&nbsp;&nbsp;&nbsp;$key => $value<br />";
+            }
+        } else
+            echo $each."<br />";
+    }
+}
+// for debug end
+//===================================================================================================================
 
 $php_page_arr=array(
     "/mobile/forum/index.php"=>"首页"
@@ -2305,6 +2326,173 @@ function getFriendApply($link, $page, $num=10) {
     }
 
     mysql_free_result($result);
+    return $ret;
+}
+
+function makeMailPath($user_id, $filename) {
+    $filepath = BBS_HOME."/mail/".strtoupper(substr($user_id, 0, 1))."/$user_id/$filename";
+    if (file_exists($filepath))
+        return $filepath;
+    else
+        return false;
+}
+
+/* $type
+ *      "all"       所有邮箱类型
+ *      "total"     收件箱
+ *      "unread"    新邮件
+ *      "send"      已发送的邮件(发件箱)
+ *      "delete"    已删除的邮件(垃圾箱)
+ */
+function getMailNumByType($user_id, $type="all") {
+    $ret = array();
+    $total = 0;
+    $unread = 0;
+    $send = 0;
+    $delete = 0;
+
+    switch($type) {
+        case "total":
+        case "unread":
+            bbs_getmailnum($user_id, $total, $unread, 0, 0);
+            $ret["total"] = $total;
+            $ret["unread"] = $unread;
+            break;
+        case "send":
+            $mail_fullpath = bbs_setmailfile($user_id, ".SENT");
+            $send = bbs_getmailnum2($mail_fullpath);
+            $ret["total"] = $send;
+            $ret["send"] = $send;
+            break;
+        case "delete":
+            $mail_fullpath = bbs_setmailfile($user_id, ".DELETED");
+            $delete = bbs_getmailnum2($mail_fullpath);
+            $ret["total"] = $delete;
+            $ret["delete"] = $delete;
+            break;
+        case "all":
+        default:
+            bbs_getmailnum($user_id, $total, $unread, 0, 0);
+            $mail_fullpath = bbs_setmailfile($user_id, ".SENT");
+            $send = bbs_getmailnum2($mail_fullpath);
+
+            $mail_fullpath = bbs_setmailfile($user_id, ".DELETED");
+            $delete = bbs_getmailnum2($mail_fullpath);
+            $ret["total"] = $total;
+            $ret["unread"] = $unread;
+            $ret["send"] = $send;
+            $ret["delete"] = $delete;
+    }
+
+    return $ret;
+}
+
+function getMailInfo($user_id, $mail, $type, $mode=0) {
+    $ret["file"] = $mail["FILENAME"];
+    $ret["time"] = $mail["POSTTIME"];
+    $ret["owner"] = $mail["OWNER"];
+    $ret["title"] = $mail["TITLE"];
+    $ret["mail_id"] = $mail["MAILID"];
+    $ret["owner_img"] = get_user_img($mail["OWNER"]);
+    $ret["href"] = url_generate(4, array(
+        "action" => "one_mail.php",
+        "args" => array("type"=>$type, "mailid"=>$ret["mail_id"])
+    ));
+    // 获取文章摘要信息
+    $filepath = makeMailPath($user_id, $mail["FILENAME"]);
+    $tmp = "";
+
+    $content = file($filepath);
+    if ($filepath)
+        if ($mode == 0) {
+            $tmp = $content[5]."...";
+        } else {
+            $content = array_slice($content, 5);
+            $tmp = implode("<br />", $content);
+        }
+
+    // $mode : 0 获取文章摘要, 1获取文章内容
+    if ($mode == 0)
+        $ret["abstr"] = $tmp;
+    else
+        $ret["content"] = $tmp;
+
+    return $ret;
+}
+
+function getMailByType($user_id, $type, $page, $num) {
+    if ($user_id == "guest")
+        return false;
+
+    $page = ($page-1)*$num;
+    switch ($type) {
+        case "unread":
+            $page = 0;
+        case "total":
+            $path = ".DIR";
+            break;
+        case "delete":
+            $path = ".DELETED";
+            break;
+        case "send":
+            $path = ".SENT";
+            break;
+        default:
+            $type = "total";
+            $path = ".DIR";
+    }
+
+    $mail_fullpath = bbs_setmailfile($user_id, $path);
+    $arr = getMailNumByType($user_id, $type);
+    $result_total = $arr[$type];
+    if ($result_total == 0 or $page >= $result_total)
+        return false;
+
+    $mail_total = $arr["total"];    // 当前邮件夹下的邮件总数,用于计算邮件id
+    $mail_count = 0;        // 已遍历的邮件数
+    $result_count = 0;      // 当前满足条件的邮件数
+    $result_current = 0;    // 当前获取到满足条件的邮件数,当$result_count > $page时才累加
+    $ret = array();
+    while($result_current < $num) {
+        $all_mails = bbs_getmails($mail_fullpath, $page, $num);
+        // 读取到结尾(-1)或读取出错(false)直接退出
+        if ($all_mails == -1 or $all_mails == false)
+            break;
+
+        foreach ($all_mails as $each) {
+            $mail_count++;
+            // 同一邮件夹下邮件id从0递增,按照时间先后顺序倒序遍历,所以邮件id为(总数-已遍历数)
+            $each["MAILID"] = $mail_total-$mail_count;
+
+            switch ($type) {
+                case "unread":
+                    // 当判断FLAGS为新邮件时累加result_count
+                    if (preg_match('/^M|N/', $each["FLAGS"])) {
+                        $result_count++;
+                        if ($result_count > $page) {
+                            // 到达读取起始位置,读取邮件到数组$ret中
+                            $result_current++;
+                            $ret[] = getMailInfo($user_id, $each, $type);
+
+                            if ($result_count >= $num)
+                                // 当获取到足够数量的邮件后,跳出while循环
+                                break 3;
+                        }
+                    }
+                    break;
+                case "total":
+                case "send":
+                case "delete":
+                    $result_current++;
+                    $ret[] = getMailInfo($user_id, $each, $type);
+                    break;
+                default:
+                    return false;
+            } // end switch
+        }
+        $page += $num;
+    } // end while
+
     return $ret;
 }
 
