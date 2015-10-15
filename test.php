@@ -6,9 +6,18 @@
  * Time: ÉÏÎç11:25
  */
 
-$arr = file("/home/bbs/mail/M/mitbbs/M.1440397542_2.Z0");
+$str = "×ÉÑ¯£ºnÄã£¿";
+$str1 = "×ÉÑ¯m";
+echo strncmp($str, $str1, 3);
+/*
+echo $str[0];
+echo $str[1]."<br />";
+echo $str[2]."<br />";
+echo $str[3]."<br />";
+echo $str[4]."<br />";
+echo $str[5]."<br />";
+echo $str[6]."<br />";
+echo $str[7]."<br />";
 
-foreach ($arr as $key=>$value) {
-    echo "[$key]   $value<br />";
-}
 
+*/

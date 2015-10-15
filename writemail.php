@@ -5,6 +5,21 @@ include_once("head.php");
 
 $mailto = $_GET["mailto"];
 $title = urldecode($_GET["title"]);
+$mail_type = 0; // 邮件类型: 0普通邮件 1写给律师的咨询邮件
+$mail_type = intval($_GET["type"]);
+if ($mail_type < 0 or $mail_type > 1)
+    $mail_type = 0;
+
+$mailto_name = $mailto;
+if ($mail_type == 1) {
+    // 当写咨询邮件时,收件人写为律师名
+    $link = db_connect_web();
+    $sql = "SELECT lawyer_name FROM lawyer WHERE creator='$mailto'";
+    $result = mysql_query($sql, $link);
+    if ($row = mysql_fetch_array($result)) {
+        $mailto_name = $row["lawyer_name"];
+    }
+}
 
 $curr_url = $_SERVER["REQUEST_URI"];
 
@@ -15,7 +30,12 @@ $curr_url = $_SERVER["REQUEST_URI"];
     </div><!--<End ds_box-->
     <div class="write_box">
         <p class="write_email_name">收件人：</p>
+        <?php if ($mail_type == 1) {?>
+        <p class="write_email_content"><?php echo $mailto_name; ?></p>
+        <input id="mailto" class="write_input" type="hidden" value="<?php echo $mailto; ?>" onfocus="set_tishi(1,this)" onBlur="set_tishi(2,this)" />
+        <?php } else { ?>
         <input id="mailto" class="write_input" type="text" value="<?php echo $mailto; ?>" onfocus="set_tishi(1,this)" onBlur="set_tishi(2,this)" />
+        <?php } ?>
         <p class="write_email_name">主题：</p>
         <input id="title" class="write_input" type="text" value="<?php echo $title; ?>" />
         <p class="write_email_name">正文：</p>
@@ -40,6 +60,7 @@ $curr_url = $_SERVER["REQUEST_URI"];
         function sendmail() {
             var curr_url = "<?php echo $curr_url; ?>";
             var currentuser = "<?php echo $currentuser["userid"]; ?>";
+            var mail_type = "<?php echo $mail_type; ?>";
             if (currentuser == "guest") {
                 document.cookie = "before_login="+curr_url;
                 window.location = "login.php";
@@ -60,6 +81,10 @@ $curr_url = $_SERVER["REQUEST_URI"];
             if (title == null || title.length < 1) {
                 Alert("邮件标题不能为空!", 1);
                 return false;
+            }
+            if (mail_type == "1") {
+                // 咨询类型邮件的标题前需加上 "咨询："
+                title = "咨询："+title;
             }
 
             // 获取正文
