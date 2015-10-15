@@ -1,11 +1,21 @@
 <?php
 include_once(dirname(__FILE__)."/../../mitbbs_funcs.php");
 include_once(dirname(__FILE__)."/func.php");
+$link = db_connect_web();
+
 $member = $_GET["userid"];
-$curruser = $currentuser["userid"];
+$user_id = $currentuser["userid"];
+$user_num_id = $currentuser["num_id"];
+if (empty($user_id))
+    $user_id = "guest";
 $member_exist = false;
+$focus_flag = 0;
+$friend_flag = 0;
 
 function get_userinfo($link, $user_id) {
+    if (empty($user_id))
+        return false;
+
     $sql = "SELECT numeral_user_id AS num_id,username,numlogins,numposts FROM users WHERE user_id=\"$user_id\";";
     $result = mysql_query($sql, $link);
     $ret = array();
@@ -23,16 +33,16 @@ function get_userinfo($link, $user_id) {
     return $ret;
 }
 
-if (empty($member))
-    return false;
-
-$link = db_connect_web();
 $user_arr = get_userinfo($link, $member);
-mysql_close($link);
-if (empty($user_arr))
-    return false;
-else
+if (empty($user_arr)) {
+    $member_exist = false;
+} else {
     $member_exist = true;
+    if ($user_id != "guest") {
+        $focus_flag = checkFocusEach($link, $user_num_id, $user_arr["num_id"]);
+        $friend_flag = checkFriendEach($link, $user_num_id, $user_arr["num_id"]);
+    }
+}
 
 ?>
 <html lang="zh">
@@ -97,12 +107,25 @@ else
         <li><span>伪币</span><em><?php echo $user_arr["allcash"]; ?></em></li>
         <li><span>可用伪币</span><em><?php echo $user_arr["newcash"]; ?></em></li>
     </ul>
-<?php if ($curruser != $member and $member_exist) { ?>
+    <?php if($member_exist == false) {?>
+        <script type="text/javascript">
+            Alert("用户不存在", 1);
+        </script>
+    <?php } ?>
+<?php if ($user_id != "guest" and $user_id != $member and $member_exist) { ?>
     <div class="search_result_memberInfo">
-        <input class="search_btn1" type="button" value="加为好友" />
+        <?php if ($friend_flag == 0 or $friend_flag == 2) { ?>
+        <input id="add_friend" class="search_btn1" type="button" value="加为好友" onclick="return add_friend('<?php echo $member; ?>', 2)"/>
+        <?php } else { ?>
+        <input class="search_btn1 button_disable" type="button" value="已经成为好友" onclick="return false"/>
+        <?php } ?>
         <p class="search_inp_box">
+            <?php if ($focus_flag == 0 or $focus_flag == 2) { ?>
             <input id="add_focus" class="margin_right" type="button" value="+关注" onclick="return add_focus('<?php echo $member; ?>', 2)" />
-            <input type="button" value="发邮件" onclick="window.location.href='writeemail.php?mailto=<?php echo $member; ?>';"/>
+            <?php } else { ?>
+            <input id="add_focus" class="margin_right button_disable" type="button" value="已关注" onclick="return false" />
+            <?php } ?>
+            <input type="button" value="发邮件" onclick="window.location.href='writemail.php?mailto=<?php echo $member; ?>';"/>
         </p>
     </div>
     <br />
@@ -113,5 +136,7 @@ else
     <script type="text/javascript" src="js/js.js"></script>
 <?php
 include_once("foot.php");
+mysql_close($link);
+
 ?>
 

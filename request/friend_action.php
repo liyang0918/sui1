@@ -11,6 +11,7 @@ if (empty($user_id) or $user_id == "guest") {
 
 /* option 操作类型
  *      == "add" 添加好友关系 要求指定好友类型type 目标用户userid
+ *              type: 0 加好友 1加关注
  *      == "del" 删除好友关系 同上
  */
 if (isset($_POST["option"]))
@@ -38,8 +39,8 @@ function do_action($user_id, $option, &$msg) {
 
         $apply_msg = $user_id."想加您为好友";
         $ret = add_friend($friend_id, mitbbs_b2g($apply_msg), "", $type);
+        $addstate = 1;
         if($ret>0 && $ret!=20 && $ret!=16) {
-            $addstate = 1;
             if ($type == 0) {
                 $msg_arr = array();
                 $msg_arr['f_user'] = $user_id;
@@ -73,11 +74,9 @@ function do_action($user_id, $option, &$msg) {
     elseif($ret == -8)
         $msg ="用户已经是您的好友，如果您的请求被拒绝，请删除此记录后再添加";
     elseif($ret == -9)
-        $msg ="该用户已经在您的黑名单中，如需添加好友请先从黑名单中删除该用户";
+        $msg ="该用户已经在黑名单，如需添加好友请先从黑名单中删除该用户";
     elseif($ret == -10)
         $msg ="您在对方的黑名单中,无法邀请此好友";
-//	elseif($ret == 1)
-//	   $msg =$addstat."添加成功";
     elseif($ret == 2)
         $msg ="此人本来就不在你的好友名单中";
     elseif($ret == 3)
@@ -93,8 +92,10 @@ function do_action($user_id, $option, &$msg) {
             else
                 $msg = "恭喜,成功邀请对方加入您的好友,请耐心等待对方接受!";
         }
-        else
+        else {
+            $ret = 1;
             $msg = "添加成功";
+        }
     }
     elseif ($addstate==-1) {
         if($ret == 20 || $ret=16)
@@ -107,9 +108,10 @@ function do_action($user_id, $option, &$msg) {
     elseif ($addstate==-3)
         $msg ="删除成功";
 
-    if ($ret == 1 || $ret == 21) {
+    if ($ret == 1 || $ret == 21 || $ret == 11 || $ret == 12) {
         return true;
     } else {
+        $msg.=$ret;
         return false;
     }
 }

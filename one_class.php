@@ -78,7 +78,10 @@ $boards = getBoardsBySection($class);
 /* 每页版面数 */
 $board_num = 10;
 /* 起始页 */
-$start_num = $board_num*($page-1)+1;
+if ($page == 1)
+    $start_num = 0;
+else
+    $start_num = $board_num*($page-1)+1;
 /* 版面总数,目前不考虑board_group */
 $totalboard = count($boards[0]);
 ?>

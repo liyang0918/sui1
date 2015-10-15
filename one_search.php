@@ -4,7 +4,7 @@ include_once("func.php");
 include_once("head.php");
 
 $link = db_connect_web();
-$hls_flag = true;   // 搜索关键字高亮显示
+$hls_flag = false;   // 搜索关键字高亮显示
 $high_light_show_style = "color:black;background-color:#ffff66;";
 
 // 将str中的关键字keyword设置高亮
@@ -103,6 +103,12 @@ if (isset($_GET["board"])) {
     $search_name = $_GET["member"];
 }
 
+// 模糊查询标志: 1开启 0关闭
+$fuzzy = 1;
+if (isset($_GET["fuzzy"])) {
+    $fuzzy = $_GET["fuzzy"]==0?0:1;
+}
+
 if ($search_name == "")
     return false;
 
@@ -117,27 +123,43 @@ if(empty($page)){
     $page = 1;
 }
 
-if ($search_type == "board") { // 搜版面
-    $sql = "select board_id,boardname as enName,board_desc as cnName from board";
-    $condition = " WHERE boardname LIKE '%{$search_name}%' OR board_desc LIKE BINARY '%{$search_name}%'";
-    $sql .= $condition;
-    $sql_count = "select count(*) as count from board $condition";
-} elseif ($search_type == "club") { // 搜俱乐部
-    $sql = "select club_id,club_group_id,club_name as enName,club_cname as cnName,post_sum,member_sum from club";
-    $condition = " WHERE club_name LIKE '%{$search_name}%' OR club_cname LIKE BINARY '%{$search_name}%'";
-    $sql .= $condition;
-    $sql_count = "select count(*) as count from club $condition";
-} elseif ($search_type == "member") { // 搜会员
-    $sql = "select user_id as enName,username as cnName from users";
-    $condition = " WHERE user_id LIKE '%{$search_name}%' OR username LIKE BINARY '%{$search_name}%'";
-    $sql .= $condition;
-    $sql_count = "select count(*) as count from users $condition";
+if ($fuzzy == 1) {
+    if ($search_type == "board") { // 搜版面
+        $sql = "SELECT board_id,boardname AS enName,board_desc AS cnName FROM board";
+        $condition = " WHERE boardname LIKE '%{$search_name}%' OR board_desc LIKE BINARY '%{$search_name}%'";
+        $sql .= $condition;
+        $sql_count = "SELECT COUNT(*) AS count FROM board $condition";
+    } elseif ($search_type == "club") { // 搜俱乐部
+        $sql = "SELECT club_id,club_group_id,club_name AS enName,club_cname AS cnName,post_sum,member_sum FROM club";
+        $condition = " WHERE club_name LIKE '%{$search_name}%' OR club_cname LIKE BINARY '%{$search_name}%'";
+        $sql .= $condition;
+        $sql_count = "SELECT COUNT(*) AS count FROM club $condition";
+    } elseif ($search_type == "member") { // 搜会员
+        $sql = "SELECT user_id AS enName,username AS cnName FROM users";
+        $condition = " WHERE user_id LIKE '%{$search_name}%' OR username LIKE BINARY '%{$search_name}%'";
+        $sql .= $condition;
+        $sql_count = "SELECT COUNT(*) AS count FROM users $condition";
+    } else {
+        return false;
+    }
 } else {
-    return false;
+    if ($search_type == "board") {
+
+    } elseif ($search_type == "club") {
+
+    } elseif ($search_type == "member") {
+        $sql = "SELECT user_id AS enName,username AS cnName FROM users WHERE user_id='$search_name'";
+    } else {
+        return false;
+    }
 }
-$result = mysql_query($sql_count, $link);
-$total_row = mysql_fetch_array($result)["count"];
-mysql_free_result($result);
+if ($fuzzy == 1) {
+    $result = mysql_query($sql_count, $link);
+    $total_row = mysql_fetch_array($result)["count"];
+    mysql_free_result($result);
+} else {
+    $total_row = 1;
+}
 
 $order = " ORDER BY enName";
 $sql .= $order;

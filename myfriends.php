@@ -42,7 +42,7 @@ $ret = getMyFriendList($link, $user_id, $app_type, $page, $num);
     <div class="ds_box border_bottom">
         <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
         我的好友
-        <a href="#" class="span_r jy_f_a" ><img src="img/friend.png" alt="friend.png"/></a>
+        <a class="span_r jy_f_a" ><img src="img/friend.png" alt="friend.png" onclick="return membersearch();"/></a>
     </div><!--<End ds_box-->
     <ul class="fs_group margin-bottom">
         <?php foreach ($ret as $each) { ?>
@@ -79,6 +79,18 @@ echo page_partition($total, $page, $num);
                 this.href = url_page;
             });
         });
+    </script>
+    <script type="text/javascript">
+        function membersearch() {
+            var name = prompt("请输入用户名", "");
+            if (name) {
+                var url = "one_search.php?member="+name+"&fuzzy=0";
+                document.location = url;
+
+                return false;
+            }
+            return false;
+        }
     </script>
 
 <?php
