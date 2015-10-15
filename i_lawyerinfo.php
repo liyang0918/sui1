@@ -71,7 +71,7 @@ foreach ($lawyer as $index=>$each) {
         </li>
     </ul> <!--End lawer_info_box-->
     <div class="lawer_ask">
-        <a href="">免费法律咨询</a>
+        <a href="writemail.php?type=1&mailto=<?php echo $creator; ?>">免费法律咨询</a>
     </div>
 </div>
 </body>

@@ -1,5 +1,4 @@
 <?php
-
 //==================================================================================================================
 // for debug start
 function log2file($str) {
@@ -2164,6 +2163,60 @@ function getCurrUserInfo() {
     return $userData;
 }
 
+/* 检查关注关系:
+ *  返回0  双方无关注关系
+ *  返回1  仅user关注friend
+ *  返回2  仅friend关注user
+ *  返回3  双方互相关注
+ */
+function checkFocusEach($link, $user_id, $friend_id) {
+    // 检查 user_id 的关注列表中是否有 friend_id
+    $sql1 = "SELECT COUNT(*) AS count FROM funs_list WHERE numeral_user_id=$user_id AND numeral_friend_id=$friend_id AND type=1;";
+    // 检查 friend_id 的关注列表中是否有 user_id
+    $sql2 = "SELECT COUNT(*) AS count FROM funs_list WHERE numeral_user_id=$friend_id AND numeral_friend_id=$user_id AND type=1;";
+
+    $result1 = mysql_query($sql1, $link);
+    $result2 = mysql_query($sql2, $link);
+
+    if (mysql_fetch_array($result1)["count"] == 0)
+        $flag1 = 0;
+    else
+        $flag1 = 1;
+
+    if (mysql_fetch_array($result2)["count"] == 0)
+        $flag2 = 0;
+    else
+        $flag2 = 2;
+
+    mysql_free_result($result1);
+    mysql_fetch_array($result2);
+    return ($flag1+$flag2);
+}
+
+function checkFriendEach($link, $user_id, $friend_id) {
+    // 检查 user_id 的好友列表中是否有 friend_id
+    $sql1 = "SELECT COUNT(*) AS count FROM friend_list WHERE numeral_user_id=$user_id AND numeral_friend_id=$friend_id AND type=0 AND is_approve='Y' ;";
+    // 检查 friend_id 的好友列表中是否有 user_id
+    $sql2 = "SELECT COUNT(*) AS count FROM friend_list WHERE numeral_user_id=$friend_id AND numeral_friend_id=$user_id AND type=0 AND is_approve='Y' ;";
+
+    $result1 = mysql_query($sql1, $link);
+    $result2 = mysql_query($sql2, $link);
+
+    if (mysql_fetch_array($result1)["count"] == 0)
+        $flag1 = 0;
+    else
+        $flag1 = 1;
+
+    if (mysql_fetch_array($result2)["count"] == 0)
+        $flag2 = 0;
+    else
+        $flag2 = 2;
+
+    mysql_free_result($result1);
+    mysql_fetch_array($result2);
+    return ($flag1+$flag2);
+}
+
 function getMyFriendList($link, $user_id, $app_type, $page, $num=10){
     global $currentuser;
     $ret = array();
@@ -2587,4 +2640,25 @@ function sendmail($userid,$title,$content,$backup,$signature) {
     return $returnValue;
 }
 
+//检查上传到服务器端的文件
+function checkImageFile($filename) {
+    $image_mime_type = array(
+        "image/png",
+        "image/x-png",
+        "image/jpeg",
+        "image/pjpeg",
+        "image/bmp",
+        "image/gif",
+        "image/vnd.microsoft.icon",
+        "image/tiff",
+        "image/svg+xml");
+
+    if (!is_file($filename))
+        return -1; //找不到文件
+
+    $commend = "file --mime-type -b $filename";
+    $info = @system($commend);
+
+    return in_array($info, $image_mime_type);
+}
 ?>

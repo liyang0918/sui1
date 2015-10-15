@@ -52,7 +52,7 @@ $ret = getMyFriendList($link, $user_id, $app_type, $page, $num);
             <?php if ($each["type"] == 1) { ?>
                 <span>互相关注</span>
             <?php } else { ?>
-                <em id="add_focus"><a onclick="return add_focus('<?php echo $each["user_id"]; ?>', 1)">+关注</a></em>
+                <em id="add_focus_<?php echo $each["user_id"]; ?>"><a onclick="return add_focus('<?php echo $each["user_id"]; ?>', 1)">+关注</a></em>
             <?php } ?>
         </li>
         <?php } ?>

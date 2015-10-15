@@ -533,7 +533,7 @@ function add_focus(userid, page_type) {
                 if (ret.responseText == true) {
                     if (page_type == 1) {
                         // 粉丝列表的加关注按钮
-                        var tag = document.getElementById("add_focus");
+                        var tag = document.getElementById("add_focus_"+userid);
                         parent_node = tag.parentNode;
                         parent_node.removeChild(tag);
                         var span = document.createElement("span");
@@ -545,7 +545,7 @@ function add_focus(userid, page_type) {
                         var tag = document.getElementById("add_focus");
                         tag.value = "已关注";
                         tag.setAttribute("class", "margin_right button_disable");
-                        tag.removeAttribute("onclick");
+                        tag.setAttribute("onclick", "return false");
                         Alert("关注成功", 1);
                     }
                 } else {
@@ -555,8 +555,40 @@ function add_focus(userid, page_type) {
             onFailure: function (ret) {
                 Alert("请求失败!",1);
             }
-        }
-    );
+        });
+    return false;
+}
+
+function add_friend(userid, page_type) {
+    var url = "/mobile/forum/request/friend_action.php";
+    var para = "option=add&type=0&userid="+userid;
+
+    var myAjax = new Ajax.Request(url,
+        {
+            method: 'post',
+            parameters: para,
+            asynchronous: false,
+            onSuccess: function (ret) {
+                if (ret.responseText == true) {
+                    if (page_type == 1) {
+
+                    } else if (page_type == 2) {
+                        // 个人信息列表的加好友按钮
+                        var tag = document.getElementById("add_friend");
+                        tag.value = "已申请";
+                        tag.setAttribute("class", "search_btn1 button_disable");
+                        tag.setAttribute("onclick", "return false");
+                        Alert("已发送好友申请", 1);
+                    }
+                } else {
+                    Alert("申请失败,"+ret.responseText, 2);
+                }
+            },
+            onFailure: function (ret) {
+                Alert("请求失败!",1);
+            }
+        });
+    return false;
 }
 
 function getCookie_wap(name){
@@ -570,7 +602,7 @@ function getCookie_wap(name){
 }
 function post_article(board,title,reid){
     var club_flag = arguments[3]?arguments[3]:"0";
-    var url = "request/post_article.php"
+    var url = "/mobile/forum/request/post_article.php";
     var text_id="text_"+reid;
     var content=document.getElementById("text_"+reid);
     var para = "";
@@ -621,7 +653,6 @@ function post_email(mailto, title, content) {
             onSuccess: function (ret) {
             if (ret.responseText == true) {
                 Alert("邮件发送成功", 1);
-
             } else {
                 alert(ret.responseText, 5);
             }
