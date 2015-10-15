@@ -165,7 +165,7 @@ a:hover {  color: #FF0000; text-decoration: none}
                 	if ($filecount>ATTACHMAXCOUNT) {
                 		echo "附件个数超过规定！";
                 		
-			} else
+			        } else
                 	switch ($errno) {
                 	case UPLOAD_ERR_OK:
 						@mkdir($attachdir);

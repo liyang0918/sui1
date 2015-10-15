@@ -151,8 +151,9 @@ body {
     float:right;
 }
 .single_img{
-     width:80px;
-     float:left;
+    height:80px;
+    width:80px;
+    float:left;
  }
 .singlepic{
      margin-left:90px;
@@ -328,6 +329,7 @@ body {
 }
 .theme_small{
     width:30px;
+    height:30px;
     float:left;
     margin-right:10px;
     border:1px solid #E6E9ED;
@@ -383,7 +385,7 @@ body {
 }
 .p_r img{
     width:14px;
-    margin-top:3px;
+    margin-top:5px;
 }
 /*End forum_articlelist*/
 .news_title{
@@ -935,6 +937,7 @@ body {
 .news_list_lione img{
     float: left;
     width:93px;
+    height:70px;
     margin-right:10px;
 }
 .new_list_content_listbox h3{
@@ -1494,6 +1497,7 @@ span.nobg{
 }
 .chose_list_box a img{
     width:35px;
+    height:35px;
     margin-right:18px;
     float: left;
 }
@@ -2699,7 +2703,7 @@ input.jmfd_agree{
     margin-right:2%;
 }
 
-.search_inp_box .button_disable {
+input.button_disable {
     background-color: #CCC;
 }
 /* End search_result_memberInfo.html */
@@ -2712,6 +2716,15 @@ input.jmfd_agree{
     color:#333;
     margin: 5px 0;
 }
+
+.input_padding1 {
+    padding: 10px 10px 0;
+}
+
+.input_padding2 {
+    padding: 0 10px 0;
+}
+
 .newreply_conter .newreply_txt{
     display: block;
     width:100%;
