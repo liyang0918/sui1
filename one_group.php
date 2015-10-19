@@ -86,7 +86,10 @@ while ($row = mysql_fetch_array($ret)) {
     //if more than one article
     $content_arr = array();
     $tmp_arr = array();
-    $tmp_arr["title"] = $row["title"];
+    $tmp_arr["title"] = preg_replace( '/\[[A-Z]{4}\]/', "", $row["title"]);
+    $tmp = iconv("UTF-8", "GBK//IGNORE", $tmp_arr["title"]);
+    if ($tmp)
+        $tmp_arr["title"] = $tmp;
     $tmp_arr["owner"] = $row["owner"];
     $tmp_arr["img"] = get_user_img($row["owner"]);
     $tmp_arr["posttime"] = $row["posttime"];
@@ -132,9 +135,9 @@ $i_cnt = count($prt_arr);
                 </div>
                 <span class="news_position news_host"><?php echo $prt_arr[$i_loop]["floor"];?></span>
                 <p id="re_content_<?php echo $prt_arr[$i_loop]["article_id"];?>" hidden="hidden"><?php echo $prt_arr[$i_loop]["re_content"];?></p>
-                <p id="content_<?php echo $prt_arr[$i_loop]["article_id"];?>"class="theme_middle black_font"><?php echo $prt_arr[$i_loop]["content"];?></p>
+                <p id="content_<?php echo $prt_arr[$i_loop]["article_id"];?>" class="theme_middle black_font"><?php echo $prt_arr[$i_loop]["content"];?></p>
                 <div id="re_<?php echo $prt_arr[$i_loop]["article_id"];?>" class="news_reply">
-                    <?php if ($user_id != "guest" or $user_id == $prt_arr[$i_loop]["owner"]) { ?>
+                    <?php if ($user_id != "guest" and $user_id == $prt_arr[$i_loop]["owner"]) { ?>
                     <a href="one_edit.php?board=<?php echo $board_name; ?>&article_id=<?php echo $prt_arr[$i_loop]["article_id"]; ?>">ÐÞ¸Ä</a>
                     <?php } ?>
                     <a type="button" href="<?php echo $reply_href = url_generate(4, array(
@@ -143,10 +146,10 @@ $i_cnt = count($prt_arr);
                             "article_id"=>$prt_arr[$i_loop]["article_id"],
                             "group_id"=>$group_id,
                             "board"=>$board_name,
-                            "title"=>$title,
+                            "title"=>$prt_arr[$i_loop]["title"],
                             "page"=>$page)
                     )); ?>">»Ø¸´</a>
-                    <?php if ($user_id != "guest" or $user_id == $prt_arr[$i_loop]["owner"]) { ?>
+                    <?php if ($user_id != "guest" and $user_id == $prt_arr[$i_loop]["owner"]) { ?>
                     <a class="cancel" href="javascript:;">É¾³ý</a>
                     <?php } ?>
                 </div>
@@ -158,6 +161,7 @@ $i_cnt = count($prt_arr);
     // ·ÖÒ³ÏÔÊ¾
     echo page_partition($total_row, $page, $per_page);
 ?>
+<br><br><br><br>
     <div class="news_foot">
         <input type="button" value="Ð´¸úÌû" onclick="document.location='<?php
         echo url_generate(4, array(

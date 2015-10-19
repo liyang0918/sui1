@@ -5,11 +5,8 @@ include_once(dirname(__FILE__)."/../../../yimin/mitbbs_lawyer_funcs.php");
 
 $link = db_connect_web();
 // extra 格式为 value1|value2|value3...
-$arr = getExtraValue($_GET["extra"]);
-
 // mode为0表示按姓名选择，mode为1表示按城市选择
-$mode = $arr["mode"];
-$city = $arr["city"];
+list($mode, $city) = getExtraValue($_GET["extra"]);
 
 if ($mode != "0" and $mode != "1") {
     $mode = "0";

@@ -2,13 +2,6 @@
 include_once(dirname(__FILE__)."/../../mitbbs_funcs.php");
 include_once("func.php");
 include_once("head.php");
-function check_club_filename($club_name, $file_name) {
-    $filepath = 'club/'.strtoupper(substr($club_name,0,1))."/$club_name/$file_name";
-    if (file_exists($filepath))
-        return $filepath;
-    else
-        return "";
-}
 
 $user_id = $currentuser["userid"];
 
@@ -60,7 +53,7 @@ if($row == false){
         $tmp_arr["floor"] = "Â¥Ö÷";
         $tmp_arr["img"] = get_user_img($row["owner"]);
         $tmp_arr["file"] = check_club_filename($club_name, $row["filename"]);
-        $content_arr = get_file_content($tmp_arr["file"], $row["attachment"], $club_name, $row["article_id"], $article_type, $att_arr);
+        $content_arr = get_file_content($tmp_arr["file"], $row["attachment"], $club_name, $row["article_id"], $article_type, $att_arr, 1);
         $tmp_arr["content"] = trans_content_html($content_arr[1]);
         $tmp_content = iconv("UTF-8", "GBK//IGNORE", $tmp_arr["content"]);
         if (!empty($tmp_content))
@@ -95,12 +88,16 @@ while ($row = mysql_fetch_array($ret)) {
     //if more than one article
     $content_arr = array();
     $tmp_arr = array();
+    $tmp_arr["title"] = preg_replace( '/\[[A-Z]{4}\]/', "", $row["title"]);
+    $tmp = iconv("UTF-8", "GBK//IGNORE", $tmp_arr["title"]);
+    if ($tmp)
+        $tmp_arr["title"] = $tmp;
     $tmp_arr["owner"] = $row["owner"];
     $tmp_arr["img"] = get_user_img($row["owner"]);
     $tmp_arr["posttime"] = $row["posttime"];
     $tmp_arr["floor"] = ($floor_cnt+($page-1)*$per_page)."Â¥";
     $tmp_arr["file"] = check_club_filename($club_name,$row["filename"]);
-    $content_arr = get_file_content($tmp_arr["file"],$row["attachment"],$club_name,$row["article_id"],$article_type,$att_arr);
+    $content_arr = get_file_content($tmp_arr["file"],$row["attachment"],$club_name,$row["article_id"],$article_type,$att_arr, 1);
     $tmp_arr["content"] = trans_content_html($content_arr[1]);
     $tmp_content = iconv("UTF-8", "GBK//IGNORE", $tmp_arr["content"]);
     if (!empty($tmp_content))
@@ -139,9 +136,9 @@ $i_cnt = count($prt_arr);
                 </div>
                 <span class="news_position news_host"><?php echo $prt_arr[$i_loop]["floor"];?></span>
                 <p id="re_content_<?php echo $prt_arr[$i_loop]["article_id"];?>" hidden="hidden"><?php echo $prt_arr[$i_loop]["re_content"];?></p>
-                <p id="content_<?php echo $prt_arr[$i_loop]["article_id"];?>"class="theme_middle black_font"><?php echo $prt_arr[$i_loop]["content"];?></p>
+                <p id="content_<?php echo $prt_arr[$i_loop]["article_id"];?>" class="theme_middle black_font"><?php echo $prt_arr[$i_loop]["content"];?></p>
                 <div id="re_<?php echo $prt_arr[$i_loop]["article_id"];?>" class="news_reply">
-                    <?php if ($user_id != "guest" or $user_id == $prt_arr[$i_loop]["owner"]) { ?>
+                    <?php if ($user_id != "guest" and $user_id == $prt_arr[$i_loop]["owner"]) { ?>
                     <a href="one_edit.php?club=<?php echo $club_name; ?>&article_id=<?php echo $prt_arr[$i_loop]["article_id"]; ?>">ÐÞ¸Ä</a>
                     <?php } ?>
                     <a type="button" href="<?php echo url_generate(4, array(
@@ -150,10 +147,10 @@ $i_cnt = count($prt_arr);
                             "article_id"=>$prt_arr[$i_loop]["article_id"],
                             "group_id"=>$group_id,
                             "club"=>$club_name,
-                            "title"=>$title,
+                            "title"=>$prt_arr[$i_loop]["title"],
                             "page"=>$page)
                     )); ?>">»Ø¸´</a>
-                    <?php if ($user_id != "guest" or $user_id == $prt_arr[$i_loop]["owner"]) { ?>
+                    <?php if ($user_id != "guest" and $user_id == $prt_arr[$i_loop]["owner"]) { ?>
                     <a class="cancel" href="javascript:;">É¾³ý</a>
                     <?php } ?>
                 </div>
@@ -161,6 +158,11 @@ $i_cnt = count($prt_arr);
             <?php }?>
         </ul>
     </div>
+    <?php
+    // ·ÖÒ³ÏÔÊ¾
+    echo page_partition($total_row, $page, $per_page);
+    ?>
+    <br><br><br><br>
     <div class="news_foot">
         <input type="button" value="Ð´¸úÌû" onclick="document.location='<?php
         echo url_generate(4, array(
@@ -177,10 +179,7 @@ $i_cnt = count($prt_arr);
         <span class="news_share"><img src="img/share.png" alt="share.png"/>·ÖÏí</span>
         <span class="news_collect"><img src="img/star.png" alt="star.png"/>ÊÕ²Ø</span>
     </div><!--  End news_foot-->
-<?php
-    // ·ÖÒ³ÏÔÊ¾
-    echo page_partition($total_row, $page, $per_page);
-?>
+
 
     <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript">

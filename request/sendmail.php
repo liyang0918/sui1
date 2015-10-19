@@ -41,7 +41,6 @@ if ($user_num > 10) {
 
 $errorlist = "";
 $all_success = true;
-log2file(implode(";", $userlist));
 foreach ($userlist as $user) {
     $ret = sendmail($user, $title, $content, 0, 0);
     $errorlist[] = $ret;
@@ -54,7 +53,6 @@ if ($all_success) {
     return false;
 } else {
     foreach ($errorlist as $each) {
-        log2file(iconv( "GBK//IGNORE", "UTF-8",implode("\n", $each)."\n"));
         if ($each["error"])
             echo "·¢ËÍ¸ø ".$each['userId']."Ê§°Ü:".$each['errorMsg'].";\n";
     }
