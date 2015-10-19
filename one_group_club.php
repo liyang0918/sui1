@@ -10,6 +10,8 @@ function check_club_filename($club_name, $file_name) {
         return "";
 }
 
+$user_id = $currentuser["userid"];
+
 //data part
 $club_name = $_GET["club"];
 $group_id = $_GET["group"];
@@ -43,7 +45,10 @@ if($row == false){
     $tmp_arr = array();
     $att_arr = array();
     $content_arr = array();
-    $title = $row["title"];
+    $title = preg_replace( '/\[[A-Z]{4}\]/', "", $row["title"]);
+    $tmp = iconv("UTF-8", "GBK//IGNORE", $title);
+    if ($tmp)
+        $title = $tmp;
     $board_cname = $clubarr["CLUB_CNAME"];
     $reply_num = $row["total_reply"];
     $read_num = $row["read_num"];
@@ -136,6 +141,9 @@ $i_cnt = count($prt_arr);
                 <p id="re_content_<?php echo $prt_arr[$i_loop]["article_id"];?>" hidden="hidden"><?php echo $prt_arr[$i_loop]["re_content"];?></p>
                 <p id="content_<?php echo $prt_arr[$i_loop]["article_id"];?>"class="theme_middle black_font"><?php echo $prt_arr[$i_loop]["content"];?></p>
                 <div id="re_<?php echo $prt_arr[$i_loop]["article_id"];?>" class="news_reply">
+                    <?php if ($user_id != "guest" or $user_id == $prt_arr[$i_loop]["owner"]) { ?>
+                    <a href="one_edit.php?club=<?php echo $club_name; ?>&article_id=<?php echo $prt_arr[$i_loop]["article_id"]; ?>">ÐÞ¸Ä</a>
+                    <?php } ?>
                     <a type="button" href="<?php echo url_generate(4, array(
                         "action" => "one_reply.php",
                         "args" => array(
@@ -145,6 +153,9 @@ $i_cnt = count($prt_arr);
                             "title"=>$title,
                             "page"=>$page)
                     )); ?>">»Ø¸´</a>
+                    <?php if ($user_id != "guest" or $user_id == $prt_arr[$i_loop]["owner"]) { ?>
+                    <a class="cancel" href="javascript:;">É¾³ý</a>
+                    <?php } ?>
                 </div>
             </li>
             <?php }?>

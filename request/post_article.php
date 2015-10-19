@@ -11,15 +11,22 @@ if(isset($_POST["board"])) {
     $club_flag = 1;
 }
 
-if(!empty($_POST["title"]))
+if(!empty($_POST["title"])) {
     $title = $_POST["title"];
-if(!empty($_POST["reid"]))
-    $reid = $_POST["reid"];
-if(!empty($_POST["content"]))
+    $tmp = iconv("UTF-8", "GBK//IGNORE", $title);
+    if ($tmp)
+        $title = $tmp;
+} if(!empty($_POST["reid"])) {
+    $reid = intval($_POST["reid"]);
+} if(!empty($_POST["content"])) {
     $content = $_POST["content"];
+    $tmp = iconv("UTF-8", "GBK//IGNORE", $content);
+    if ($tmp)
+        $content = $tmp;
+}
 
 //该部分参数，之后根据页面添加内容补充赋值
-$signature=0; //签名当顺序 int
+$signature=0; //签名档顺序 int
 $outgo=0;
 $anony=0;
 $type_flag=0;

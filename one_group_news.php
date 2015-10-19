@@ -35,6 +35,9 @@ function readArticleContent($link) {
         $att_arr = array();
         $content_arr = array();
         $title = preg_replace( '/\[[A-Z]{4}\]/', "", $row["title"]);
+        $tmp = iconv("UTF-8", "GBK//IGNORE", $title);
+        if ($tmp)
+            $title = $tmp;
         $reply_num = $row["total_reply"];
         $read_num = $row["read_num"];
         $reply_href = url_generate(4, array(

@@ -5,6 +5,7 @@ include_once("head.php");
 //data part
 $board_name = $_GET["board"];
 $group_id = $_GET["group"];
+$user_id = $currentuser["userid"];
 
 $curr_url = url_generate(3, array("type"=>$_COOKIE["app_type"], "board"=>$board_name, "groupid"=>$group_id));
 $url_page = $curr_url."&page=";
@@ -36,6 +37,9 @@ if($row == false){
     $att_arr = array();
     $content_arr = array();
     $title = preg_replace( '/\[[A-Z]{4}\]/', "", $row["title"]);
+    $tmp = iconv("UTF-8", "GBK//IGNORE", $title);
+    if ($tmp)
+        $title = $tmp;
     $board_cname = $brdarr["DESC"];
     $reply_num = $row["total_reply"];
     $read_num = $row["read_num"];
@@ -130,6 +134,9 @@ $i_cnt = count($prt_arr);
                 <p id="re_content_<?php echo $prt_arr[$i_loop]["article_id"];?>" hidden="hidden"><?php echo $prt_arr[$i_loop]["re_content"];?></p>
                 <p id="content_<?php echo $prt_arr[$i_loop]["article_id"];?>"class="theme_middle black_font"><?php echo $prt_arr[$i_loop]["content"];?></p>
                 <div id="re_<?php echo $prt_arr[$i_loop]["article_id"];?>" class="news_reply">
+                    <?php if ($user_id != "guest" or $user_id == $prt_arr[$i_loop]["owner"]) { ?>
+                    <a href="one_edit.php?board=<?php echo $board_name; ?>&article_id=<?php echo $prt_arr[$i_loop]["article_id"]; ?>">ÐÞ¸Ä</a>
+                    <?php } ?>
                     <a type="button" href="<?php echo $reply_href = url_generate(4, array(
                         "action" => "one_reply.php",
                         "args" => array(
@@ -139,6 +146,9 @@ $i_cnt = count($prt_arr);
                             "title"=>$title,
                             "page"=>$page)
                     )); ?>">»Ø¸´</a>
+                    <?php if ($user_id != "guest" or $user_id == $prt_arr[$i_loop]["owner"]) { ?>
+                    <a class="cancel" href="javascript:;">É¾³ý</a>
+                    <?php } ?>
                 </div>
             </li>
             <?php }?>

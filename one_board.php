@@ -42,6 +42,9 @@ function getBoardArticles() {
             $result = mysql_query($sql, $link);
             if ($result) {
                 $row = mysql_fetch_array($result);
+                $tmp = iconv("UTF-8", "GBK//IGNORE", $row["title"]);
+                if ($tmp)
+                    $row["title"] = $tmp;
                 $row["href"] = $href;
                 $row["img"] = get_user_img($row["owner"]);
                 $ret[0][] = $row;
@@ -61,7 +64,7 @@ $ret = getBoardArticles();
     <div class="ds_box border_bottom">
         <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
         <?php echo $brdarr["DESC"]; ?>
-        <a href="replyNew_send.html" class="span_r" >发文</a>
+        <a href="writearticle.php?board=<?php echo $brdarr["NAME"]; ?>" class="span_r" >发文</a>
     </div>
     <div class="theme_wrap">
 <?php
