@@ -781,13 +781,19 @@ function wap_read_article2($filepath, $attach_link, $img_ago_str, $img_after_str
     return $ret_str;
 }
 
-function get_file_content($filename,$att_flag,$board_name,$article_id,$article_type,&$att_arr){
+function get_file_content($filename,$att_flag,$board_name,$article_id,$article_type,&$att_arr,$op_flag=0){
     if(false==$filename){
         $ret_str[1]="未名提示:由于某些不明原因,该文章未能正确读取,请稍后再刷新重试!";
         return $ret_str;
     }
-    $attachlink_rewrite = "http://" . $_SERVER['HTTP_HOST'] . "/article2/" . $board_name. "/" . $article_id;
-    $ret_str= wap_read_article(BBS_HOME . "/$filename", $att_flag, "", "", $attachlink_rewrite, 0, $article_type, 0, 0, $att_arr);
+
+    // 版面文章 op_flag=0  俱乐部文章 op_flag=1
+    if ($op_flag == 0) {
+        $attachlink_rewrite = "http://" . $_SERVER['HTTP_HOST'] . "/article2/" . $board_name. "/" . $article_id;
+    } else {
+        $attachlink_rewrite = "http://" . $_SERVER['HTTP_HOST'] . "/clubarticle2/" . $board_name. "/" . $article_id;
+    }
+    $ret_str= wap_read_article(BBS_HOME . "/$filename", $att_flag, "", "", $attachlink_rewrite, $op_flag, $article_type, 0, 0, $att_arr);
     return $ret_str;
 }
 function check_board_filename($board_name,$filename){
@@ -796,8 +802,16 @@ function check_board_filename($board_name,$filename){
         return $file;
     else
         return false;
-
 }
+
+function check_club_filename($club_name, $file_name) {
+    $filepath = 'club/'.strtoupper(substr($club_name,0,1))."/$club_name/$file_name";
+    if (file_exists($filepath))
+        return $filepath;
+    else
+        return "";
+}
+
 function get_user_img($user_id){
     $headimg = BBS_HOME . '/pic_home/home/' . strtoupper(substr($user_id, 0, 1)) . '/' . $user_id . '/headimg';
     if (!is_file($headimg)) {
@@ -920,14 +934,16 @@ function get_add_textarea_context ($filename,$user) {
 function getExtraValue($str) {
     $arr = explode("|", $str);
     $ret = array();
-
-    $ret["mode"] = $arr[0];
-    $ret["city"] = $arr[1];
+    // 0 mode  1 name
+    $ret[0] = $arr[0];
+    $ret[1] = $arr[1];
 
     return $ret;
 }
 
 function getDpCityCname($city) {
+    if ($city == "all")
+        return $city;
     $link = db_connect_web();
     $sql = "select city_name from city_type where city_concise=\"{$city}\"";
     $result = mysql_query($sql, $link);
@@ -957,17 +973,64 @@ function getDpCityList($link) {
         $ret[$index][] = $row;
     }
     mysql_free_result($result);
-//    /*
-    foreach ($ret as $m=>$each) {
-        echo $m."<br/>";
-        foreach ($each as $l) {
-            var_dump($l);
-            echo "<br />";
-        }        }
-//    }*/
+
+//    foreach ($ret as $m=>$each) {
+//        echo $m."<br/>";
+//        foreach ($each as $l) {
+//            var_dump($l);
+//            echo "<br />";
+//        }
+//    }
 
     return $ret;
 
+}
+
+function getShopTopimg($shop_id) {
+    $file_path = "/home/bbs/pic_home/comment";
+    $file_path_rewrite = "/commentimg";
+    // 相对路径
+    $op_path = "/$shop_id/topimg";
+    log2file($op_path."\n\n");
+    if (file_exists($file_path.$op_path))
+        $img = $file_path_rewrite.$op_path;
+    else
+        $img = "img/img_error.jpg";
+
+    return $img;
+}
+
+function getDpRecommendShop($link, $city) {
+    // 推荐店铺 要求 rank < 10 且 end_time 大于当前时间
+    if ($city == "all") {
+        $sql = "SELECT s1.shop_id AS shop_id,rank,end_time,cnName,location,contact,avg_pay,s1.add_reason AS add_reason FROM recommend_shop s1,shop_info s2 WHERE
+            rank<=10 AND end_time>=UNIX_TIMESTAMP(now()) AND s2.shop_id=s1.shop_id ORDER BY rank";
+    } else {
+        $sql = "SELECT s1.shop_id AS shop_id,rank,end_time,cnName,location,contact,avg_pay,s1.add_reason AS add_reason FROM recommend_shop s1,shop_info s2 WHERE
+            rank<=10 AND s1.city_type='$city' AND end_time>=UNIX_TIMESTAMP(now()) AND s2.shop_id=s1.shop_id ORDER BY rank";
+    }
+
+    $result = mysql_query($sql, $link);
+    $ret = array();
+    $rank = 1;
+    while ($row = mysql_fetch_array($result)) {
+        $tmp = array();
+        $tmp["rank"] = $rank;
+        $tmp["shop_id"] = $row["shop_id"];
+        $tmp["addr"] = $row["location"];
+        $tmp["shop_name"] = $row["cnName"];
+        $tmp["telephone"] = $row["contact"];
+        $tmp["avg_pay"] = $row["avg_pay"];
+        $tmp["add_reason"] = $row["add_reason"];
+        $tmp["img"] = getShopTopimg($tmp["shop_id"]);
+        $tmp["href"] = "";
+
+        $ret[] = $tmp;
+        $rank++;
+    }
+
+    mysql_free_result($result);
+    return $ret;
 }
 
 function getClubImg($club_name) {
@@ -1361,8 +1424,8 @@ $label_list = array(
                     "club_literature", "club_art", "club_other"),
     // 移民专栏 加盟律师 移民新闻 移民签证信息 讨论区
     "immigration" => array("i_column", "i_lawyer", "i_news", "i_visa", "i_discussion"),
-    // 推荐 附近 搜索 排行
-    "dianping" => array("dp_setcity", "dp_recommend", "dp_near", "dp_search", "dp_rank"),
+    // 选择城市 推荐 附近 搜索 排行
+    "dianping" => array("dp_recommend", "dp_near", "dp_search", "dp_rank"),
     // 家页 关注 粉丝 我的讨论区 我的俱乐部 我的点评 我的文章 我的收藏 我的好友 我的黑名单 我的消息 我的邮件
     "jiaye" => array("jiaye", "focus", "fans", "discuss", "club", "dianping", "article", "collect", "friend", "black", "message", "email")
 );
@@ -2712,5 +2775,7 @@ function constrcutThumbnail($fileName) {
         return false;
     }
 }
+
+
 
 ?>

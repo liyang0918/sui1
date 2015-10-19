@@ -42,7 +42,6 @@ var label_list = {
         "i_discussion":"0"
     },
     "dianping":{
-        "dp_setcity":"0",
         "dp_recommend":"0",
         "dp_near":"1",
         "dp_search":"0",
@@ -642,14 +641,12 @@ function send_article(url, para, re_flag) {
                     input[0].focus();
 
                     // 清空上传图片的缩略图 未生效
-                    var form_image = document.getElementById("form_image");
-                    var image_count = form_image.getElementsByName("image_count")[0];
-                    var imgs = form_image.getElementsByTagName("img");
-                    for (var i = 0; i < image_count; i++) {
-                        remove_node(form_image.getElementsByName("image_"+i)[0]);
-                        remove_node(imgs[i]);
+                    var img_count = document.getElementsById("img_count");
+                    var count = parseInt(img_count.value);
+                    for (var i = 0; i < count; i++) {
+                        remove_node(document.getElementsById("img_"+i));
                     }
-                    image_count.value = "0";
+                    img_count.value = "0";
                 }
             }
             },
