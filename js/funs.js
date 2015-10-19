@@ -611,23 +611,51 @@ function post_article(board,title,reid){
     else
         para = "club="+board+"&title="+title+"&reid="+reid+"&content="+content.value;
 
+    send_article(url, para, true);
+}
+
+function send_article(url, para, re_flag) {
     var myAjax = new Ajax.Request(url,
         {
-            method: 'post'
-            , parameters: para
-            , asynchronous: false
-            , onSuccess: function (ret) {
-            if(ret.responseText==true){
-                Alert("发文成功",1);
-                remove_node(document.getElementById("text_"+reid));
-                remove_node(document.getElementById("btn_"+reid));
-                location.reload();
-            }else{
-                Alert(ret.responseText,5)
+            method: "post",
+            parameters: para,
+            onSuccess: function (ret) {
+            if (re_flag == true) {
+                if (ret.responseText == true) {
+                    Alert("发文成功",1);
+                    remove_node(document.getElementById("text_"+reid));
+                    remove_node(document.getElementById("btn_"+reid));
+                    location.reload();
+                } else {
+                    Alert(ret.responseText,5)
+                }
+            } else {
+                if (ret.responseText == true) {
+                    Alert("发文成功", 1);
+                    // 清空输入框 未生效
+                    var form_article = document.getElementById("form_article");
+                    var input = form_article.getElementsByTagName("input");
+                    var textarea = form_article.getElementsByTagName("textarea");
+                    input[0].value = "";
+                    textarea[0].value = "";
+                    textarea[0].innerHTML = "";
+                    input[0].focus();
+
+                    // 清空上传图片的缩略图 未生效
+                    var form_image = document.getElementById("form_image");
+                    var image_count = form_image.getElementsByName("image_count")[0];
+                    var imgs = form_image.getElementsByTagName("img");
+                    for (var i = 0; i < image_count; i++) {
+                        remove_node(form_image.getElementsByName("image_"+i)[0]);
+                        remove_node(imgs[i]);
+                    }
+                    image_count.value = "0";
+                }
             }
-        }
-            , onFailure: function (x) {
-        }
+            },
+            onFailure: function (x) {
+
+            }
         });
 }
 

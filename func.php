@@ -2654,11 +2654,63 @@ function checkImageFile($filename) {
         "image/svg+xml");
 
     if (!is_file($filename))
-        return -1; //找不到文件
+        return false; //找不到文件
 
-    $commend = "file --mime-type -b $filename";
-    $info = @system($commend);
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime_info = finfo_file($finfo, $filename);
 
-    return in_array($info, $image_mime_type);
+    return in_array($mime_info, $image_mime_type);
 }
+
+function getSource($type,$fileName) {
+//            echo '$type: '.$type;
+    switch($type){
+        case 'image/jpeg':
+            return imagecreatefromjpeg($fileName);
+        case 'image/png':
+            return imagecreatefrompng($fileName);
+        case 'image/bmp':
+            return imagecreatefromwbmp($fileName);
+        case 'image/gif':
+            return imagecreatefromgif($fileName);
+    }
+    return false;
+}
+
+function constrcutThumbnail($fileName) {
+    if(!is_file($fileName))
+        return false;
+    $return = getimagesize($fileName);
+    $width = $return[0];
+    $height = $return[1];
+    $type = $return["mime"];
+    $filepath = $fileName.'_nail';
+
+    // $percent = 1.5;  //图片压缩比
+
+    $target = imagecreatetruecolor("400","400");
+    $source = getSource($type,$fileName);
+    if ($source == false)
+        return false;
+    if($width>$height){
+        $x = floor(($width-$height)/2);
+        $width = $height;
+        $y = 0;
+    }else{
+        $y = floor(($height-$width)/2);
+        $height = $width;
+        $x = 0;
+    }
+    imagecopyresampled($target, $source, 0, 0, $x, $y, "400", "400",$width,$height);
+    $res = imagejpeg($target,$filepath,50);
+    if($res){
+        @unlink($fileName);
+        @rename($filepath, $fileName);
+        return true;
+    }else{
+        @unlink($fileName);
+        return false;
+    }
+}
+
 ?>
