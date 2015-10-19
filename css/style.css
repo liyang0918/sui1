@@ -1660,6 +1660,7 @@ span.fr{
     color:#F5A623;
     line-height:30px;
     float: right;
+    white-space:nowrap;
 }
 .list2_p_down{
     color:#999;
@@ -1674,6 +1675,17 @@ span.fr{
     line-height:22px;
     font-size:1.2em;
 }
+
+.list2_p_down .address {
+    width:185px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+    float: left;
+}
+
+
 @media screen and (max-width:320px){
     .dp_group2{
         width:320px;
