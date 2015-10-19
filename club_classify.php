@@ -2,9 +2,23 @@
 include_once(dirname(__FILE__)."/../../mitbbs_funcs.php");
 include_once("func.php");
 include_once("head.php");
-include_once("sec_club.php");
 ?>
+<div id="sec_category" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
+xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
+xmlns="http://www.w3.org/1999/html">
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/funs.js"></script>
+<link rel="stylesheet" href="css/reset.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="css/style.css" />
+<script type="text/javascript">
+    $(document).ready(document.cookie="current_page=1");
+</script>
+
     <div class="conter">
+        <div class="ds_box border_bottom">
+            <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+            选择分类
+        </div>
         <ul class="club_good_nav margin-bottom">
             <li><a href="<?php echo url_generate(1, array("club_class"=>"emotion")); ?>"><img src="img/b1.png" alt="b1.png"/>情感</a></li>
             <li class="noboder_right"><a href="<?php echo url_generate(1, array("club_class"=>"sport")); ?>""><img src="img/b2.png" alt="b2.png"/>体育</a></li>

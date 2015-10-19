@@ -2764,6 +2764,8 @@ input.button_disable {
 .newreply_conter p .newreply_img_r{
      border:1px solid #B3B3B3;
      float: left;
+     width: 80px;
+     height: 80px;
  }
 .newreply_conter p .add_img{
     display: inline-block;

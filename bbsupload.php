@@ -170,12 +170,12 @@ a:hover {  color: #FF0000; text-decoration: none}
                 	case UPLOAD_ERR_OK:
 						@mkdir($attachdir);
 						$tmpfilename=tempnam($attachdir,"att");
-						if (isset($filesizes[$act_attachname])) {
+                        if (isset($filesizes[$act_attachname])) {
 							echo "存在同名文件！";
-						} 
-						else
-						{
-							if (is_uploaded_file($_FILES['attachfile']['tmp_name'])) 
+						}
+                        else
+                        {
+                            if (is_uploaded_file($_FILES['attachfile']['tmp_name']))
 							{
 				    				if(move_uploaded_file($_FILES['attachfile']['tmp_name'],$tmpfilename))
 								{
