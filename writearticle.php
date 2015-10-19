@@ -4,9 +4,6 @@ include_once(dirname(__FILE__)."/func.php");
 include_once("head.php");
 
 $curr_url = $_SERVER["REQUEST_URI"];
-$thumb_dir = "thumb";
-if (is_dir($thumb_dir))
-    @mkdir($thumb_dir);
 
 if (empty($currentuser) or $currentuser["userid"] == "guest") {
     setcookie("before_login", $curr_url);
@@ -23,87 +20,6 @@ if (isset($_GET["board"])) {
     $name = $_GET["club"];
 }
 
-if (isset($_POST["article_type"]))
-    $type = intval($_POST["article_type"]);
-
-if (isset($_POST["t_name"]))
-    $name = $_POST["t_name"];
-
-$image_count = 0;
-$image_list = array();
-if (isset($_POST["image_count"])) {
-    $image_count = $_POST["image_count"];
-    // 将隐藏表单中保存的图片路径提取到数组中
-    // 图片的路径保存的是在服务器上的位置
-    $i = 0;
-    while ($i < $image_count) {
-        $image_list[$i] = $_POST["image_$i"];
-        ++$i;
-    }
-}
-
-$utmpnum = $_COOKIE["UTMPNUM"];
-//var_dump($currentuser);
-//echo "====>";
-//var_dump($_FILES);
-//echo "<br />";
-//var_dump($_POST);
-//echo "<br />";
-//foreach ($_SERVER as $key=>$each)
-//    echo $key."    =>    ".$each."<br />";
-//echo "<br />";
-
-/* 待上传的附件存放在 $attachdir 中,在$attachdir 中有 .index 文件，记录了将被上传的文件信息，post_article 时,会打开 .index 文件读取该信息。
- * 文件中每一行记录一个待上传的附件的信息，信息格式为
- *          附件路径+空格+附件上传时使用的文件名
- * 附件路径为 $tmpfilename, 附件上传时使用的文件名为 $_FILES["image_file"]["file"],即附件原始名称
- */
-
-$title_backup = $_POST["title_backup"];
-$content_backup = $_POST["content_backup"];
-
-if (!empty($_FILES["image_file"]["tmp_name"])) {
-    // 在这里验证图片,并存放到指定文件夹
-    $attachdir=bbs_getattachtmppath($currentuser["userid"] ,$utmpnum);
-    @mkdir($attachdir);
-    $tmpfilename = tempnam($attachdir, "att");
-    if (is_uploaded_file($_FILES["image_file"]["tmp_name"])) {
-        if (move_uploaded_file($_FILES["image_file"]["tmp_name"], $tmpfilename)) {
-            if (checkImageFile($tmpfilename)) {
-                $fp = fopen($attachdir."/.index", "a");
-                if ($fp == false)
-                    $fp = fopen($attachdir."/.index", "w");
-
-                fputs($fp, $tmpfilename." ".$_FILES["image_file"]["name"]."\n");
-                @fclose($fp);
-                // 如果验证通过且图片成功放入指定文件夹,则image_count++
-                $tmparr = array();
-                if(preg_match("/.*\/(.*)\/(.*)/", $tmpfilename, $tmparr) == 1) {
-                    $file_dir = $thumb_dir."/".$tmparr[1];
-                    $file_path = $file_dir."/".$tmparr[2];
-                    if ($image_count == 0) {
-                        @system("rm -rf ".dirname(__FILE__)."/$file_dir");
-                    }
-                    @mkdir(dirname(__FILE__)."/$file_dir");
-                    @copy($tmpfilename, dirname(__FILE__)."/$file_path");
-                    // 创建缩略图
-                    constrcutThumbnail(dirname(__FILE__)."/$file_path");
-
-                    $image_list[$image_count] = $file_path;
-                    $image_count++;
-                }
-            } else {
-                unlink($tmpfilename);
-                echo "<script type='text/javascript'>Alert('上传失败,非图片类型!', 1)</script>";
-            }
-        } else {
-            echo "<script type='text/javascript'>Alert('上传失败!', 1)</script>";
-        }
-    }
-}
-//var_dump($image_list);
-
-
 ?>
     <div class="ds_box border_bottom">
         <a onclick="go_last_page()"><img src="img/btn_left.png" alt="bth_left.png"/></a>
@@ -111,45 +27,66 @@ if (!empty($_FILES["image_file"]["tmp_name"])) {
     </div><!--<End ds_box-->
     <form id="form_article" class="newreply_conter input_padding1">
         <h4>标题:</h4>
-        <input class="newreply_txt" type="text" value="<?php echo $title_backup;?>"/>
+        <input class="newreply_txt" type="text"/>
         <h4>正文:</h4>
-        <textarea cols="30" rows="10"><?php echo $content_backup; ?></textarea>
+        <textarea cols="30" rows="10"></textarea>
     </form>
-    <form id="form_image" enctype="multipart/form-data" class="newreply_conter input_padding2" method="post" action="writearticle.php">
-        <input type="hidden" id="title_backup" name="title_backup" value=""/>
-        <input type="hidden" id="content_backup" name="content_backup" value=""/>
-        <input type="hidden" name="article_type" value="<?php echo $type; ?>" />
-        <input type="hidden" name="t_name" value="<?php echo $name; ?>"/>
-        <input type="hidden" name="image_count" value="<?php echo $image_count; ?>">
-        <?php foreach ($image_list as $key=>$imagepath) { ?>
-            <input type="hidden" name="image_<?php echo $key; ?>" value="<?php echo $imagepath; ?>">
-        <?php } ?>
+    <form id="form_image" enctype="multipart/form-data" class="newreply_conter input_padding2" method="post" action="file_upload.php" target="upload_file">
         <p id="image_area">
             <span class="add_img margin_r"></span>
             <input name="image_file" type="file" onchange="image_submit();"/>
-            <?php foreach($image_list as $path) { ?>
-                <img class="newreply_img_r" src="<?php echo $path; ?>" alt="file.png"/>
-            <?php } ?>
+            <input name="img_count" id="img_count" type="hidden" value="0"/>
         </p>
     </form>
     <p class="newreply_conter input_padding2"><input class="newreply_sub" type="button" value="发表" onclick="return article_submit();"/></p>
         <!-- /# -->
     <script type="text/javascript">
+        // 创建一个隐藏的iframe，当表单提交时子页面跳转
+        var iframe = document.createElement("iframe");
+        iframe.setAttribute("name", "upload_file");
+        iframe.setAttribute("id", "iframe1");
+        iframe.setAttribute("style", "display: none");
+        // 判断子页面是否加载完毕
+        if (iframe.attachEvent){
+            iframe.attachEvent("onload", function(){
+                addimg();
+            });
+        } else {
+            iframe.onload = function(){
+                addimg();
+            };
+        }
+        document.body.appendChild(iframe);
+
+        function addimg() {
+            var iframe1 = document.getElementById("iframe1");
+            var getobj = iframe1.contentWindow.document.getElementById("file_path");
+            if (getobj != undefined) {
+                var file_path = getobj.innerHTML;
+                if (file_path == "NULL") {
+                    Alert("请选择图片", 1);
+                } else if (file_path.indexOf("ERROR:") == 0) {
+                    Alert(file_path.substr("ERROR:".length), 1);
+                } else {
+                    var image_area = document.getElementById("image_area");
+                    var img_count = document.getElementById("img_count");
+                    var img = document.createElement("img");
+                    var count = parseInt(img_count.value);
+                    count++;
+                    img.setAttribute("id", "img_"+count);
+                    img.setAttribute("class", "newreply_img_r");
+                    img.setAttribute("src", file_path);
+                    img.setAttribute("alt", "img");
+                    img.setAttribute("class", "newreply_img_r");
+                    image_area.appendChild(img);
+                    img_count.value = count;
+                }
+            }
+        }
+
         function image_submit() {
-            var form_article = document.getElementById("form_article");
-            var input = form_article.getElementsByTagName("input");
-            var textarea = form_article.getElementsByTagName("textarea");
-            var title_backup = document.getElementById("title_backup");
-            var content_backup = document.getElementById("content_backup");
-
-            if (input[0].value.length != 0) {
-                title_backup.value = input[0].value;
-            }
-            if (textarea[0].value.length != 0) {
-                content_backup.value = textarea["0"].value;
-            }
-
             document.getElementById("form_image").submit();
+            return false;
         }
 
         function article_submit() {
@@ -194,7 +131,7 @@ if (!empty($_FILES["image_file"]["tmp_name"])) {
             }
 
             send_article(url, para, false);
-            document.location = href;
+//            document.location = href;
             return false;
         }
     </script>
