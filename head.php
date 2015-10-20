@@ -7,6 +7,7 @@ if(!empty($_COOKIE["app_show"]))
 else
     $page_title = iconv("UTF-8", "GBK", "ÂÛÌ³");
 ?>
+<!DOCTYPE html>
 <html lang="zh">
     <head>
         <meta charset="utf-8">
@@ -26,7 +27,7 @@ else
     <div class="conter">
             <nav class="navone">
                 <div class="navone_menu">
-                    <h3 class="navone_h3"><img class="navone_forum" src="img/menu.png" alt="menu.png"/><?PHP echo $page_title?></h3>
+                    <h3 class="navone_h3"><img class="navone_forum" src="img/menu.png" alt="menu.png"/><?php echo $page_title?></h3>
                 </div>
                 <img class="navone_space" src="img/space.png" alt="space.png"/>
                 <?php if($currentuser["userid"]=="guest")  {?>

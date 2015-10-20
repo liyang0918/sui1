@@ -690,6 +690,57 @@ function post_email(mailto, title, content) {
 
 }
 
+function location_callback(position) {
+    // position.coords.latitude
+    // position.coords.longitude
+    var url = "/mobile/forum/request/location.php";
+    var para = "result=success&lon="+position.coords.longitude+"&lat="+position.coords.latitude;
+    alert(para);
+    var myAjax = new Ajax.Request(url,
+        {
+            method: "post",
+            parameters: para,
+            asynchronous: false,
+            onSuccess: function (ret) {
+
+            },
+            onFailure: function (x) {
+
+            }
+        }
+    );
+}
+
+function location_error(error) {
+
+    switch (error.code) {
+        case error.PERMISSION_DENIED:
+            // ÓÃ»§¾Ü¾ø
+            break;
+        case error.POSITION_UNAVAILABLE:
+            break;
+        case error.TIMEOUT:
+            break;
+        case error.UNKNOWN_ERROR:
+            break;
+    }
+
+    var url = "/mobile/forum/request/location.php";
+    var para = "result=failed";
+    var myAjax = new Ajax.Request(url,
+        {
+            method: "post",
+            parameters: para,
+            onSuccess: function (ret) {
+
+            },
+            onFailure: function (x) {
+
+            }
+        }
+    );
+}
+
 function remove_node(obj){
     obj.parentNode.removeChild(obj);
 // É¾³ýÔªËØ

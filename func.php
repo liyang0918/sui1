@@ -69,7 +69,6 @@ function show_result($arr) {
 }
 // for debug end
 //===================================================================================================================
-
 $php_page_arr=array(
     "/mobile/forum/index.php"=>"首页"
     ,"b"=>"2"
@@ -991,7 +990,6 @@ function getShopTopimg($shop_id) {
     $file_path_rewrite = "/commentimg";
     // 相对路径
     $op_path = "/$shop_id/topimg";
-    log2file($op_path."\n\n");
     if (file_exists($file_path.$op_path))
         $img = $file_path_rewrite.$op_path;
     else
@@ -1000,7 +998,46 @@ function getShopTopimg($shop_id) {
     return $img;
 }
 
-function getDpRecommendShop($link, $city) {
+function getShopImg($shop_id, $dir, $img_name) {
+    $file_path = "/home/bbs/pic_home/comment";
+    $file_path_rewrite = "/commentimg";
+    // 相对路径
+    $op_path = "/$shop_id/$dir/{$img_name}_nail";
+    if (file_exists($file_path.$op_path))
+        $img = $file_path_rewrite.$op_path;
+    else
+        $img = "img/img_error.jpg";
+
+    return $img;
+}
+
+function getShopCommentImg($shop_id, $img_name) {
+    $file_path = "/home/bbs/pic_home/comment";
+    $file_path_rewrite = "/commentimg";
+    // 相对路径
+    $op_path = "/$shop_id/comment_pic/{$img_name}_nail";
+    if (file_exists($file_path.$op_path))
+        $img = $file_path_rewrite.$op_path;
+    else
+        $img = "img/img_error.jpg";
+
+    return $img;
+}
+
+function getShopCommentImgList($shop_id, $photos) {
+    if (!$photos) {
+        return null;
+    } else {
+        $photoList = explode(",", $photos);
+        $photoUrl = array();
+        foreach ($photoList as $img_name) {
+            $photoUrl[] = getShopCommentImg($shop_id, $img_name);
+        }
+        return $photoUrl;
+    }
+}
+
+function getDpRecommendShops($link, $city) {
     // 推荐店铺 要求 rank < 10 且 end_time 大于当前时间
     if ($city == "all") {
         $sql = "SELECT s1.shop_id AS shop_id,rank,end_time,cnName,location,contact,avg_pay,s1.add_reason AS add_reason FROM recommend_shop s1,shop_info s2 WHERE
@@ -1023,7 +1060,7 @@ function getDpRecommendShop($link, $city) {
         $tmp["avg_pay"] = $row["avg_pay"];
         $tmp["add_reason"] = $row["add_reason"];
         $tmp["img"] = getShopTopimg($tmp["shop_id"]);
-        $tmp["href"] = "";
+        $tmp["href"] = "one_shopinfo.php?shop_id=".$tmp["shop_id"];
 
         $ret[] = $tmp;
         $rank++;
@@ -1032,6 +1069,58 @@ function getDpRecommendShop($link, $city) {
     mysql_free_result($result);
     return $ret;
 }
+
+function getShopInfoById($link, $shop_id) {
+    $shop_id = intval($shop_id);
+    $sql = "SELECT cnName,avg_score,avg_pay,taste_score,env_score,sev_score,location,contact,business_time,img_name,t2.type AS dir FROM shop_info t1,comment_img t2 WHERE
+            t1.shop_id=$shop_id AND t2.shop_id=t1.shop_id;";
+    $result = mysql_query($sql, $link);
+
+    $shop_info = array();
+    if ($row = mysql_fetch_array($result)) {
+        $shop_info = $row;
+        $shop_info["img"] = getShopImg($shop_id, $row["dir"], $row["img_name"]);
+    }
+
+    mysql_free_result($result);
+    return $shop_info;
+}
+
+/*
+ * $page为评论起始页,$num为每页评论数
+ * */
+function getShopComment($link, $shop_id, $page, $num=10) {
+    $page = ($page-1)*$num;
+    // display < 2 才可以显示
+    $sql = "SELECT user_id,user_name,avg_score,consume,content,photos FROM user_comment WHERE
+            shop_id=$shop_id AND display<2 ORDER BY create_time DESC LIMIT $page,$num;";
+
+    $result = mysql_query($sql, $link);
+    $ret = array();
+    while ($row = mysql_fetch_array($result)) {
+        if ($row["photos"]) {
+            $row["img_list"] = getShopCommentImgList($shop_id, $row["photos"]);
+        }
+
+        $ret[] = $row;
+    }
+
+    mysql_free_result($result);
+    return $ret;
+}
+
+function getShopCommentTotal($link, $shop_id) {
+    $sql = "SELECT COUNT(*) AS count FROM user_comment WHERE shop_id=$shop_id AND display<2;";
+
+    $result = mysql_query($sql, $link);
+    $count = 0;
+    if ($row = mysql_fetch_array($result)) {
+        $count = $row["count"];
+    }
+
+    return $count;
+}
+
 
 function getClubImg($club_name) {
     $filepath = BBS_HOME.'/pic_home/club/'.strtoupper(substr($club_name, 0, 1)).'/'.$club_name."/";

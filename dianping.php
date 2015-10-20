@@ -1,4 +1,15 @@
 <?php
+session_start();
+/* session 记录定位信息
+ *  lon 经度,lat 纬度
+ *  locate_flag: true 已定位 false 未定位
+ */
+
+$auto_location = "0";
+if (!isset($_SESSION["locate_flag"]) or $_SESSION["locate_flag"] == false) {
+    $auto_location = "1";
+}
+
 include_once(dirname(__FILE__)."/../../mitbbs_funcs.php");
 include_once("func.php");
 if(empty($_COOKIE["app_type"]))
@@ -67,6 +78,15 @@ include_once("head.php");
 <script type="text/javascript" src="js/jquery.js"></script>
 <script type="text/javascript" src="js/funs.js"></script>
 <script type="text/javascript">
+    var auto_location = parseInt("<?php echo $auto_location; ?>");
+    if (auto_location == 1) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(location_callback, location_error);
+        } else {
+             Alert("Geolocation is not supported by this browser.");
+        }
+    }
+
     function select_city() {
         var url = "/mobile/forum/request/dp_getcity.php";
         var myAjax = new Ajax.Request(url,
