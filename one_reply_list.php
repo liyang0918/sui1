@@ -27,7 +27,6 @@ $prt_arr = array();
 
 //page part
 $total_row = get_row_count($brdarr["BOARD_ID"],$group_id,$link);
-$total_page = intval($total_row/$per_page)+1;
 
 //end page
 $sql = "SELECT owner_id,owner,groupid,article_id,boardname,title,type_flag,UNIX_TIMESTAMP(posttime) as posttime,total_reply,read_num,filename,attachment  FROM dir_article_" . $brdarr["BOARD_ID"] . " ".
