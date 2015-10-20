@@ -1685,6 +1685,14 @@ span.fr{
     float: left;
 }
 
+.list2_p_down .phone {
+    width: 80px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+}
+
 
 @media screen and (max-width:320px){
     .dp_group2{
@@ -1763,6 +1771,12 @@ span.fr{
 .conter2_list_conter img{
     float:left;
 }
+
+.conter2_list_conter .shop_topimg {
+    width: 90px;
+    height: 60px;
+}
+
 .conter2_list_conter div{
     padding-left:100px;
 }
@@ -1887,6 +1901,8 @@ span.fr{
 .member_img img{
     float: left;
     margin:10px 10px 10px 0;
+    width: 90px;
+    height: 90px;
 }
 .ds_footer{
     width:100%;
