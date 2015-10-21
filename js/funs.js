@@ -201,6 +201,32 @@ function sec_category_auto(){
         });
 }
 
+function sec_category_auto_dp (queryString) {
+    var current_active=getCookie_wap("sec_category");
+    var obj=document.getElementById(current_active);
+    //obj.className="active";
+    //ajax 请求部分
+    var url = request_url_generate(obj.id);
+    alert(url+"&"+queryString);
+    var myAjax = new Ajax.Request(url,
+        {
+            method: "post",
+            parameters: queryString,
+            asynchronous: false,
+            onSuccess: function (ret) {
+                var ret_json = eval("(" + ret.responseText + ")");
+                if(ret_json.detail != undefined) {
+                    var tag = document.getElementById("detail");
+                    tag.innerHTML = ret_json.detail;
+                }
+            },
+            onFailure: function (x) {
+
+            }
+        }
+    );
+}
+
 function getMoreArticleCommon() {
     /* end_flag 为1表示数据已经到尾 */
     if (getCookie_wap("end_flag") != "0")
@@ -695,7 +721,6 @@ function location_callback(position) {
     // position.coords.longitude
     var url = "/mobile/forum/request/location.php";
     var para = "result=success&lon="+position.coords.longitude+"&lat="+position.coords.latitude;
-    alert(para);
     var myAjax = new Ajax.Request(url,
         {
             method: "post",
@@ -739,6 +764,76 @@ function location_error(error) {
             }
         }
     );
+}
+
+function select_city() {
+    var url = "/mobile/forum/request/dp_getcity.php";
+    var myAjax = new Ajax.Request(url,
+        {
+            method: "post",
+            parameters: null,
+            asynchronous: false,
+            onSuccess: function (ret) {
+                var ret_json = eval("(" + ret.responseText + ")");
+                var detail = document.getElementById("detail");
+                if (ret_json.detail != undefined) {
+                    if (detail != undefined) {
+                        detail.innerHTML = ret_json.detail;
+                    }
+                } else {
+                    if (detail != undefined) {
+                        var new_tag = document.createElement("h2");
+                        new_tag.innerHTML = "目前没有城市信息!";
+                        detail.appendChild(new_tag);
+                    }
+                }
+            },
+            onFailure: function (x) {
+                Alert("请求失败", 1);
+            }
+        }
+    );
+
+    return false;
+}
+
+function set_city(obj) {
+    var val = obj.id.split("|");
+    document.cookie = "extra=0|" + val[1];
+
+    if (val[1] != "all")
+        document.getElementById("city_name").innerHTML = obj.innerHTML;
+
+    document.getElementById("detail").innerHTML = "";
+    document.getElementById(val[0]).click();
+    return true;
+}
+
+function dp_show_secmenu(id) {
+    var near = document.getElementById("near");
+    var search = document.getElementById("search");
+    var rank = document.getElementById("rank");
+
+    switch(id) {
+        case "dp_near":
+            near.setAttribute("style", "display: block");
+            search.setAttribute("style", "display: none");
+            rank.setAttribute("style", "display: none");
+            break;
+        case "dp_search":
+            near.setAttribute("style", "display: none");
+            search.setAttribute("style", "display: block");
+            rank.setAttribute("style", "display: none");
+            break;
+        case "dp_rank":
+            near.setAttribute("style", "display: none");
+            search.setAttribute("style", "display: none");
+            rank.setAttribute("style", "display: block");
+            break;
+    }
+
+    setEffect();
+    return false;
 }
 
 function remove_node(obj){

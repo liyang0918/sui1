@@ -5,11 +5,6 @@ session_start();
  *  locate_flag: true 已定位 false 未定位
  */
 
-$auto_location = "0";
-if (!isset($_SESSION["locate_flag"]) or $_SESSION["locate_flag"] == false) {
-    $auto_location = "1";
-}
-
 include_once(dirname(__FILE__)."/../../mitbbs_funcs.php");
 include_once("func.php");
 if(empty($_COOKIE["app_type"]))
@@ -19,13 +14,20 @@ if(empty($_COOKIE["app_show"]))
 if(empty($_COOKIE["sec_category"]))
     setcookie("sec_category", "dp_recommend");
 
-if(!is_own_label($_COOKIE["sec_category"], "dianping")) {
+if (!is_own_label($_COOKIE["sec_category"], "dianping")) {
+    // 重新进入点评时重新定位
+    $_SESSION = array();
     setcookie("app_type", "dianping");
     setcookie("app_show", iconv("GBK", "UTF-8//IGNORE", "点评"));
     setcookie("sec_category", "dp_recommend");
     setcookie("extra", "1|all");
     // 切换栏目需要重新加载
     echo '<script language="javascript">location.href=location.href</script>';
+}
+
+$auto_location = "0";
+if (!isset($_SESSION["locate_flag"]) or $_SESSION["locate_flag"] == false) {
+    $auto_location = "1";
 }
 
 list($mode, $city) = getExtraValue($_COOKIE["extra"]);
@@ -66,8 +68,100 @@ include_once("head.php");
 </div>
 
 
-<div id="linklist">
+<div id="near" style="display: none">
+    <div class="nav">
+        <div class="nav_list"><a class="open_01" href="javascript:void(0)">附近 <img src="img/btn_down.png" alt="btn_down.png"/></a></div>
+        <div class="nav_list"><a class="open_02" href="javascript:void(0)">分类<img src="img/btn_down.png" alt="btn_down.png"/></a></div>
+        <div class="nav_list"><a class="open_03" href="javascript:void(0)">排序<img src="img/btn_down.png" alt="btn_down.png"/></a></div>
+    </div><!-- End nav-->
+    <div class="box_mask" style="display: none"></div><!--------End box_mask-->
+    <div class="dn_box box_01" style="display: none">
+        <div class="nav_open">
+            <div class="nav_list"><a class="close_01" href="javascript:void(0)">附近 <img src="img/btn_down.png" alt="btn_down.png"/></a></div>
+            <div class="nav_list"><a class="open_02" href="javascript:void(0)">分类<img src="img/btn_down.png" alt="btn_down.png"/></a></div>
+            <div class="nav_list"><a class="open_03" href="javascript:void(0)">排序<img src="img/btn_down.png" alt="btn_down.png"/></a></div>
+        </div>
+        <ul>
+            <li class="first"><a href="javascript:;">附近</a></li>
+            <?php foreach ($near_list as $each) { ?>
+                <li><a href="" id="near_<?php echo $each["type"]; ?>"><?php echo $each["name"]; ?></a></li>
+            <?php } ?>
+        </ul>
+    </div><!--------End dn_box-->
+    <div class="dn_box box_02" style="display: none">
+        <div class="nav_open">
+            <div class="nav_list"><a class="open_01" href="javascript:void(0)">附近 <img src="img/btn_down.png" alt="btn_down.png"/></a></div>
+            <div class="nav_list"><a class="close_02" href="javascript:void(0)">分类<img src="img/btn_down.png" alt="btn_down.png"/></a></div>
+            <div class="nav_list"><a class="open_03" href="javascript:void(0)">排序<img src="img/btn_down.png" alt="btn_down.png"/></a></div>
+        </div>
+        <ul>
+            <li class="first"><a id="food_class_<?php echo $food_class_list[0]["type"]; ?>" href="javascript:;"><?php echo $food_class_list[0]["name"]; ?></a></li>
+            <?php for ($i = 1; $i < count($food_class_list); $i++) { ?>
+                <?php $each = $food_class_list[$i];?>
+                <li><a href="#" id="food_class_<?php echo $each["type"]; ?>"><?php echo $each["name"]; ?></a></li>
+            <?php } ?>
+        </ul>
+    </div><!--------End dn_box-->
+    <div class="dn_box box_03" style="display: none">
+        <div class="nav_open">
+            <div class="nav_list"><a class="open_01" href="javascript:void(0)">附近 <img src="img/btn_down.png" alt="btn_down.png"/></a></div>
+            <div class="nav_list"><a class="open_02" href="javascript:void(0)">分类<img src="img/btn_down.png" alt="btn_down.png"/></a></div>
+            <div class="nav_list"><a class="close_03" href="javascript:void(0)">排序<img src="img/btn_down.png" alt="btn_down.png"/></a></div>
+        </div>
+        <ul>
+
+            <li class="first"><a id="order_<?php echo $order_list[0]["type"]; ?>" href="javascript:;"><?php echo $order_list[0]["name"]; ?></a></li>
+            <?php for ($i = 1; $i < count($order_list); $i++) { ?>
+                <?php $each = $order_list[$i]; ?>
+                <li><a id="order_<?php echo $each["type"]; ?>" href="#"><?php echo $each["name"]; ?></a></li>
+            <?php } ?>
+        </ul>
+    </div><!--------End dn_box-->
 </div>
+
+<div id="search" style="display: none">
+    <div class="dp_search_box">
+        <div class="dp_search_box_item">
+            <p>
+                <img src="img/search.png" alt="search.png"/>
+                <input type="search" placeholder="请输入店铺名称"/>
+            </p>
+        </div>
+        <div class="border_bottom border_top">
+            <a href="dianping_search_fenlei.html">
+                <span>按分类查找</span>
+                <img src="img/btn-right.png" alt="btn-right.png"/>
+            </a>
+        </div>
+        <div class="border_bottom">
+            <a href="dianping_search_addshop.html">
+                <span>添加新店铺</span>
+                <img src="img/btn-right.png" alt="btn-right.png"/>
+            </a>
+        </div>
+    </div><!-- End dp_search_box-->
+</div>
+
+<div id="rank" style="display: none">
+    <nav class="navtwo">
+        <ul class="navtwo_ul immigration_nav">
+            <li><a id="rank_<?php echo $rank_list[0]["type"]; ?>" class="redgo" href="dianping_rank.html"><?php echo $rank_list[0]["name"]; ?></a></li>
+            <?php for ($i = 1; $i < count($rank_list); $i++) { ?>
+                <?php $each = $rank_list[$i]; ?>
+                <li><a id="rank_<?php echo $each["type"]; ?>" href="#"><?php echo $each["name"]; ?></a></li>
+            <?php } ?>
+        </ul>
+        <span class="redgo"></span>
+    </nav><!---------End navtwo-->
+</div>
+
+<div style="display: none">
+    <span id="near_type">0</span>
+    <span id="food_class_type">all</span>
+    <span id="order_type">0</span>
+    <span id="rank_type">hot</span>
+</div>
+
 <div id="carouselfigure">
 </div>
 <div id="detail">
@@ -83,59 +177,39 @@ include_once("head.php");
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(location_callback, location_error);
         } else {
-             Alert("Geolocation is not supported by this browser.");
+             Alert("Geolocation is not supported by this browser.", 1);
         }
     }
 
-    function select_city() {
-        var url = "/mobile/forum/request/dp_getcity.php";
-        var myAjax = new Ajax.Request(url,
-            {
-                method: "post",
-                parameters: null,
-                asynchronous: false,
-                onSuccess: function (ret) {
-                    var ret_json = eval("(" + ret.responseText + ")");
-                    var detail = document.getElementById("detail");
-                    if (ret_json.detail != undefined) {
-                        if (detail != undefined) {
-                            detail.innerHTML = ret_json.detail;
-                        }
-                    } else {
-                        if (detail != undefined) {
-                            var new_tag = document.createElement("h2");
-                            new_tag.innerHTML = "目前没有城市信息!";
-                            detail.appendChild(new_tag);
-                        }
-                    }
-                },
-                onFailure: function (x) {
-                    Alert("请求失败", 1);
-                }
-            }
-        );
-
-        return false;
-    }
-
-    function set_city(obj) {
-        var val = obj.id.split("|");
-        document.cookie = "extra=0|" + val[1];
-
-        if (val[1] != "all")
-            document.getElementById("city_name").innerHTML = obj.innerHTML;
-
-        document.getElementById("detail").innerHTML = "";
-        document.getElementById(val[0]).click();
-        return true;
-    }
 </script>
 <script type="text/javascript">
     $(document).ready(document.cookie="current_page=1");
     $(document).ready(function () {
+        var queryString;
         var sec_category=getCookie_wap("sec_category");
+
+        var near_type = document.getElementById("near_type").innerHTML;
+        var food_class_type = document.getElementById("food_class_type").innerHTML;
+        var order_type = document.getElementById("order_type").innerHTML;
+        var rank_type = document.getElementById("rank_type").innerHTML;
+
+        switch (sec_category) {
+            case "dp_near":
+                queryString = "near_type="+near_type+"&food_class_type="+food_class_type+"&order_type="+order_type;
+                dp_show_secmenu(sec_category);
+                break;
+            case "dp_search":
+                dp_show_secmenu(sec_category);
+                break;
+            case "dp_rank":
+                queryString = "rank_type="+rank_type;
+                dp_show_secmenu(sec_category);
+                break;
+        }
+
         $("#"+sec_category).addClass("active");
-        sec_category_auto();
+
+        sec_category_auto_dp(queryString);
     });
 
 </script>

@@ -74,7 +74,7 @@ $('.ds_box').find('a').eq(0).click(function(){
     };
 
 //dianping_near.html中”附近“等点击的下拉菜单的显示隐藏；
-    if( $('.nav_open yp_img') ) {
+    if( $('.nav_open') ) {
         $('.open_01').click(function () {
             $('.box_mask').show();
             $('.dn_box').hide();
