@@ -6,10 +6,10 @@ $_SESSION["locate_flag"] = false;
 $_SESSION["lon"] = "0.0000";
 $_SESSION["lat"] = "0.0000";
 
-log2file($_POST["lon"]." ".$_POST["lat"]."\n\n");
 if ($_POST["result"] == "success") {
-    $_SESSION["lon"] = intval($_POST["lon"]);
-    $_SESSION["lat"] = intval($_POST["lat"]);
+    $_SESSION["locate_flag"] = true;
+    $_SESSION["lon"] = floatval($_POST["lon"]);
+    $_SESSION["lat"] = floatval($_POST["lat"]);
 }
 
 ?>
