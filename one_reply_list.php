@@ -122,4 +122,5 @@ $i_cnt = count($prt_arr);
 </head>
 <?php
 include_once("foot.php");
+mysql_close($link);
 ?>
