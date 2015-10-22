@@ -1126,14 +1126,18 @@ function getDpRecommendShops($link, $city) {
 
 function getShopInfoById($link, $shop_id) {
     $shop_id = intval($shop_id);
-    $sql = "SELECT cnName,avg_score,avg_pay,taste_score,env_score,sev_score,location,contact,business_time,img_name,t2.type AS dir FROM shop_info t1,comment_img t2 WHERE
-            t1.shop_id=$shop_id AND t2.shop_id=t1.shop_id;";
+    $sql = "SELECT cnName,avg_score,avg_pay,taste_score,env_score,sev_score,location,contact,business_time FROM shop_info WHERE
+            shop_id=$shop_id;";
+    $sql_img = "SELECT img_name,type as dir FROM comment_img WHERE shop_id=$shop_id";
     $result = mysql_query($sql, $link);
+    $result_img = mysql_query($sql_img, $link);
 
     $shop_info = array();
     if ($row = mysql_fetch_array($result)) {
         $shop_info = $row;
-        $shop_info["img"] = getShopImg($shop_id, $row["dir"], $row["img_name"]);
+        if ($row_img = mysql_fetch_array($result_img)) {
+            $shop_info["img"] = getShopImg($shop_id, $row["dir"], $row_img["img_name"]);
+        }
     }
 
     mysql_free_result($result);
@@ -1175,7 +1179,196 @@ function getShopCommentTotal($link, $shop_id) {
     return $count;
 }
 
-/*
+// distance 单位千米
+function getDistanceString($distance) {
+    $str = "";
+    if ($distance < 0.1) {
+        $str = "<100m";
+    } else if ($distance < 1) {
+        $str = "<1km";
+    } else if ($distance < 10) {
+        $str = "<10km";
+    } else if ($distance < 50) {
+        $str = "<50km";
+    } else {
+        $str = ">50km";
+    }
+
+    return $str;
+}
+
+/**
+ * 按照距离排序
+ */
+function getShopNearBy($link, $city, $cond, $pos, $page, $num=20) {
+    $distance_null_num = 0;
+    $page = ($page-1)*$num;
+    $having1 = "";
+    $having2 = "";
+    // 全部,先查询距离不为NULL的结果,不足$num个时再查询距离为NULL的结果
+
+    if (isset($cond["distance_null_num"]) AND $cond["distance_null_num"] > 0) {
+        $distance_null_num = $cond["distance_null_num"];
+    }
+
+
+    // 按照 cond 给出的条件获取店铺信息
+    $sql = "SELECT shop_id,cnName,avg_score,avg_pay,type_set,(2 * 6378.137* ASIN(SQRT(POW(SIN(PI()*({$pos["lat"]}-lat)/360),2)+COS(PI()*{$pos["lon"]}/180)*COS(lat * PI()/180)
+           *POW(SIN(PI()*({$pos["lon"]}-lng)/360),2)))) as distance FROM shop_info WHERE review_result<>4 ";
+    /* $sql_standby 备用:
+     *  若一次性查询全部结果,升序排列会使 distance=NULL 排在前边,所以将查询分为两步:
+     *      1.先查询 distance is not null 的结果,使用 $sql
+     *      2.当查询结果不足 $num 时,再查询 distance is null 的结果,使用 $sql_standby
+     */
+    $sql_standby = $sql;
+
+    $condition = "";
+    if ($city != "all") {
+        $condition .= "AND city_type='$city' ";
+    }
+
+    if ($cond["food_class_type"] != "all") {
+        $condition .= "AND type_set='{$cond["food_class_type"]}' ";
+    }
+
+    if (isset($cond["search"])) {
+        if ($cond["search"]["fuzzy"])
+            $condition .= "AND cnName LIKE BINARY '%{$cond["search"]["name"]}%' ";
+        else
+            $condition .= "AND cnName='{$cond["search"]["name"]}' ";
+    }
+
+
+
+    switch ($cond["order_type"]) {
+        case 0:
+            $having1 = "HAVING distance IS NOT NULL ORDER BY distance ASC ";
+            $having2 = "HAVING distance IS NULL ";
+            break;
+        case 1:
+            // 点评最多
+            $having1 = "HAVING distance IS NOT NULL ORDER BY comment_num DESC ";
+            $having2 = "HAVING distance IS NULL ORDER BY comment_num DESC ";
+            break;
+        case 2:
+            // 评分最高
+            $having1 = "HAVING distance IS NOT NULL ORDER BY avg_score DESC ";
+            $having2 = "HAVING distance IS NULL ORDER BY avg_score DESC ";
+            break;
+        case 3:
+            // 人气最好(访问量最高)
+            $having1 = "HAVING distance IS NOT NULL ORDER BY visit_num DESC ";
+            $having2 = "HAVING distance IS NULL ORDER BY visit_num DESC ";
+            break;
+        case 4:
+            // 口味最好
+            $having1 = "HAVING distance IS NOT NULL ORDER BY taste_score DESC ";
+            $having2 = "HAVING distance IS NULL ORDER BY taste_score DESC ";
+            break;
+        case 5:
+            // 环境最好
+            $having1 = "HAVING distance IS NOT NULL ORDER BY env_score DESC ";
+            $having2 = "HAVING distance IS NULL ORDER BY env_score DESC ";
+            break;
+        case 6:
+            // 服务最好
+            $having1 = "HAVING distance IS NOT NULL ORDER BY sev_score DESC ";
+            $having2 = "HAVING distance IS NULL ORDER BY sev_score DESC ";
+            break;
+        case 7:
+            // 人均消费最高
+            $having1 = "HAVING distance IS NOT NULL ORDER BY avg_pay DESC ";
+            $having2 = "HAVING distance IS NULL ORDER BY avg_pay DESC ";
+            break;
+        case 8:
+            // 人均消费最低
+            $having1 = "HAVING distance IS NOT NULL ORDER BY avg_pay ASC ";
+            $having2 = "HAVING distance IS NULL ORDER BY avg_pay ASC ";
+            break;
+    }
+
+    $sql = $sql.$condition.$having1."LIMIT $page,$num;";
+//    $sql = $sql.$condition;
+    $result = mysql_query($sql, $link);
+    $result_num = mysql_num_rows($result);
+
+    $ret = array();
+    $end_flag = 0;
+    // distance_null_num == 0 表示距离非NULL的数据还没有查完
+    if ($distance_null_num == 0) {
+        while ($row = mysql_fetch_array($result)) {
+            if ($pos["locate_flag"])
+                $row["distance_str"] = getDistanceString($row["distance"]);
+            else
+                $row["distance_str"] = "定位失败";
+
+
+            if (!isset($row["avg_pay"]))
+                $row["avg_pay"] = 0.0;
+            if (!isset($row["avg_score"]))
+                $row["avg_score"] = 0.0;
+
+            $row["img"] = getShopTopImg($row["shop_id"]);
+            $row["href"] = "one_shopinfo.php?shop_id=".$row["shop_id"];
+            $ret[] = $row;
+        }
+        mysql_free_result($result);
+
+        // 查询结果不足 $num 个时
+        if ($result_num < $num) {
+            // 从distance IS NULL 的结果中查询不足 $num 的剩余部分
+            $sql_standby = $sql_standby.$condition.$having2."LIMIT 0,".($num-$result_num);
+            $result_standby = mysql_query($sql_standby, $link);
+            if (mysql_num_rows($result_standby) < ($num-$result_num))
+                $end_flag = 1;
+            else
+                $end_flag = 0;
+
+            while ($row = mysql_fetch_array($result_standby)) {
+                $row["distance_str"] = "定位失败";
+                if (!isset($row["avg_pay"]))
+                    $row["avg_pay"] = 0.0;
+                if (!isset($row["avg_score"]))
+                    $row["avg_score"] = 0.0;
+
+                $row["img"] = getShopTopImg($row["shop_id"]);
+                $row["href"] = "one_shopinfo.php?shop_id=".$row["shop_id"];
+                $ret[] = $row;
+            }
+
+            $distance_null_num = $num-$result_num;
+            mysql_free_result($result_standby);
+        }
+    } else {
+        // 当disance_null_num 非0 时直接查询 distance IS NULL 的结果
+        $sql_standby = $sql_standby.$condition.$having2."LIMIT $distance_null_num,$num";
+        $result_standby = mysql_query($sql_standby, $link);
+        $result_num = mysql_num_rows($result_standby);
+        if ($result_num < $num)
+            $end_flag = 1;
+        else
+            $end_flag = 0;
+
+        while ($row = mysql_fetch_array($result_standby)) {
+            $row["distance_str"] = "定位失败";
+            if (!isset($row["avg_pay"]))
+                $row["avg_pay"] = 0.0;
+            if (!isset($row["avg_score"]))
+                $row["avg_score"] = 0.0;
+
+            $row["img"] = getShopTopImg($row["shop_id"]);
+            $row["href"] = "one_shopinfo.php?shop_id=".$row["shop_id"];
+            $ret[] = $row;
+        }
+
+        $distance_null_num += $result_num;
+        mysql_free_result($result_standby);
+    } // end if $distance_null_num == 0
+
+    return array($end_flag, $distance_null_num, $ret);
+}
+
+/*按照给出的条件查询、排列城市，不包含"按距离排序"
  * @param: city 选择查看的城市
  * @param: cond 查询条件
  * @param: pos 用户当前的地理位置
@@ -1185,27 +1378,53 @@ function getShopByCondition($link, $city, $cond, $pos, $page, $num=20) {
     // 按照 cond 给出的条件获取店铺信息
 
     /* 从数据库中获取一定数量的店铺信息 */
-    if ($cond["order_type"] == 0) {
-        // 需要按照距离排序时再求距离
-        $sql = "SELECT (2 * 6378.137* ASIN(SQRT(POW(SIN(PI()*({$pos["lat"]}-lat)/360),2)+COS(PI()*{$pos["lon"]}/180)*COS(lat * PI()/180)
-               *POW(SIN(PI()*({$pos["lon"]}-lng)/360),2)))),shop_id,cnName,avg_score,avg_pay,type_set as distance FROM shop_info WHERE review_result<>4 ";
-    } else {
-        $sql = "SELECT shop_id,cnName,avg_score,avg_pay,type_set FROM shop_info WHERE review_result<>4 ";
-    }
+    $sql = "SELECT shop_id,cnName,avg_score,avg_pay,type_set,(2 * 6378.137* ASIN(SQRT(POW(SIN(PI()*({$pos["lat"]}-lat)/360),2)+COS(PI()*{$pos["lon"]}/180)*COS(lat * PI()/180)
+               *POW(SIN(PI()*({$pos["lon"]}-lng)/360),2)))) as distance FROM shop_info WHERE review_result<>4 ";
 
     $condition = "";
     if ($city != "all") {
-        $condition .= "AND city_type=$city ";
+        $condition .= "AND city_type='$city' ";
     }
 
     if ($cond["food_class_type"] != "all") {
         $condition .= "AND type_set='{$cond["food_class_type"]}' ";
     }
 
+    if (isset($cond["search"])) {
+        if ($cond["search"]["fuzzy"])
+            $condition .= "AND cnName LIKE BINARY '%{$cond["search"]["name"]}%' ";
+        else
+            $condition .= "AND cnName='{$cond["search"]["name"]}' ";
+    }
+
+    switch ($cond["near_type"]) {
+        case 1:
+            // <200m
+            $condition .= "HAVING distance>0 AND distance<=0.2 ";
+            break;
+        case 2:
+            // 500m
+            $condition .= "HAVING distance>0 AND distance<=0.5 ";
+            break;
+        case 3:
+            // 1km
+            $condition .= "HAVING distance>0 AND distance<=1 ";
+            break;
+        case 4:
+            // 2km
+            $condition .= "HAVING distance>0 AND distance<=2 ";
+            break;
+        case 5:
+            // 5km
+            $condition .= "HAVING distance>0 AND distance<=5 ";
+            break;
+        default:
+            break;
+    }
+
     switch ($cond["order_type"]) {
         case 0:
-            // 距离最近
-            $condition .= "AND 1 IS NOT NULL ORDER BY distance ASC ";
+           $condition .= "ORDER BY distance ASC ";
             break;
         case 1:
             // 点评最多
@@ -1243,77 +1462,30 @@ function getShopByCondition($link, $city, $cond, $pos, $page, $num=20) {
 
     $sql = $sql.$condition."LIMIT $page,$num;";
 //    $sql = $sql.$condition;
-    log2file($sql);
     $result = mysql_query($sql, $link);
     if (mysql_num_rows($result) < $num)
         $end_flag = 1;
     else
         $end_flag = 0;
 
-    /* 第二步: 根据店铺的地理位置计算与自己的距离 */
     $ret = array();
     while ($row = mysql_fetch_array($result)) {
-        log2file("\n");
-        foreach ($row as $i=>$j) {
-            log2file($i."=>".$j);
+        if ($pos["locate_flag"] and isset($row["distance"])) {
+           $row["distance_str"] = getDistanceString($row["distance"]) ;
+        } else {
+            $row["distance_str"] = "定位失败";
         }
 
-        $distance = $row["distanse"];
-        $meet_flag = false;
-        switch ($cond["near_type"]) {
-            case 0:
-                // 全部
-                $meet_flag = true;
-                break;
-            case 1:
-                // <200m
-                if ($distance <= 200)
-                    $meet_flag = true;
-                break;
-            case 2:
-                // 500m
-                if ($distance <= 500)
-                    $meet_flag = true;
-                break;
-            case 3:
-                // 1km
-                if ($distance <= 1000)
-                    $meet_flag = true;
-                break;
-            case 4:
-                // 2km
-                if ($distance <= 2000)
-                    $meet_flag = true;
-                break;
-            case 5:
-                // 5km
-                if ($distance <= 5000)
-                    $meet_flag = true;
-                break;
-            default:
-                break;
-        }
+        if (!isset($row["avg_pay"]))
+            $row["avg_pay"] = 0.0;
+        if (!isset($row["avg_score"]))
+            $row["avg_score"] = 0.0;
 
-
-        if ($meet_flag) {
-            if ($distance > 1000) {
-                $row["distance_str"] = round($distance/1000, 1)."km";
-                $row["distance"] = $distance;
-            } else {
-                $row["distance_str"] = $distance."m";
-                $row["distance"] = $distance;
-            }
-
-            $row["img"] = getShopTopImg($row["shop_id"]);
-            $row["href"] = "one_shopinfo.php?shop_id=".$row["shop_id"];
-            $ret[] = $row;
-        }
+        $row["img"] = getShopTopImg($row["shop_id"]);
+        $row["href"] = "one_shopinfo.php?shop_id=".$row["shop_id"];
+        $ret[] = $row;
     }
     mysql_free_result($result);
-    /* 第三步: 根据 cond 给出的距离条件进行排序*/
-//    if ($cond["order_type"] == 0) {
-//        dyadic_array_sort($ret, "distance");
-//    }
 
     return array($end_flag, $ret);
 }

@@ -97,7 +97,6 @@ function request_url_generate(id) {
         document.cookie = "extra=" + "0|all";
         extra = "0";
     }
-
     if (info["domain"] != undefined)
         switch (info["domain"]) {
             case "index":
@@ -201,13 +200,58 @@ function sec_category_auto(){
         });
 }
 
-function sec_category_auto_dp (queryString) {
+function sec_category_auto_dp(queryString) {
     var current_active=getCookie_wap("sec_category");
     var obj=document.getElementById(current_active);
     //obj.className="active";
     //ajax 请求部分
     var url = request_url_generate(obj.id);
-    alert(url+"&"+queryString);
+//    alert(url+"&"+queryString);
+    var myAjax = new Ajax.Request(url,
+        {
+            method: "post",
+            parameters: queryString,
+            asynchronous: false,
+            onSuccess: function (ret) {
+                var ret_json = eval("(" + ret.responseText + ")");
+                if(ret_json.detail != undefined) {
+                    var tag = document.getElementById("detail");
+                    tag.innerHTML = ret_json.detail;
+                    var pagebox = document.getElementById("current_next_page");
+                    if(pagebox)
+                        pagebox.parentNode.removeChild(pagebox);
+
+                    if (need_page(obj.id)) {
+                        var pageNext = document.createElement("div");
+                        pageNext.setAttribute("id", "current_page2");
+                        tag.appendChild(pageNext);
+
+                        var more_text = document.createElement("h3");
+                        more_text.setAttribute("id", "current_next_page")
+                        more_text.setAttribute("align", "center");
+                        more_text.setAttribute("onclick", "getMoreShop()");
+                        if (getCookie_wap("end_flag") == "1")
+                            more_text.innerHTML = "已加载全部内容";
+                        else
+                            more_text.innerHTML = "点击加载更多内容";
+
+                        document.getElementById("pagebox").appendChild(more_text);
+                    }
+                } else {
+                    tag.innerHTML = "";
+                }
+            },
+            onFailure: function (x) {
+
+            }
+        }
+    );
+}
+
+function sec_category_auto_dp_search(queryString) {
+    //ajax 请求部分
+    // 查询接口复用 dp_near
+    var url = request_url_generate("dp_near");
     var myAjax = new Ajax.Request(url,
         {
             method: "post",
@@ -219,12 +263,114 @@ function sec_category_auto_dp (queryString) {
                     var tag = document.getElementById("detail");
                     tag.innerHTML = ret_json.detail;
                 }
+
+                if(ret_json.detail != undefined) {
+                    var kws = document.getElementById("kws").innerHTML;
+
+                    var tag = document.getElementById("detail");
+                    tag.innerHTML = ret_json.detail;
+                    var pagebox = document.getElementById("current_next_page");
+                    if(pagebox)
+                        pagebox.parentNode.removeChild(pagebox);
+
+                    var pageNext = document.createElement("div");
+                    pageNext.setAttribute("id", "current_page2");
+                    tag.appendChild(pageNext);
+
+                    var more_text = document.createElement("h3");
+                    more_text.setAttribute("id", "current_next_page")
+                    more_text.setAttribute("align", "center");
+                    if (kws != "") {
+                        more_text.setAttribute("onclick", "getMoreShop(\""+kws+"\")");
+                    } else {
+                        more_text.setAttribute("onclick", "getMoreShop()");
+                    }
+
+                    if (getCookie_wap("end_flag") == "1")
+                        more_text.innerHTML = "已加载全部内容";
+                    else
+                        more_text.innerHTML = "点击加载更多内容";
+
+                    document.getElementById("pagebox").appendChild(more_text);
+                } else {
+                    tag.innerHTML = "";
+                }
+
+                setEffect();
             },
             onFailure: function (x) {
 
             }
         }
     );
+}
+
+function getMoreShop() {
+    var kws = "";
+    if (arguments.length == 1)
+        kws = arguments[0];
+
+    /* end_flag 为1表示数据已经到尾 */
+    if (getCookie_wap("end_flag") != "0")
+        return;
+    var page = parseInt(getCookie_wap("current_page"))+1;
+    document.cookie = "current_page=" + page;
+    var url = request_url_generate("dp_near");
+    var more_text = document.getElementById("current_next_page");
+    more_text.innerHTML = "正在加载中...";
+    more_text.removeAttribute("onclick");
+    var near_type = document.getElementById("near_type").innerHTML;
+    var food_class_type = document.getElementById("food_class_type").innerHTML;
+    var order_type = document.getElementById("order_type").innerHTML;
+    var queryString = "";
+    if (kws != "") {
+        queryString = "near_type="+near_type+"&food_class_type="+food_class_type+"&order_type="+order_type+"&page="+page+"&kws="+kws;
+    } else {
+        queryString = "near_type="+near_type+"&food_class_type="+food_class_type+"&order_type="+order_type+"&page="+page;
+    }
+
+    var myAjax = new Ajax.Request(url,
+        {
+            method: 'post'
+            , parameters: queryString
+            , asynchronous: false
+            , onSuccess: function (ret) {
+            var ret_json = eval("(" + ret.responseText + ")");
+
+            if(ret_json.detail!= undefined) {
+                var end_flag = getCookie_wap("end_flag");
+//                var page = parseInt(getCookie_wap("current_page"));
+                var pageCurrent  = document.getElementById("current_page"+page);
+                var tag = document.getElementById("detail");
+                pageCurrent.innerHTML = ret_json.detail;
+
+                if (end_flag != "1") {
+                    var pageNext = document.createElement("div");
+                    pageNext.setAttribute("id", "current_page"+(page+1));
+                    tag.appendChild(pageNext);
+                }
+
+                more_text.innerHTML = "";
+                if (end_flag == "1")
+                    more_text.innerHTML = "已加载全部内容";
+                else {
+                    more_text.innerHTML = "点击加载更多内容"
+                }
+                if (kws != "") {
+                    more_text.setAttribute("onclick", "getMoreShop(\""+kws+"\")");
+                } else {
+                    more_text.setAttribute("onclick", "getMoreShop()");
+                }
+            }
+
+            // js.js设置点击时的效果
+            setEffect();
+        }
+            , onFailure: function (x) {
+            alert("fail to get data from server " +
+                ",please check your connection;")
+        }
+        });
 }
 
 function getMoreArticleCommon() {
@@ -807,6 +953,99 @@ function set_city(obj) {
     document.getElementById("detail").innerHTML = "";
     document.getElementById(val[0]).click();
     return true;
+}
+
+function shop_search(event) {
+    if(!event)
+        event = window.event;//火狐中是 window.event
+    if((event.keyCode || event.which) != 13)
+        return true;
+
+    var tag = document.getElementById("search_kws");
+    var search_kws = tag.value;
+    var jumpto = "shop_list.php?kws="+search_kws;
+//    jumpto = encodeURIComponent(jumpto);
+
+    window.location.href = jumpto;
+    return false;
+}
+
+function select_food_class() {
+    var url = "/mobile/forum/request/dp_getfoodclass.php";
+    var myAjax = new Ajax.Request(url,
+        {
+            method: "post",
+            parameters: null,
+            asynchronous: false,
+            onSuccess: function (ret) {
+                var ret_json = eval("(" + ret.responseText + ")");
+                var detail = document.getElementById("detail");
+                if (ret_json.detail != undefined) {
+                    if (detail != undefined) {
+                        detail.innerHTML = ret_json.detail;
+                    }
+                } else {
+                    if (detail != undefined) {
+                        var new_tag = document.createElement("h2");
+                        new_tag.innerHTML = "目前没有食物分类!";
+                        detail.appendChild(new_tag);
+                    }
+                }
+            },
+            onFailure: function (x) {
+                Alert("请求失败", 1);
+            }
+        }
+    );
+
+    return false;
+}
+
+function shop_list_request(labeltype) {
+    var queryString;
+
+    var near_type = document.getElementById("near_type").innerHTML;
+    var food_class_type = document.getElementById("food_class_type").innerHTML;
+    var order_type = document.getElementById("order_type").innerHTML;
+
+    queryString = "near_type="+near_type+"&food_class_type="+food_class_type+"&order_type="+order_type;
+
+    if (labeltype == "dp_near") {
+        sec_category_auto_dp(queryString);
+    } else if (labeltype == "dp_shoplist") {
+        var kws = document.getElementById("kws").innerHTML;
+        if (kws != "")
+            queryString = queryString+"&kws="+kws;
+        sec_category_auto_dp_search(queryString);
+    }
+}
+
+function dp_set_shop_type(obj, tag_name) {
+    var labeltype = "dp_near";
+    if (arguments.length == 3)
+        labeltype = arguments[2];
+
+    switch (tag_name) {
+        case "near_type":
+        case "food_class_type":
+        case "order_type":
+            var tag = document.getElementById(tag_name);
+            if (tag != undefined) {
+                var arr = obj.id.split("_");
+                if (arr.length >= 1) {
+                    tag.innerHTML = arr[arr.length-1];
+                }
+            }
+            $('.box_mask').hide();
+            $('.dn_box').hide();
+
+            shop_list_request(labeltype);
+            break;
+        default:
+            break;
+    }
+
+    return false;
 }
 
 function dp_show_secmenu(id) {

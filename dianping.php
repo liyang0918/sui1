@@ -84,7 +84,7 @@ include_once("head.php");
         <ul>
             <li class="first"><a href="javascript:;">附近</a></li>
             <?php foreach ($near_list as $each) { ?>
-                <li><a href="" id="near_<?php echo $each["type"]; ?>"><?php echo $each["name"]; ?></a></li>
+                <li><a href="" id="near_<?php echo $each["type"]; ?>" onclick="return dp_set_shop_type(this, 'near_type');"><?php echo $each["name"]; ?></a></li>
             <?php } ?>
         </ul>
     </div><!--------End dn_box-->
@@ -95,10 +95,10 @@ include_once("head.php");
             <div class="nav_list"><a class="open_03" href="javascript:void(0)">排序<img src="img/btn_down.png" alt="btn_down.png"/></a></div>
         </div>
         <ul>
-            <li class="first"><a id="food_class_<?php echo $food_class_list[0]["type"]; ?>" href="javascript:;"><?php echo $food_class_list[0]["name"]; ?></a></li>
+            <li class="first"><a id="food_class_<?php echo $food_class_list[0]["type"]; ?>" href="" onclick="return dp_set_shop_type(this, 'food_class_type');"><?php echo $food_class_list[0]["name"]; ?></a></li>
             <?php for ($i = 1; $i < count($food_class_list); $i++) { ?>
                 <?php $each = $food_class_list[$i];?>
-                <li><a href="#" id="food_class_<?php echo $each["type"]; ?>"><?php echo $each["name"]; ?></a></li>
+                <li><a href="" id="food_class_<?php echo $each["type"]; ?>" onclick="return dp_set_shop_type(this, 'food_class_type');"><?php echo $each["name"]; ?></a></li>
             <?php } ?>
         </ul>
     </div><!--------End dn_box-->
@@ -110,10 +110,10 @@ include_once("head.php");
         </div>
         <ul>
 
-            <li class="first"><a id="order_<?php echo $order_list[0]["type"]; ?>" href="javascript:;"><?php echo $order_list[0]["name"]; ?></a></li>
+            <li class="first"><a id="order_<?php echo $order_list[0]["type"]; ?>" href="" onclick="return dp_set_shop_type(this, 'order_type');"><?php echo $order_list[0]["name"]; ?></a></li>
             <?php for ($i = 1; $i < count($order_list); $i++) { ?>
                 <?php $each = $order_list[$i]; ?>
-                <li><a id="order_<?php echo $each["type"]; ?>" href="#"><?php echo $each["name"]; ?></a></li>
+                <li><a id="order_<?php echo $each["type"]; ?>" href="" onclick="return dp_set_shop_type(this, 'order_type');"><?php echo $each["name"]; ?></a></li>
             <?php } ?>
         </ul>
     </div><!--------End dn_box-->
@@ -124,11 +124,11 @@ include_once("head.php");
         <div class="dp_search_box_item">
             <p>
                 <img src="img/search.png" alt="search.png"/>
-                <input type="search" placeholder="请输入店铺名称"/>
+                <input onkeypress="return shop_search(event);" id="search_kws" type="search" placeholder="请输入店铺名称"/>
             </p>
         </div>
         <div class="border_bottom border_top">
-            <a href="dianping_search_fenlei.html">
+            <a href="" onclick="return select_food_class();">
                 <span>按分类查找</span>
                 <img src="img/btn-right.png" alt="btn-right.png"/>
             </a>
@@ -184,6 +184,7 @@ include_once("head.php");
 </script>
 <script type="text/javascript">
     $(document).ready(document.cookie="current_page=1");
+    $(document).ready(document.cookie="distance_null_num=0");
     $(document).ready(function () {
         var queryString;
         var sec_category=getCookie_wap("sec_category");
