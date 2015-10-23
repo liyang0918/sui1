@@ -6,7 +6,7 @@ $link = db_connect_web();
 
 $sec_category = $_COOKIE["sec_category"];
 // detail start
-$t_data = getDpCityList($link);
+$t_data = getDpCityListGroupByName($link);
 $str_city = '<div class="chose_list_box nomargin_top">';
 $str_city .= '
 <dl class="chose_dl">

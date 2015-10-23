@@ -52,7 +52,7 @@ $distance_null_num = 0; // 查询结果中距离为null的结果条数,用于确定查询表的起始位
 //} else {
     $pos = array("lat"=>$_SESSION["lat"], "lon"=>$_SESSION["lon"], "locate_flag"=>$_SESSION["locate_flag"]);
     // "附近"选择为"全部"时,需要查询全表,根据表中字段算出来的距离可能为NULL,升序时NULL排在前边,所以需要差两次数据库:先非NULL,后NULL
-    if ($cond["near_type"] == 0) {
+    if ($cond["near_type"] == 0 and $cond["order_type"] == 0) {
         list($end_flag, $distance_null_num, $t_data) = getShopNearBy($link, $city, $cond, $pos, $page, $num);
     } else {
         list($end_flag, $t_data) = getShopByCondition($link, $city, $cond, $pos, $page, $num);

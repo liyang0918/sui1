@@ -5,7 +5,7 @@ include_once(dirname(__FILE__)."/../func.php");
 
 $str_food_class = '
 <div class="ds_box border_bottom">
-    <a onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+    <a onclick="go_back_dp_search();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
     按分类查找
 </div><!--<End ds_box-->';
 $str_food_class .= '<ul class="fenlei_group">';
