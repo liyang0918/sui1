@@ -134,7 +134,7 @@ include_once("head.php");
             </a>
         </div>
         <div class="border_bottom">
-            <a href="dianping_search_addshop.html">
+            <a href="add_shop.php">
                 <span>Ìí¼ÓÐÂµêÆÌ</span>
                 <img src="img/btn-right.png" alt="btn-right.png"/>
             </a>
@@ -145,11 +145,12 @@ include_once("head.php");
 <div id="rank" style="display: none">
     <nav class="navtwo">
         <ul class="navtwo_ul immigration_nav">
-            <li><a id="rank_<?php echo $rank_list[0]["type"]; ?>" class="redgo" href="dianping_rank.html"><?php echo $rank_list[0]["name"]; ?></a></li>
+            <li><a href="" id="rank_<?php echo $rank_list[0]["type"]; ?>" class="redgo" onclick="return dp_show_rank(this);" ><?php echo $rank_list[0]["name"]; ?></a></li>
             <?php for ($i = 1; $i < count($rank_list); $i++) { ?>
                 <?php $each = $rank_list[$i]; ?>
-                <li><a id="rank_<?php echo $each["type"]; ?>" href="#"><?php echo $each["name"]; ?></a></li>
+                <li><a href="" id="rank_<?php echo $each["type"]; ?>" onclick="return dp_show_rank(this);"><?php echo $each["name"]; ?></a></li>
             <?php } ?>
+
         </ul>
         <span class="redgo"></span>
     </nav><!---------End navtwo-->

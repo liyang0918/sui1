@@ -260,11 +260,6 @@ function sec_category_auto_dp_search(queryString) {
             onSuccess: function (ret) {
                 var ret_json = eval("(" + ret.responseText + ")");
                 if(ret_json.detail != undefined) {
-                    var tag = document.getElementById("detail");
-                    tag.innerHTML = ret_json.detail;
-                }
-
-                if(ret_json.detail != undefined) {
                     var kws = document.getElementById("kws").innerHTML;
 
                     var tag = document.getElementById("detail");
@@ -913,6 +908,9 @@ function location_error(error) {
 }
 
 function select_city() {
+    $('#near').hide();
+    $('#search').hide();
+    $('#rank').hide();
     var url = "/mobile/forum/request/dp_getcity.php";
     var myAjax = new Ajax.Request(url,
         {
@@ -971,6 +969,7 @@ function shop_search(event) {
 }
 
 function select_food_class() {
+    $('#search').hide();
     var url = "/mobile/forum/request/dp_getfoodclass.php";
     var myAjax = new Ajax.Request(url,
         {
@@ -999,6 +998,11 @@ function select_food_class() {
     );
 
     return false;
+}
+
+function go_back_dp_search() {
+    $('#detail').html("");
+    $('#search').show();
 }
 
 function shop_list_request(labeltype) {
@@ -1408,4 +1412,132 @@ function add_read_num(obj) {
             method: 'post'
             , parameters: pars
         });
+}
+
+function dp_check_cnName(cnName) {
+    var prompt1 = document.getElementById("prompt1");
+    if (cnName.value == null || cnName.value == "") {
+        prompt1.show();
+        return false;
+    } else {
+        prompt1.hide();
+        return true;
+    }
+}
+
+function dp_check_food_class(food_class) {
+    var prompt2 = document.getElementById("prompt2");
+    if (food_class.value == "10") {
+        prompt2.show();
+        return false;
+    } else {
+        prompt2.hide();
+        return true;
+    }
+}
+
+function dp_check_city(city) {
+    var prompt3 = document.getElementById("prompt3");
+    if (city.value == "10") {
+        prompt3.show();
+        return false;
+    } else {
+        prompt3.hide();
+        return true;
+    }
+}
+
+function dp_getLocation(obj) {
+    var address = obj.value;
+    if (address == "")
+        return true;
+    var url = "/mobile/forum/request/location.php";
+    var para = "search="+address;
+    var tag_lat = document.getElementById("pos_lat");
+    var tag_lng = document.getElementById("pos_lng");
+
+    var prompt4 = document.getElementById("prompt4");
+    prompt4.innerHTML = "正在查询位置...";
+    var myAjax = new Ajax.Request(url,
+        {
+            method:"post",
+            parameters:para,
+            asynchronous:true,
+            onSuccess: function (ret) {
+
+                var ret_json = eval("(" + ret.responseText + ")");
+                if (ret_json.result != undefined && ret_json.result == 1) {
+                    var prompt4 = document.getElementById("prompt4");
+                    prompt4.innerHTML = "地址定位成功";
+                    tag_lat.value = ret_json.location.lat;
+                    tag_lng.value = ret_json.location.lng;
+                } else {
+                    prompt4.innerHTML = "地址定位失败";
+                }
+
+            },
+            onFailure: function (x) {
+            }
+        }
+    );
+
+    return true;
+}
+
+function dp_check_addshop_form() {
+    var cnName = document.getElementById("cnName");
+    if (!dp_check_cnName(cnName)) {
+        cnName.focus();
+        return false;
+    }
+
+    var food_class = document.getElementById("food_class");
+    if (!dp_check_food_class(food_class)) {
+        food_class.focus();
+        return false;
+    }
+
+    var city = document.getElementById("city_list");
+    if (!dp_check_city(city)) {
+        city.focus();
+        return false;
+    }
+
+    document.getElementById("addShopForm").submit();
+
+    return false;
+}
+
+function dp_show_rank(obj) {
+    var arr = obj.id.split("_");
+
+    var rank_type = document.getElementById("rank_type");
+    var active_id = "rank_"+rank_type.innerHTML;
+    rank_type.innerHTML = arr[1];
+    document.getElementById(active_id).setAttribute("class", "");
+    obj.setAttribute("class", "redgo");
+    var extra = getCookie_wap("extra");
+    var url = "/mobile/forum/request/dp_shoptop10.php?extra="+extra;
+    var para = "reason="+arr[1];
+    var tag = document.getElementById("detail");
+    var myAjax = new Ajax.Request(url,
+        {
+            method: "post",
+            parameters: para,
+            asynchronous: false,
+            onSuccess: function (ret) {
+                var ret_json = eval("(" + ret.responseText + ")");
+                if(ret_json.detail != undefined) {
+                    tag.innerHTML = ret_json.detail;
+                } else {
+                    tag.innerHTML = "";
+                }
+            },
+            onFailure: function (x) {
+
+            }
+        }
+    );
+
+    return false;
 }

@@ -373,35 +373,39 @@ $codeEnts=array(
     "&micro;",
     "&gt;");
 
+// 支持 ASCII",'UTF-8′,"GB2312′,"GBK",'BIG5′
+function stringConvertToGbk($mixed) {
+    if (is_array($mixed)) {
+        foreach ($mixed as $k => $v) {
+            if (is_array($v)) {
+                $mixed[$k] = charsetToGBK($v);
+            } else {
+                $encode = mb_detect_encoding($v, array('ASCII', 'UTF-8', 'GB2312', 'GBK', 'BIG5'));
+                if ($encode == 'UTF-8') {
+                    $mixed[$k] = iconv('UTF-8', 'GBK', $v);
+                }
+            }
+        }
+    } else {
+        $encode = mb_detect_encoding($mixed, array('ASCII', 'UTF-8', 'GB2312', 'GBK', 'BIG5'));
+        //var_dump($encode);
+        if ($encode == 'UTF-8') {
+            $mixed = iconv('UTF-8', 'GBK', $mixed);
+        }
+    }
+    return $mixed;
+}
+
 /**
  * @desc 根据两点间的经纬度计算距离
  * @param float $lat 纬度值
  * @param float $lng 经度值
+ * lat1 lng1 自己的位置, lat2,lng2 对方的位置
+ * @reutrn 两点之间的公里数
  */
 function getDistance($lat1, $lng1, $lat2, $lng2)
 {
-    // 地球平均半径,单位 m
-    $earthRadius = 6371393;
-
-    // 角度转换为弧度
-    $lat1 = ($lat1 * pi() ) / 180;
-    $lng1 = ($lng1 * pi() ) / 180;
-
-    $lat2 = ($lat2 * pi() ) / 180;
-    $lng2 = ($lng2 * pi() ) / 180;
-
-    // 计算经纬度的弧度差
-    $calcLongitude = $lng2 - $lng1;
-    $calcLatitude = $lat2 - $lat1;
-
-    // 计算两点半径线之间的夹角
-    $stepOne = pow(sin($calcLatitude / 2), 2) + cos($lat1) * cos($lat2) * pow(sin($calcLongitude / 2), 2);
-    $stepTwo = 2 * asin(min(1, sqrt($stepOne)));
-
-    // 两点弧面距离=夹角*半径
-    $calculatedDistance = $earthRadius * $stepTwo;
-
-    return round($calculatedDistance);
+    return (2 * 6378.137* ASIN(sqrt(pow(sin(pi()*($lat1-$lat2)/360),2)+cos(pi()*$lng1/180)*cos($lat2 * pi()/180)*pow(sin(pi()*($lng1-$lng2)/360),2))));
 }
 
 /**
@@ -1011,6 +1015,18 @@ function getDpCityCname($city) {
 }
 
 function getDpCityList($link) {
+    $sql = "SELECT city_name,city_concise FROM city_type ORDER BY city_name;";
+    $result = mysql_query($sql, $link);
+    $ret = array();
+    while ($row = mysql_fetch_array($result)) {
+        $ret[] = $row;
+    }
+    mysql_free_result($result);
+
+    return $ret;
+}
+
+function getDpCityListGroupByName($link) {
     $A = ord("A");
     $ret = array();
     for ($i=0; $i<26; $i++) {
@@ -1018,14 +1034,12 @@ function getDpCityList($link) {
     }
     $ret["#"] = array();
 
-    $sql = "select city_name,city_concise from city_type order by city_name;";
-    $result = mysql_query($sql, $link);
-    while ($row = mysql_fetch_array($result)) {
+    $result = getDpCityList($link);
+    foreach ($result as $row) {
         $index = getSpellInitial($row["city_name"]);
 
         $ret[$index][] = $row;
     }
-    mysql_free_result($result);
 
 //    foreach ($ret as $m=>$each) {
 //        echo $m."<br/>";
@@ -1185,11 +1199,11 @@ function getDistanceString($distance) {
     if ($distance < 0.1) {
         $str = "<100m";
     } else if ($distance < 1) {
-        $str = "<1km";
+        $str = round($distance*1000, 0)."m";
     } else if ($distance < 10) {
-        $str = "<10km";
+        $str = round($distance, 1)."km";
     } else if ($distance < 50) {
-        $str = "<50km";
+        $str = round($distance, 0)."km";
     } else {
         $str = ">50km";
     }
@@ -1238,54 +1252,9 @@ function getShopNearBy($link, $city, $cond, $pos, $page, $num=20) {
             $condition .= "AND cnName='{$cond["search"]["name"]}' ";
     }
 
+    $having1 = "HAVING distance IS NOT NULL ORDER BY distance ASC ";
+    $having2 = "HAVING distance IS NULL ";
 
-
-    switch ($cond["order_type"]) {
-        case 0:
-            $having1 = "HAVING distance IS NOT NULL ORDER BY distance ASC ";
-            $having2 = "HAVING distance IS NULL ";
-            break;
-        case 1:
-            // 点评最多
-            $having1 = "HAVING distance IS NOT NULL ORDER BY comment_num DESC ";
-            $having2 = "HAVING distance IS NULL ORDER BY comment_num DESC ";
-            break;
-        case 2:
-            // 评分最高
-            $having1 = "HAVING distance IS NOT NULL ORDER BY avg_score DESC ";
-            $having2 = "HAVING distance IS NULL ORDER BY avg_score DESC ";
-            break;
-        case 3:
-            // 人气最好(访问量最高)
-            $having1 = "HAVING distance IS NOT NULL ORDER BY visit_num DESC ";
-            $having2 = "HAVING distance IS NULL ORDER BY visit_num DESC ";
-            break;
-        case 4:
-            // 口味最好
-            $having1 = "HAVING distance IS NOT NULL ORDER BY taste_score DESC ";
-            $having2 = "HAVING distance IS NULL ORDER BY taste_score DESC ";
-            break;
-        case 5:
-            // 环境最好
-            $having1 = "HAVING distance IS NOT NULL ORDER BY env_score DESC ";
-            $having2 = "HAVING distance IS NULL ORDER BY env_score DESC ";
-            break;
-        case 6:
-            // 服务最好
-            $having1 = "HAVING distance IS NOT NULL ORDER BY sev_score DESC ";
-            $having2 = "HAVING distance IS NULL ORDER BY sev_score DESC ";
-            break;
-        case 7:
-            // 人均消费最高
-            $having1 = "HAVING distance IS NOT NULL ORDER BY avg_pay DESC ";
-            $having2 = "HAVING distance IS NULL ORDER BY avg_pay DESC ";
-            break;
-        case 8:
-            // 人均消费最低
-            $having1 = "HAVING distance IS NOT NULL ORDER BY avg_pay ASC ";
-            $having2 = "HAVING distance IS NULL ORDER BY avg_pay ASC ";
-            break;
-    }
 
     $sql = $sql.$condition.$having1."LIMIT $page,$num;";
 //    $sql = $sql.$condition;
@@ -1364,7 +1333,6 @@ function getShopNearBy($link, $city, $cond, $pos, $page, $num=20) {
         $distance_null_num += $result_num;
         mysql_free_result($result_standby);
     } // end if $distance_null_num == 0
-
     return array($end_flag, $distance_null_num, $ret);
 }
 
@@ -1490,6 +1458,79 @@ function getShopByCondition($link, $city, $cond, $pos, $page, $num=20) {
     return array($end_flag, $ret);
 }
 
+function insertShop($link, $shopinfo){
+    $sql = 'insert into shop_info(cnName,city_type,type_set,enName,location,contact,business_time,description,lng,lat,add_time,review_result,add_user) values
+        ("'.$shopinfo["cnName"].'","'.$shopinfo["city_type"].'","'.$shopinfo["type_set"].'","'.$shopinfo["enName"].'","'.$shopinfo["location"].'","'.$shopinfo["contact"].'",
+            "'.$shopinfo["business_time"].'","'.$shopinfo["descrption"].'",'.$shopinfo["lng"].','.$shopinfo["lat"].','.time().',0,"'.$shopinfo["add_user"].'")';
+
+    $ret = mysql_query($sql, $link);
+    if ($ret) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+// $reason 为 top10 的类型
+// $reason: hot 本周最热,best 本周最佳,taste 口味最佳,env 环境最佳,sev 服务最佳
+function getShopTop10($link, $reason, $city, $pos) {
+    $week = date('w');
+    $createTime = strtotime(date("Y M D",strtotime( '+'. 1-$week .' days' )));
+
+    switch ($reason){
+        case "hot":
+            $sql = 'select r.shop_id as shop_id,type_set,cnName,location,contact,comment_num,s.lat as lat,s.lng as lng,s.avg_pay as avg_pay,s.avg_score as avg_score,s.taste_score as taste_score,s.env_score as env_sore,s.sev_score as sev_score from user_comment as r,shop_info as s
+                where city_type="'.$city.'" and display<2 and create_time>'.$createTime.' and display<2 and r.shop_id=s.shop_id group by shop_id order by count(*) desc limit 10';
+            break;
+        case "best":
+            $sql = 'select shop_id,type_set,cnName,location,contact,comment_num,lat,lng,avg_pay,avg_score,taste_score,env_score,sev_score from shop_info
+                where city_type="'.$city.'" and review_result<>4 order by avg_score desc limit 10';
+            break;
+        case "taste":
+            $sql = 'select shop_id,type_set,cnName,location,contact,comment_num,lat,lng,avg_pay,avg_score,taste_score,env_score,sev_score from shop_info
+                 where city_type="'.$city.'" and review_result<>4 order by taste_score desc limit 10';
+            break;
+        case "env":
+            $sql = 'select shop_id,type_set,cnName,location,contact,comment_num,lat,lng,avg_pay,avg_score,taste_score,env_score,sev_score from shop_info
+                where city_type="'.$city.'" and review_result<>4 order by env_score desc limit 10';
+            break;
+        case "sev":
+            $sql = 'select shop_id,type_set,cnName,sev_score,location,contact,comment_num,lat,lng,avg_pay,avg_score,taste_score,env_score,sev_score from shop_info
+                where city_type="'.$city.'" and review_result<>4 order by sev_score desc limit 10';
+            break;
+        default:
+            return array();
+    }
+    log2file($sql);
+
+    $result = mysql_query($sql, $link);
+
+    $ret = array();
+    while ($row = mysql_fetch_array($result)) {
+        if ($pos["locate_flag"] == false) {
+            $row["distance_str"] = "定位失败";
+        } else {
+            if ($row["lat"] == 0 and $row["lng"] == 0) {
+                $row["distance_str"] = "定位失败";
+            } else {
+                $distance = getDistance($pos["lat"], $pos["lng"], $row["lat"], $row["lng"]);
+                $row["distance_str"] = getDistanceString($distance);
+            }
+        }
+
+        if (!isset($row["avg_pay"]))
+            $row["avg_pay"] = 0.0;
+        if (!isset($row["avg_score"]))
+            $row["avg_score"] = 0.0;
+
+        $row["img"] = getShopTopImg($row["shop_id"]);
+        $row["href"] = "one_shopinfo.php?shop_id=".$row["shop_id"];
+
+        $ret[] = $row;
+    }
+
+    return $ret;
+}
 
 
 function getClubImg($club_name) {
@@ -2000,6 +2041,25 @@ $rank_list = array(
     4 => array("type"=>"sev", "name"=>"服务最佳")
 );
 
+function initFoodClassList($link) {
+    global $food_class_list;
+    $sql = "SELECT type_name,type_concise FROM shop_type;";
+    $result = mysql_query($sql, $link);
+
+    $ret[0] = array("type"=>"all", "name"=>"全部美食");
+    while ($row = mysql_fetch_array($result)) {
+        $tmp["type"] = $row["type_concise"];
+        $tmp["name"] = $row["type_name"];
+
+        $ret[] = $tmp;
+    }
+    mysql_free_result($result);
+
+    if (sizeof($ret) == 1)
+        $ret = $food_class_list;
+
+    return $ret;
+}
 
 
 function foodType2String($type) {
@@ -3290,6 +3350,11 @@ function constrcutThumbnail($fileName) {
     }
 }
 
+//$link = db_connect_web();
 
+// 更新全局变量
+//$food_class_list = initFoodClassList($link<!--);-->
+
+// mysql_close($link);
 
 ?>
