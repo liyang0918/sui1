@@ -241,6 +241,11 @@ body {
     color:#666;
     padding:4px 0;
 }
+
+.hot_star {
+    float:right;
+}
+
 .hot_count{
     font-size:1.2em;
     color:#999;
