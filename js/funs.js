@@ -45,7 +45,7 @@ var label_list = {
         "dp_recommend":"0",
         "dp_near":"1",
         "dp_search":"0",
-        "dp_rank":"1"
+        "dp_rank":"0"
     },
     "jiaye":{
         "jiaye":"0",
@@ -206,7 +206,6 @@ function sec_category_auto_dp(queryString) {
     //obj.className="active";
     //ajax 请求部分
     var url = request_url_generate(obj.id);
-//    alert(url+"&"+queryString);
     var myAjax = new Ajax.Request(url,
         {
             method: "post",
@@ -522,6 +521,71 @@ function getMoreArticleOwn() {
                 ",please check your connection;")
             }
         });
+}
+
+function collect_by_type(type, obj) {
+    /* type:
+     *      1 收藏版面
+     *      6 收藏版面文章
+     *      7 收藏俱乐部文章
+     *
+     *
+     * */
+
+    var url = "/mobile/forum/request/collect_by_type.php";
+    var para = "";
+    if (type == 1) {
+        var board_id = arguments[2];
+        para = "type=1&board_id="+board_id;
+    }
+
+    var myAjax = new Ajax.Request(url,
+        {
+            method: "post",
+            parameters: para,
+            asynchronous: false,
+            onSuccess: function (ret) {
+                var ret_json = eval("("+ret.responseText+")");
+                if (type == 1) {
+                    // 当收藏成功时修改图标
+                    if (ret_json.result != undefined && ret_json.result == "0") {
+                        var arr = obj.id.split("_");
+                        if (arr[1] == "1") {
+                            obj.firstChild.src = "img/star1.png";
+                            obj.id = arr[0]+"_0";
+                        } else {
+                            obj.firstChild.src = "img/star2.png";
+                            obj.id = arr[0]+"_1";
+                        }
+                    } else {
+                        Alert(ret_json.msg, 1);
+                    }
+
+                }
+
+            },
+            onFailure: function (x) {
+
+            }
+        }
+
+    );
+
+
+    if (type == 1) {
+        // 当收藏成功时修改图标
+        var arr = obj.id.split("_");
+        if (arr[1] == "1") {
+            obj.firstChild.src = "img/star1.png";
+            obj.id = arr[0]+"_0";
+        } else {
+            obj.firstChild.src = "img/star2.png";
+            obj.id = arr[0]+"_1";
+        }
+
+    }
+
+    return false;
 }
 
 function clearTrash() {
@@ -1517,7 +1581,7 @@ function dp_show_rank(obj) {
     document.getElementById(active_id).setAttribute("class", "");
     obj.setAttribute("class", "redgo");
     var extra = getCookie_wap("extra");
-    var url = "/mobile/forum/request/dp_shoptop10.php?extra="+extra;
+    var url = "/mobile/forum/request/dp_rank.php?extra="+extra;
     var para = "reason="+arr[1];
     var tag = document.getElementById("detail");
     var myAjax = new Ajax.Request(url,
@@ -1540,4 +1604,24 @@ function dp_show_rank(obj) {
     );
 
     return false;
+}
+
+function dp_send_comment(url, para, jumpto) {
+    var result = false;
+    $.ajax({
+        type: "POST",
+        url: url,
+        async:false,
+        data: para,
+        success: function (ret) {
+            var ret_json = eval("(" + ret + ")");
+            if (ret_json.result == "0") {
+                window.location.href = jumpto;
+            } else {
+                Alert(ret_json.msg, 1);
+            }
+        }
+    });
+
+    return result;
 }

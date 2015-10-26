@@ -517,27 +517,69 @@ function get_row_count($board_id, $article_id, $link, $type=1){
     return $row["count"];
 }
 
-function trans_content_html($str){
-    $arr = array();
+//function trans_content_html($str, &$imgList=NULL){
+//    $arr = array();
+//
+//    $arr=explode("\n",$str);
+//    $img_html="";
+//    $content_html="";
+//    $imgListTmp = array();
+//    foreach ( $arr as $content) {
+//        if (preg_match("/^http:\/\//", $content)) {
+//            $img_html .= "<a target=\"_blank\" href=\"".$content."\">";
+//            $img_html .= "\n";
+//            $img_html .= "<img src=\"".$content."\">";
+//            $img_html .= "\n";
+//            $img_html .= "</a>";
+//        }else{
+//            if($content_html != "")
+//               $content_html .= "<br>";
+//            $content_html .= $content;
+//        }
+//    }
+//    if ($imgList)
+//        $imgList = $imgListTmp;
+//    return $content_html.$img_html;
+//}
 
-    $arr=explode("\n",$str);
-    $img_html="";
-    $content_html="";
-    foreach ( $arr as $content) {
-        if (preg_match("/^http:\/\//", $content)) {
-            $img_html .= "<a target=\"_blank\" href=\"".$content."\">";
-            $img_html .= "\n";
-            $img_html .= "<img src=\"".$content."\">";
-            $img_html .= "\n";
-            $img_html .= "</a>";
-        }else{
-            if($content_html != "")
-               $content_html .= "<br>";
-            $content_html .= $content;
-        }
+function trans_content_html($str) {
+    list($content, $imgList) = trans_content_array($str);
+    $content_html = "";
+    $img_html = "";
+    foreach ($content as $each) {
+        if ($each != "")
+            $content_html .= "<br>";
+        $content_html .= $each;
     }
+
+    foreach ($imgList as $img) {
+        $img_html .= "<a target=\"_blank\" href=\"".$img."\">";
+        $img_html .= "\n";
+        $img_html .= "<img src=\"".$img."\">";
+        $img_html .= "\n";
+        $img_html .= "</a>";
+    }
+
     return $content_html.$img_html;
 }
+
+function trans_content_array($str) {
+    $arr = array();
+
+    $arr = explode("\n", $str);
+    $contentList = array();
+    $imgList = array();
+    foreach ($arr as $content) {
+        if (preg_match("/^http:\/\//", $content)) {
+            $imgList[] = $content;
+        }else{
+            $contentList[] = $content;
+        }
+    }
+
+    return array($contentList, $imgList);
+}
+
 function wap_read_article($filepath, $attach_link, $img_ago_str, $img_after_str, $attach_linkstr, $show_ad_line, $articlType = 1, $opflag = 0, $mailtype = 0, &$attachinfo) {
     define ("MAXATTACHMENTCOUNT", 20);
     $UBB_Control = chr(27); //0x1b
@@ -853,6 +895,8 @@ function get_file_content($filename,$att_flag,$board_name,$article_id,$article_t
     $ret_str= wap_read_article(BBS_HOME . "/$filename", $att_flag, "", "", $attachlink_rewrite, $op_flag, $article_type, 0, 0, $att_arr);
     return $ret_str;
 }
+
+
 function check_board_filename($board_name,$filename){
     $file=bbs_get_board_filename($board_name,$filename);
     if(is_file($file))
@@ -1142,7 +1186,7 @@ function getShopInfoById($link, $shop_id) {
     $shop_id = intval($shop_id);
     $sql = "SELECT cnName,avg_score,avg_pay,taste_score,env_score,sev_score,location,contact,business_time FROM shop_info WHERE
             shop_id=$shop_id;";
-    $sql_img = "SELECT img_name,type as dir FROM comment_img WHERE shop_id=$shop_id";
+    $sql_img = "SELECT img_name,type as dir FROM comment_img WHERE shop_id=$shop_id ORDER BY create_time DESC LIMIT 1";
     $result = mysql_query($sql, $link);
     $result_img = mysql_query($sql_img, $link);
 
@@ -1150,7 +1194,7 @@ function getShopInfoById($link, $shop_id) {
     if ($row = mysql_fetch_array($result)) {
         $shop_info = $row;
         if ($row_img = mysql_fetch_array($result_img)) {
-            $shop_info["img"] = getShopImg($shop_id, $row["dir"], $row_img["img_name"]);
+            $shop_info["img"] = getShopImg($shop_id, $row_img["dir"], $row_img["img_name"]);
         }
     }
 
@@ -1471,12 +1515,132 @@ function insertShop($link, $shopinfo){
     }
 }
 
+function dpCheckPointsPerm($link, $name, $userid){
+    if($userid=="guest")
+        return -1;
+    $time=time();
+    $start = mktime(0,0,0,date("m",$time),date("d",$time),date("Y",$time));
+    $end = mktime(23,59,59,date("m",$time),date("d",$time),date("Y",$time));
+    $sql="select count(*) as count from points_records where user_id='$userid' and add_time>='$start' and add_time<='$end'";
+    $result1 = mysql_query($sql, $link);
+    $row1 = mysql_fetch_array($result1);
+    mysql_free_result($result1);
+    $count = $row1["count"];
+    $sql1="select times from points where name='$name'";
+    $result2 = mysql_query($sql1, $link);
+    $row2 = mysql_fetch_array($result2);
+    mysql_free_result($result2);
+    $limit = $row2["times"];
+    if($count >= $limit)
+        return -2;
+    else
+        return 1;
+}
+
+function dpInsertPoints($link, $userid,$name,$shop_id,$shop_name){
+    //获取项目加分值
+    $sql1="select experience,points from points where name='$name'";
+    $ret1 = mysql_query($sql1, $link);
+    if(!$ret1)
+        return null;
+    $row = mysql_fetch_array($ret1);
+    $experience = $row["experience"];
+    $points = $row["points"];
+    $add_time = time();
+    //增加加分记录
+    $sql="insert into points_records(user_id,name,experience,points,shop_id,shop_name,add_time)
+                  VALUES('$userid','$name','$experience','$points','$shop_id','$shop_name','$add_time')";
+    $ret=mysql_query($sql, $link);
+    if(!$ret)
+        return null;
+    //累积总分
+    $sql4="select count(*) as count from user_points where user_id='$userid'";
+    $result4 = mysql_query($sql4, $link);
+    $row4 = mysql_fetch_array($result4);
+    mysql_free_result($result4);
+    if($row4["count"] != "0")
+        $sql2="update user_points set total_experience=total_experience+$experience,total_points=total_points+$points,fresh_time='$add_time' where user_id='$userid'";
+    else
+        $sql2="insert into user_points(user_id,total_experience,total_points,fresh_time) values('$userid','$experience','$points','$add_time')";
+//        echo $sql2;die;
+    $ret2 = mysql_query($sql2, $link);
+    if(!$ret2)
+        return null;
+    return array("experience"=>$experience,"points"=>$points);
+}
+
+function dpDealPoints($link, $userid, $name, $shop_id, $shop_name){
+    $ret = dpCheckPointsPerm($link, $name, $userid);
+    $msg = "";
+    if($ret==-1){
+        $msg="您未登录，不能获得经验和积分!";
+    }else if($ret==-2){
+        $msg="您已超过当日奖励次数，不能获得积分和经验!";
+    }else if($ret==1){
+        $info = dpInsertPoints($link, $userid, $name, $shop_id, $shop_name);
+        if($info){
+            $msg="积分+".$info["points"]." 经验值+".$info["experience"];
+        }else{
+            $msg="获取积分和经验值失败!";
+        }
+    }
+    return $msg;
+}
+
+function dpInsertComment($link, $comment_info){
+    $user_id = $comment_info["user_id"];
+    $user_name = $comment_info["user_name"];
+    $shop_id = $comment_info["shop_id"];
+    $avg_score = $comment_info["comment_score"];
+    $taste_score = $comment_info["taste_score"];
+    $env_score = $comment_info["env_score"];
+    $sev_score = $comment_info["sev_score"];
+    $consume = $comment_info["avg_pay"];
+    $has_pic = $comment_info["has_pic"];
+    $content = $comment_info["content"];
+    $picture = $comment_info["picture"];
+    $wifi = $comment_info["wifi"];
+    $park = $comment_info["park"];
+
+    $sql = 'insert into user_comment(user_id,user_name,shop_id,avg_score,taste_score,env_score,sev_score
+        ,consume,has_pic,content,create_time,photos,wifi,park) values('.$user_id.',"'.$user_name.'",'.$shop_id.','.$avg_score.','.$taste_score.','
+        .$env_score.','.$sev_score.','.$consume.','.$has_pic.',"'.$content.'",'.time().',"'.$picture.'","'.$wifi.'","'.$park.'")';
+    $result = mysql_query($sql, $link);
+    if($result){
+        return true;
+    }else{
+        return false;
+    }
+
+}
+
+function dpUpdateShopInfo($link, $shop_id){
+    $sql='select avg(NULLIF(consume,0)) as avg_pay,avg(avg_score) as avg_score,avg(sev_score) as sev_score ,avg(env_score) as env_score,avg(taste_score) as taste_score from user_comment where  shop_id='.$shop_id.' and display<2';
+    // echo $new_time."||".$old_time."<hr />";
+    // echo $sql."<hr />";
+    $result = mysql_query($sql, $link);
+    $score = mysql_fetch_array($result);
+    if($score["avg_pay"] == NULL) $score["avg_pay"]="0";
+    if($score["sev_score"] == NULL) $score["sev_score"]="0";
+    if($score["env_score"] == NULL) $score["env_score"]="0";
+    if($score["taste_score"] == NULL) $score["taste_score"]="0";
+    if($score["avg_score"] == NULL) $score["avg_score"]="0";
+    //var_dump($score);
+    //$avg_score=((float)$score["sev_score"]+(float)$score["env_score"]+(float)$score["taste_score"])/3;
+
+    $new_time = time();
+    $sql='update shop_info set comment_num=(select count(1) from user_comment where shop_id='.$shop_id.' and display<2),avg_pay='.$score["avg_pay"].',sev_score='.$score["sev_score"].',env_score='.$score["env_score"].
+        ',taste_score='.$score["taste_score"].',avg_score='.$score["avg_score"].',fresh_time='.$new_time.' where shop_id='.$shop_id;
+    mysql_query($sql, $link);
+}
+
 // $reason 为 top10 的类型
 // $reason: hot 本周最热,best 本周最佳,taste 口味最佳,env 环境最佳,sev 服务最佳
 function getShopTop10($link, $reason, $city, $pos) {
     $week = date('w');
     $createTime = strtotime(date("Y M D",strtotime( '+'. 1-$week .' days' )));
 
+    if ($city != "all") {
     switch ($reason){
         case "hot":
             $sql = 'select r.shop_id as shop_id,type_set,cnName,location,contact,comment_num,s.lat as lat,s.lng as lng,s.avg_pay as avg_pay,s.avg_score as avg_score,s.taste_score as taste_score,s.env_score as env_sore,s.sev_score as sev_score from user_comment as r,shop_info as s
@@ -1501,10 +1665,34 @@ function getShopTop10($link, $reason, $city, $pos) {
         default:
             return array();
     }
-    log2file($sql);
+    } else {
+        switch ($reason){
+            case "hot":
+                $sql = 'select r.shop_id as shop_id,type_set,cnName,location,contact,comment_num,s.lat as lat,s.lng as lng,s.avg_pay as avg_pay,s.avg_score as avg_score,s.taste_score as taste_score,s.env_score as env_sore,s.sev_score as sev_score from user_comment as r,shop_info as s
+                where display<2 and create_time>'.$createTime.' and display<2 and r.shop_id=s.shop_id group by shop_id order by count(*) desc limit 10';
+                break;
+            case "best":
+                $sql = 'select shop_id,type_set,cnName,location,contact,comment_num,lat,lng,avg_pay,avg_score,taste_score,env_score,sev_score from shop_info
+                where review_result<>4 order by avg_score desc limit 10';
+                break;
+            case "taste":
+                $sql = 'select shop_id,type_set,cnName,location,contact,comment_num,lat,lng,avg_pay,avg_score,taste_score,env_score,sev_score from shop_info
+                 where review_result<>4 order by taste_score desc limit 10';
+                break;
+            case "env":
+                $sql = 'select shop_id,type_set,cnName,location,contact,comment_num,lat,lng,avg_pay,avg_score,taste_score,env_score,sev_score from shop_info
+                where review_result<>4 order by env_score desc limit 10';
+                break;
+            case "sev":
+                $sql = 'select shop_id,type_set,cnName,sev_score,location,contact,comment_num,lat,lng,avg_pay,avg_score,taste_score,env_score,sev_score from shop_info
+                where review_result<>4 order by sev_score desc limit 10';
+                break;
+            default:
+                return array();
+        }
+    }
 
     $result = mysql_query($sql, $link);
-
     $ret = array();
     while ($row = mysql_fetch_array($result)) {
         if ($pos["locate_flag"] == false) {
@@ -1532,6 +1720,31 @@ function getShopTop10($link, $reason, $city, $pos) {
     return $ret;
 }
 
+function check_if_fav($link, $type,$num_id1,$num_id2,$num_id3,$char_id1,$char_id2,$char_id3)
+{
+    global $currentuser;
+
+    if ($type == 2) //club
+        $sql="SELECT 1 FROM favboard WHERE user_id={$currentuser['num_id']} AND top_directory=-1 AND isboard='C' AND name='{$char_id1}' ";
+    else if ($type == 1) //board
+        $sql="SELECT 1 FROM favboard WHERE user_id={$currentuser['num_id']} AND top_directory=-1 AND isboard='Y' AND name='{$char_id1}' ";
+    else
+        $sql="select fav_article_id
+      from fav_article
+      where num_id1={$num_id1} and num_id2={$num_id2} and num_id3={$num_id3}
+       and char_id1='{$char_id1}' and char_id2='{$char_id2}' and char_id3='{$char_id3}'
+       and type={$type} and user_numid={$currentuser['num_id']}";
+
+    $result=mysql_query($sql,$link);
+    if(mysql_num_rows($result)>0)
+    {
+        mysql_free_result($result);
+        return true;
+    }
+
+    mysql_free_result($result);
+    return false;
+}
 
 function getClubImg($club_name) {
     $filepath = BBS_HOME.'/pic_home/club/'.strtoupper(substr($club_name, 0, 1)).'/'.$club_name."/";
@@ -1825,6 +2038,16 @@ function getHostClub($link, $page, $group_id) {
     return $ret;
 }
 
+function getBoardName($board_id, $link) {
+    $sql = "select board_name from board WHERE board_id=$board_id";
+    $result = mysql_query($sql, $link);
+    if ($row = mysql_fetch_array($result)) {
+        return $row["board_name"];
+    } else {
+        return "";
+    }
+}
+
 function getClubCnName($club_id, $link) {
     $sql = 'select club_cname from club where club_id='.$club_id;
     $result = mysql_query($sql,$link);
@@ -1841,29 +2064,45 @@ function getArticleInfo($group_id,$club_id,$link){
     if ($table_id == 0)
         $table_id = 256;
 
-    $sql = " select article_id,filename,club_name,filename,groupid,owner,read_num,total_reply as reply_num,posttime,title from club_dir_article_$table_id
+    $sql = " select article_id,filename,club_name,filename,groupid,owner,read_num,total_reply, UNIX_TIMESTAMP(posttime) as posttime,title,attachment from club_dir_article_$table_id
          WHERE club_id=$club_id  AND article_id=$group_id";
     $result = mysql_query($sql,$link);
     if($result && $row = mysql_fetch_array($result)){
+        $att_arr = array();
+        $imgList = array();
         $arr["groupID"] = $row["groupid"];
         $arr["articleID"] = $row["article_id"];
         $arr["title"] =  $row["title"];
         $arr["author"] = $row["owner"];
         $arr["BoardsCnName"] = getClubCnName($club_id,$link);
-        $arr["postTime"] = date('Y-m-d',strtotime($row["posttime"]));
+
+        if (intval(date("Y")) - intval(date("Y", $row["posttime"])) < 1) {
+            $arr["postTime"] = date('m-d',$row["posttime"]);
+        } else {
+            $arr["postTime"] = date('Y-m-d', $row["posttime"]);
+        }
         $arr["BoardsEngName"] = $row["club_name"];
-        $arr["readnum"] = $row["read_num"];
-        $arr["reply_num"] = $row["reply_num"];
+        $arr["read_num"] = $row["read_num"];
+        $arr["reply_num"] = $row["total_reply"];
         $arr["boardID"] = $club_id;
         $arr["href"] = url_generate(3, array("club"=>$row["club_name"], "groupid"=>$row["groupid"]));
-        $filename = "/home/bbs/club/".strtoupper($arr["BoardsEngName"])."/".$arr["BoardsEngName"]."/".$row["filename"];
+        $filename = "/home/bbs/club/".strtoupper(substr($arr["BoardsEngName"], 0, 1))."/".$arr["BoardsEngName"]."/".$row["filename"];
         $attachlink_rewrite = "http://" . $_SERVER['HTTP_HOST'] . "/clubarticle2/" . $arr["BoardsEngName"] . "/" . $arr["articleID"];
-        $ret_str = wap_read_article2($filename,  $arr["attflag"], "", "", $attachlink_rewrite, 1, 1,$imgList);
+
+        // get_file_content($tmp_arr["file"], $row["attachment"], $club_name, $row["article_id"], $article_type, $att_arr, 1);
+        // wap_read_article(BBS_HOME . "/$filename", $att_flag, "", "", $attachlink_rewrite, $op_flag, $article_type, 0, 0, $att_arr);
+        $ret_str = wap_read_article($filename, $row["attachment"], "", "", $attachlink_rewrite, 1, 1, 0, 0, $att_arr);
+        list($ret_str[1], $imgList) = trans_content_array($ret_str[1]);
+        $tmp_content = iconv("UTF-8", "GBK//IGNORE", $ret_str["content"]);
+        if (!empty($tmp_content))
+            $ret_str[1] = $tmp_content;
+
+
         if (!empty($imgList))
             $arr["img"] = $imgList[0];
 
-        $arr["content"] = $ret_str[1];
-        $arr["content"] = mb_substr($arr["content"],0,140,"GBK").'...';
+        $arr["content"] = $ret_str[1][0];
+        $arr["content"] = mb_substr($arr["content"], 0, 140,"GBK").'...';
     }
     return $arr;
 }
@@ -1881,9 +2120,13 @@ function getRecommendClubArticle($link, $page, $group_id){
     $endTimeDate=date("Y-m-d H:i:s", $endTime);
 
 
-    $sql ='SELECT a.article_id,a.club_id, a.groupid FROM club_dir_article_memory a,club b where
-    a.club_id=b.club_id and b.approval_state<=1 and b.flag&64<>64 and article_id=groupid and club_group_id='.$group_id.' and posttime between "'.$startTimeDate.'" and "'.$endTimeDate.'"  ORDER BY  a.posttime desc,reply_num desc limit '.$pageLimit;
-
+    if ($group_id) {
+        $sql ='SELECT a.article_id,a.club_id, a.groupid FROM club_dir_article_memory a,club b where
+                a.club_id=b.club_id and b.approval_state<=1 and b.flag&64<>64 and article_id=groupid and club_group_id='.$group_id.' and posttime between "'.$startTimeDate.'" and "'.$endTimeDate.'"  ORDER BY  a.posttime desc,reply_num desc limit '.$pageLimit;
+    } else {
+        $sql ='SELECT a.article_id,a.club_id, a.groupid FROM club_dir_article_memory a,club b where
+                a.club_id=b.club_id and b.approval_state<=1 and b.flag&64<>64 and article_id=groupid and posttime between "'.$startTimeDate.'" and "'.$endTimeDate.'"  ORDER BY  a.posttime desc,reply_num desc limit '.$pageLimit;
+    }
 
     $result = mysql_query($sql,$link);
     $index = array();
@@ -1894,6 +2137,8 @@ function getRecommendClubArticle($link, $page, $group_id){
 
     while ($row = mysql_fetch_array($result)) {
         $table_id = $row["club_id"]%256;
+        if ($table_id == 0)
+            $table_id = 256;
         $query = "select owner from club_dir_article_$table_id where article_id='".$row["article_id"]."'";
         $ret = mysql_query($query,$link);
         $owner = mysql_fetch_array($ret);
@@ -3349,6 +3594,8 @@ function constrcutThumbnail($fileName) {
         return false;
     }
 }
+
+
 
 //$link = db_connect_web();
 
