@@ -28,7 +28,7 @@ if ($shop_id > 0) {
         $str_content .= '<h4>'.$each["user_name"].'</h4>';
         $str_content .= '<p class="member_pt">';
         for ($i = 0; $i < 5; $i++) {
-            if ($i < $each["avg_score"]-1)
+            if ($i < $each["avg_score"])
                 $str_content .= '<img src="img/redstar.png" alt="redstar.png"/>';
             else
                 $str_content .= '<img src="img/graystar.png" alt="redstar.png"/>';

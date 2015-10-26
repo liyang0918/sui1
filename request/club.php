@@ -49,23 +49,23 @@ list($article_list, $end_flag) = getRecommendClubArticle($link, $page, $groupid)
 if (count($article_list) == 0) {
     $article_list[0] = array(
         "href" => "one_group_club.php?type=index&club=Prepaid&group=138",
-        "BoardsCnName" => "测试用例: 习近平今启程访问西雅图",
+        "title" => "[假数据]测试用例: 习近平今启程访问西雅图",
         "content" => "尽管该属性的名称如此，但在这种情况下，它不需要也不应该为唯一的，这个语句不需要任何 WHERE 子句，因为我们希望检索所有的行。",
         "img" => "/mobile/forum/img/club_simg.png",
         "read_num" => "9988",
         "reply_num" => "998",
-        "author" => "小白无敌",
+        "BoardsCnName" => "小白无敌",
         "postTime" => "09-18"
     );
 
     $article_list[1] = array(
         "href" => "one_group_club.php?type=index&club=Prepaid&group=183",
-        "BoardsCnName" => "测试用例: 邹正89分钟绝杀进球，广州恒大客场2-1逆转广州富力",
+        "title" => "[假数据]测试用例: 邹正89分钟绝杀进球，广州恒大客场2-1逆转广州富力",
         "content" => "2015年9月21日19:35广州富力坐镇越秀山体育场迎战来访的广州恒大，恒大在先丢一球情况下最终由高拉特、邹正的进球逆转取胜，富力方面...",
         "img" => "/mobile/forum/img/club_simg.png",
         "read_num" => "10086",
         "reply_num" => "10010",
-        "author" => "新闻编辑部",
+        "BoardsCnName" => "新闻编辑部",
         "postTime" => "09-22"
     );
 }
@@ -76,11 +76,11 @@ $each = array();
 foreach ($article_list as $each) {
     $str_article .= '<li>';
     $str_article .= '<a href="'.$each["href"].'" onclick="add_read_num(this)">';
-    $str_article .= '<h3 class="club_cont_top">'.$each["BoardsCnName"].'</h3>';
+    $str_article .= '<h3 class="club_cont_top">'.$each["title"].'</h3>';
     $str_article .= '<div class="club_cont_middle">';
     $str_article .= '<p>'.$each["content"].'</p>';
     if (isset($each["img"]))
-        $str_article .= '<div><img src="'.$each["img"].'" alt="club_img"/ ></div>';
+        $str_article .= '<div><img style="width:50px;height:50px" src="'.$each["img"].'" alt="club_img"/></div>';
     $str_article .= '</div>';
 
     $str_article .= '<div class="club_cont_bottom">';
@@ -89,7 +89,7 @@ foreach ($article_list as $each) {
     $str_article .= '<span class="club_l"><img class="club_email" src="img/redemail.png" alt="redemail.png" />'.$each["reply_num"].'</span>';
     $str_article .= '</p>';
     $str_article .= '<p class="cont_b_r">';
-    $str_article .= '<span class="margin_r">'.$each["author"].'</span>';
+    $str_article .= '<span class="margin_r">'.$each["BoardsCnName"].'</span>';
     $str_article .= '<span class="club_r">'.$each["postTime"].'</span>';
     $str_article .= '</p></div></a></li>';
 }

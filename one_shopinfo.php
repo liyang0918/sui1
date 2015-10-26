@@ -183,7 +183,7 @@ $shop_info = getShopInfoById($link, $shop_id);
 </script>
 <br><br><br><br>
 <foot class="ds_footer">
-    <a class="ds_footer_a" href="dianping_writedianping.html">–¥µ„∆¿</a>
+    <a class="ds_footer_a" href="write_dianping.php?shop_id=<?php echo $shop_id; ?>">–¥µ„∆¿</a>
     <a href="#">∑¢’’∆¨</a>
 </foot><!--<End ds_footer-->
 </body>
