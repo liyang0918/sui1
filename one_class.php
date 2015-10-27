@@ -101,7 +101,7 @@ for ($i = $start_num; $i < $start_num+9 and $i < $totalboard-1; $i++) {
     echo '<div class="hot_content">';
     echo '<h3 class="hot_name">'.$data["ChineseName"].'</h3>';
     echo '<p class="hot_des">'.$data["EnglishName"].'</p>';
-    echo '<a id="fav_'.$data["fav"].'" href="" class="hot_star" onclick="return collect_by_type(1, this, \''.$data["boardID"].'\');"><img src="'.($data["fav"]==1?"img/star2.png":"img/star1.png").'"/></a>';
+    echo '<a id="fav_'.$data["fav"].'" href="" class="hot_star" onclick="return collect_by_type(6, this, \''.$data["boardID"].'\');"><img src="'.($data["fav"]==1?"img/star2.png":"img/star1.png").'"/></a>';
     echo '<p class="hot_count"><span class="hot_left">当前在线：'.$data["online"].'人</span><span class="hot_right">主题总数：'.$data["boardtotalarticle"].'</span></p>';
     echo '</div></a></li>';
 }
@@ -114,7 +114,7 @@ if ($i < $totalboard) {
     echo '<div class="hot_content">';
     echo '<h3 class="hot_name">'.$data["ChineseName"].'</h3>';
     echo '<p class="hot_des">'.$data["EnglishName"].'</p>';
-    echo '<a id="fav_'.$data["fav"].'" href="" class="hot_star" onclick="return collect_by_type(1, this, \''.$data["boardID"].'\');"><img src="'.($data["fav"]==1?"img/star2.png":"img/star1.png").'"/></a>';
+    echo '<a id="fav_'.$data["fav"].'" href="" class="hot_star" onclick="return collect_by_type(6, this, \''.$data["boardID"].'\');"><img src="'.($data["fav"]==1?"img/star2.png":"img/star1.png").'"/></a>';
     echo '<p class="hot_count"><span class="hot_left">当前在线：'.$data["online"].'人</span><span class="hot_right">主题总数：'.$data["boardtotalarticle"].'</span></p>';
     echo '</div></a></li>';
 }

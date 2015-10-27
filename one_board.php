@@ -8,6 +8,8 @@ $url_page = url_generate(2, array("type"=>$_COOKIE["app_type"], "board"=>$board_
 $brdarr = array();
 $brdnum = bbs_getboard($board_name, $brdarr);
 
+var_dump($brdarr);
+
 $page=intval($_GET["page"]);
 if(empty($page)){
     $page=1;

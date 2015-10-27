@@ -23,6 +23,12 @@ if ($brdnum == 0) {
 }
 $prt_arr = array();
 $conn = db_connect_web();
+
+$fav_flag = 0;
+$check_result = check_if_fav($conn, 1, $brdarr["BOARD_ID"], $group_id, 0, $brdarr["NAME"], "", "");
+if ($check_result && mysql_num_rows($check_result) > 0)
+    $fav_flag = 1;
+
 $sql = "SELECT owner_id,owner,groupid,article_id,boardname,title,type_flag,posttime,total_reply,read_num,filename,attachment FROM dir_article_" . $brdarr["BOARD_ID"] . " ".
     "WHERE groupid=".$group_id." AND article_id=".$group_id;
 $ret = mysql_query($sql,$conn);
@@ -175,8 +181,17 @@ $i_cnt = count($prt_arr);
             )
         ));
         ?>'" />
-        <span class="news_share"><img src="img/share.png" alt="share.png"/>分享</span>
-        <span class="news_collect"><img src="img/star.png" alt="star.png"/>收藏</span>
+        <span class="news_collect">
+            <a id="fav_<?php echo $fav_flag; ?>" href="" onclick="return collect_by_type(1, this, '<?php echo $brdarr["BOARD_ID"];?>', '<?php echo $group_id; ?>', '<?php echo $title;?>')">
+            <?php if ($fav_flag == 1) { ?>
+                <img id="collect_img" src="img/star.png" alt="star.png" hidden="hidden"/>
+                <span id="collect_span" >已收藏</span>
+            <?php } else { ?>
+                <img id="collect_img" src="img/star.png" alt="star.png"/>
+                <span id="collect_span">收藏</span>
+            <?php } ?>
+            </a>
+        </span>
     </div><!--  End news_foot-->
     <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript">

@@ -17,8 +17,9 @@ foreach ($head_line_news as $each) {
         if ($each["imgNum"] == 1)
             $str_article .= '<img src="'.$each["imgList"][0].'" alt="img">';
         $str_article .= '<div class="lione_r_box">';
-        $str_article .= '<a href="'.$each["href"].'" onclick="add_read_num(this)"><h3>'.$each["title"].'</h3></a>';
-        $str_article .= '<a href="'.$each["href"].'" onclick="add_read_num(this)"><p>'.$each["notes"].'</p></a>';
+        $str_article .= '<h3><a href="'.$each["href"].'" onclick="add_read_num(this)">'.$each["title"].'</a></h3>';
+      //  $str_article .= '<a href="'.$each["href"].'" onclick="add_read_num(this)"><p>'.$each["notes"].'</p></a>';
+        $str_article .= '<a href="'.$each["href"].'" onclick="add_read_num(this)"></a>';
         $str_article .= '</div>';
         $str_article .= '<span class="critize right_b">'.$each["total_reply"].'ÆÀÂÛ</span>';
     } else {
@@ -30,7 +31,7 @@ foreach ($head_line_news as $each) {
 
         $str_article .= '<li class="margin_right"><a href="'.$each["href"].'" onclick="add_read_num(this)"><img src="'.$each["imgList"][$i].'" alt=""></a></li>';
         $str_article .= '</ul>';
-        $str_article .= '<span class="critize right_t">'.$each["notes"].'ÆÀÂÛ</span>';
+        $str_article .= '<span class="critize right_t">'.$each["total_reply"].'ÆÀÂÛ</span>';
     }
 
     $str_article .= '</li>';

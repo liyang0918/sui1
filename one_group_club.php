@@ -22,6 +22,12 @@ if ($club_id == 0) {
 }
 $prt_arr = array();
 $conn = db_connect_web();
+
+$fav_flag = 0;
+$check_result = check_if_fav($conn, 2, $clubarr["CLUB_ID"], $group_id, 0, $clubarr["CLUB_NAME"], "", "");
+if ($check_result && mysql_num_rows($check_result) > 0)
+    $fav_flag = 1;
+
 $sql_table_id = $clubarr["CLUB_ID"]%256;
 if ($sql_table_id == 0)
     $sql_table_id = 256;
@@ -176,8 +182,17 @@ $i_cnt = count($prt_arr);
             )
         ));
         ?>'" />
-        <span class="news_share"><img src="img/share.png" alt="share.png"/>分享</span>
-        <span class="news_collect"><img src="img/star.png" alt="star.png"/>收藏</span>
+        <span class="news_collect">
+           <a id="fav_<?php echo $fav_flag; ?>" href="" onclick="return collect_by_type(2, this, '<?php echo $clubarr["CLUB_ID"];?>', '<?php echo $group_id; ?>', '<?php echo $title;?>')">
+                <?php if ($fav_flag == 1) { ?>
+                    <img id="collect_img" src="img/star.png" alt="star.png" hidden="hidden"/>
+                    <span id="collect_span" >已收藏</span>
+                <?php } else { ?>
+                    <img id="collect_img" src="img/star.png" alt="star.png"/>
+                    <span id="collect_span">收藏</span>
+                <?php } ?>
+            </a>
+        </span>
     </div><!--  End news_foot-->
 
 

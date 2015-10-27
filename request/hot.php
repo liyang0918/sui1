@@ -83,6 +83,7 @@ if ($topic_num > 0) {
         $str_content .= '<div class="hot_content">';
         $str_content .= '<h3 class="hot_name">'.$t_data[$i]["name"].'</h3>';
         $str_content .= '<p class="hot_des">'.$t_data[$i]["des"].'</p>';
+        $str_content .= '<a id="fav_'.$t_data[$i]["fav"].'" href="" class="hot_star" onclick="return collect_by_type(6, this, \''.$t_data[$i]["board_id"].'\');"><img src="'.($t_data[$i]["fav"]==1?"img/star2.png":"img/star1.png").'"/></a>';
         $str_content .= '<p class="hot_count"><span class="hot_left">当前在线 : '.$t_data[$i]["online"].'人</span><span class="hot_right">文章总数 : '.$t_data[$i]["total"].'</span></p>';
         $str_content .= '</div></a></div>';
     }
