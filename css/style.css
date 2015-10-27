@@ -151,7 +151,7 @@ body {
     float:right;
 }
 .single_img{
-    height:80px;
+    height:60px;
     width:80px;
     float:left;
  }
@@ -185,7 +185,8 @@ body {
     text-align: center;
 }
 .img_list li img{
-    width:80px;
+    width:106px;
+    height:80px;
 }
 /*End article_wrap*/
 .hot_recommend a{
@@ -231,6 +232,7 @@ body {
 }
 .hot_content{
     padding-left: 70px;
+    position: relative;
 }
 .hot_name{
     font-size:1.5em;
@@ -243,7 +245,9 @@ body {
 }
 
 .hot_star {
-    float:right;
+    position: absolute;
+    top:3px;
+    right: 0;
 }
 
 .hot_count{
@@ -453,7 +457,7 @@ body {
     border-radius:3px;
 }
 .news_foot{
-    box-sizing: border-box;
+    /*box-sizing: border-box;
     width:100%;
     background: #0072BB;
     color:#fff;
@@ -462,7 +466,16 @@ body {
     position: fixed;
     left:0;
     bottom:0;
-
+*/
+    box-sizing:border-box;
+    width:720px;
+    background:#0072BB;
+    padding:0 10px;
+    overflow:hidden;
+    position:fixed;
+    left:50%;
+    bottom:0;
+    margin-left:-360px;
 }
 .news_foot input{
     -webkit-appearance:none;
@@ -480,12 +493,22 @@ body {
 .news_foot span{
     height:40px;
     line-height:40px;
-    font-size:1.4em;
+    font-size:1.2em;
     float: right;
 }
 .news_collect{
     margin-right:20px;
 }
+
+.news_collect img{
+    width:21px;
+    height:40px;
+}
+
+.news_collect a {
+    color: #FFF;
+}
+
 .news_foot img{
     width:21px;
     margin-right:5px;
@@ -927,7 +950,8 @@ body {
     overflow: hidden;
 }
 .news_list_lione div{
-    width:90%
+    width:100%;
+    min-height:44px;
 }
 .newsIndex_showBox{
     width:100%;
@@ -941,13 +965,13 @@ body {
 
 .news_list_lione img{
     float: left;
-    width:93px;
-    height:70px;
+    width:80px;
+    height:60px;
     margin-right:10px;
 }
 .new_list_content_listbox h3{
-    line-height: 34px;
-    font-size:1.7em;
+    line-height:22px;
+    font-size:1.4em;
     color:#333;
 }
 .new_list_content_listbox p{
@@ -956,36 +980,28 @@ body {
     min-height:1.4em;
 }
 .litwo_box{
-    width:376px;
     overflow: hidden;
-    margin:0 auto;
+    margin:10px auto;
 }
 .litwo_box li{
-    width:33.3%;
+    width:33.33%;
     margin: 0 auto;
     text-align: center;
     float: left;
 }
 .litwo_box img{
-    width:112px;
+    width:106px;
+    height:80px;
 }
 li.margin_right{
     margin-right: 0;
 }
 .critize{
-    font-size:1.1em;
-    color:#fff;
-    background: #ccc;
-    border-radius:5px;
-    padding:0 5px;
-    position:absolute;
+    font-size:1.2em;
+    color:#999;
 }
 .right_t{
     top:20px;
-    right:10px;
-}
-.right_b {
-    bottom:10px;
     right:10px;
 }
 @media(max-width:420px){
@@ -1819,7 +1835,7 @@ span.fr{
     padding:10px;
 }
 .ds_box{
-    padding-left: 10px;
+    position:relative;
     height:40px;
     line-height:40px;
     font-size:1.4em;
@@ -1830,11 +1846,15 @@ span.fr{
 }
 .ds_box a{
     color:#333;
+    position:absolute;
+    left:10px;
+    top:10px;
 }
 .ds_box img{
     width:12px;
-    float: left;
+   /* float: left;
     margin-top:12px;
+    margin-left:10px;*/
 }
 .ds_p{
     overflow: hidden;
@@ -2096,10 +2116,15 @@ section { padding: 10px;overflow: hidden;zoom: 1;border-top: 1px solid #dbdbdb;o
 .jy_personlInfo{
     background: #f7f7f7;
 }
-.span_r{
+.ds_box  .span_r{
     color:#333;
-    float:right;
-    margin-right:10px;
+       /* float:right;
+    margin-right:10px;*/
+    position:absolute;
+    left:auto;
+    top:0;
+    right:10px;    
+    
 }
 .jy_generalInfo{
     padding:10px;
@@ -2814,7 +2839,7 @@ input.button_disable {
 }
 .border_bottom{
     border-bottom:1px solid #e1e1e1;
-}
+}   
 .noborder_bottom,.noborder_left{
     border-bottom: 0;
 }

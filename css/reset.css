@@ -56,9 +56,10 @@ aside, nav, article, figure {
 /*===================*/
 /*=== Main Styles ===*/
 /*===================*/
-a,a:visited {
-    /*color:blue;*/
-	text-decoration:none;
+
+a,a:visited,a:link {
+	color:#000;
+    text-decoration:none;
 }
 a:hover, a:active {
 	color:#000;
