@@ -1720,14 +1720,37 @@ function getShopTop10($link, $reason, $city, $pos) {
     return $ret;
 }
 
+function getAllTags($link, $shop_id){
+    $sql = 'select tag_id,tag_name from tags where shop_id='.$shop_id.' order by choose_num';
+    $result = mysql_query($sql, $link);
+    $ret = array();
+    while ($row = mysql_fetch_array($result))
+        $ret[] = $row;
+
+    mysql_free_result($result);
+    return $ret;
+}
+
+function getAllEnvTags($link, $shop_id){
+    $sql = "select e.tag_id as tag_id,e.tag_name as tag_name from comment_img c,env_tags e where c.shop_id='$shop_id' and c.type='env' and c.display<2 and e.tag_id=c.tag_id order by choose_num";
+    $result = mysql_query($sql, $link);
+    $ret = array();
+    while ($row = mysql_fetch_array($result))
+        $ret[] = $row;
+
+    mysql_free_result($result);
+    return $row;
+}
+
+
 function check_if_fav($link, $type,$num_id1,$num_id2,$num_id3,$char_id1,$char_id2,$char_id3)
 {
     global $currentuser;
 
-    if ($type == 2) //club
-        $sql="SELECT 1 FROM favboard WHERE user_id={$currentuser['num_id']} AND top_directory=-1 AND isboard='C' AND name='{$char_id1}' ";
-    else if ($type == 1) //board
-        $sql="SELECT 1 FROM favboard WHERE user_id={$currentuser['num_id']} AND top_directory=-1 AND isboard='Y' AND name='{$char_id1}' ";
+    if ($type == 7) //club
+        $sql="SELECT fav_id FROM favboard WHERE user_id={$currentuser['num_id']} AND top_directory=-1 AND isboard='C' AND name='{$char_id1}' ";
+    else if ($type == 6) //board
+        $sql="SELECT fav_id FROM favboard WHERE user_id={$currentuser['num_id']} AND top_directory=-1 AND isboard='Y' AND name='{$char_id1}' ";
     else
         $sql="select fav_article_id
       from fav_article
@@ -1735,15 +1758,9 @@ function check_if_fav($link, $type,$num_id1,$num_id2,$num_id3,$char_id1,$char_id
        and char_id1='{$char_id1}' and char_id2='{$char_id2}' and char_id3='{$char_id3}'
        and type={$type} and user_numid={$currentuser['num_id']}";
 
-    $result=mysql_query($sql,$link);
-    if(mysql_num_rows($result)>0)
-    {
-        mysql_free_result($result);
-        return true;
-    }
-
-    mysql_free_result($result);
-    return false;
+    log2file("check>> $sql");
+    $result = mysql_query($sql,$link);
+    return $result;
 }
 
 function getClubImg($club_name) {
@@ -1890,6 +1907,7 @@ function getRecommendArticle($link) {
 
 /* 获取热门版面 */
 function getHotBoards($link) {
+    global $currentuser;
     $ret=array();
 
     $xmlfile = BBS_HOME . '/xml/hot_board.xml';
@@ -1903,11 +1921,16 @@ function getHotBoards($link) {
         $brdarr = array();
         bbs_getboard($board_c, $brdarr);
 
-//        var_dump($brdarr);
-//        echo "<br /><br />";
         $t_element = array();
-        $t_element["href"] = url_generate(2, array("board"=>$board_c));
+        $check_result = check_if_fav($link, 6, $brdarr["BOARD_ID"], 0, 0, $brdarr["NAME"], "", "");
+        // $t_element["fav"] == 2 表示已收藏
+        if ($check_result && mysql_num_rows($check_result) > 0)
+            $t_element["fav"] = 1;
+        else
+            $t_element["fav"] = 0;
 
+        $t_element["board_id"] = $brdarr["BOARD_ID"];
+        $t_element["href"] = url_generate(2, array("board"=>$board_c));
         $t_element["img"] = getBoardImg($board_c);
         $t_element["des"] = $board_c;
         $t_element["name"] = $board_desc;

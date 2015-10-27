@@ -219,5 +219,14 @@ if($('input').attr('type')=='text'){
     });
 }
 
+//dianping_picList_chosekind.html中点击效果；
+if($('.dp_pic_name').length>0){
+    $('.dp_pic_name>li').find('span').click(function(){
+        //console.log(1);
+        $('.dp_pic_name>li').find('span').removeClass('active');
+        $(this).addClass('active');
+    });
+}
+
 $(document).ready(downMenu($('.navone_menu'), $('.navone_ul')));
 $(document).ready(setEffect());

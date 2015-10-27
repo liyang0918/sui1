@@ -525,18 +525,31 @@ function getMoreArticleOwn() {
 
 function collect_by_type(type, obj) {
     /* type:
-     *      1 收藏版面
-     *      6 收藏版面文章
-     *      7 收藏俱乐部文章
+     *      6 收藏版面
+     *      1 收藏版面文章
+     *      2 收藏俱乐部文章
      *
      *
      * */
 
     var url = "/mobile/forum/request/collect_by_type.php";
-    var para = "";
-    if (type == 1) {
+    var para = "type="+type;
+    if (type == 6) {
         var board_id = arguments[2];
-        para = "type=1&board_id="+board_id;
+
+        para = para+"&board_id="+board_id;
+    } else if (type == 1) {
+        var board_id = arguments[2];
+        var group_id = arguments[3];
+        var title = arguments[4];
+
+        para = para+"&board_id="+board_id+"&group_id="+group_id+"&title="+title;
+    } else if (type == 2) {
+        var club_id = arguments[2];
+        var group_id = arguments[3];
+        var title = arguments[4];
+
+        para = para+"&club_id="+club_id+"&group_id="+group_id+"&title="+title;
     }
 
     var myAjax = new Ajax.Request(url,
@@ -546,23 +559,66 @@ function collect_by_type(type, obj) {
             asynchronous: false,
             onSuccess: function (ret) {
                 var ret_json = eval("("+ret.responseText+")");
-                if (type == 1) {
+
+                if (type == 6) {
                     // 当收藏成功时修改图标
                     if (ret_json.result != undefined && ret_json.result == "0") {
                         var arr = obj.id.split("_");
                         if (arr[1] == "1") {
+                            // 取消收藏
                             obj.firstChild.src = "img/star1.png";
                             obj.id = arr[0]+"_0";
                         } else {
+                            // 添加收藏
                             obj.firstChild.src = "img/star2.png";
                             obj.id = arr[0]+"_1";
                         }
                     } else {
                         Alert(ret_json.msg, 1);
                     }
+                } else if (type == 1) {
+                    if (ret_json.result != undefined && ret_json.result == "0") {
+                        var arr = obj.id.split("_");
+                        var img = document.getElementById("collect_img");
+                        var span = document.getElementById("collect_span");
+                        if (arr[1] == "1") {
+                            // 取消收藏
+                            img.removeAttribute("hidden");
+                            span.innerHTML = "收藏";
 
+                            obj.id = arr[0]+"_0";
+                        } else {
+                            // 添加收藏
+                            img.setAttribute("hidden", "hidden");
+                            span.innerHTML = "已收藏";
+
+                            obj.id = arr[0]+"_1";
+                        }
+                    } else {
+                        Alert(ret_json.msg, 1);
+                    }
+                } else if (type == 2) {
+                    if (ret_json.result != undefined && ret_json.result == "0") {
+                        var arr = obj.id.split("_");
+                        var img = document.getElementById("collect_img");
+                        var span = document.getElementById("collect_span");
+                        if (arr[1] == "1") {
+                            // 取消收藏
+                            img.removeAttribute("hidden");
+                            span.innerHTML = "收藏";
+
+                            obj.id = arr[0]+"_0";
+                        } else {
+                            // 添加收藏
+                            img.setAttribute("hidden", "hidden");
+                            span.innerHTML = "已收藏";
+
+                            obj.id = arr[0]+"_1";
+                        }
+                    } else {
+                        Alert(ret_json.msg, 1);
+                    }
                 }
-
             },
             onFailure: function (x) {
 
@@ -570,21 +626,6 @@ function collect_by_type(type, obj) {
         }
 
     );
-
-
-    if (type == 1) {
-        // 当收藏成功时修改图标
-        var arr = obj.id.split("_");
-        if (arr[1] == "1") {
-            obj.firstChild.src = "img/star1.png";
-            obj.id = arr[0]+"_0";
-        } else {
-            obj.firstChild.src = "img/star2.png";
-            obj.id = arr[0]+"_1";
-        }
-
-    }
-
     return false;
 }
 
