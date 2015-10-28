@@ -1,3 +1,4 @@
+
 .pr{position: relative;}
 img{vertical-align:top;}
 .dp_upload_img{background:#f7f7f7;border-bottom: 1px solid #b3b3b3;height:40px;line-height:40px;text-align: center;font-size:1.4em;}
@@ -8,6 +9,10 @@ img{vertical-align:top;}
 .dp_picList li{padding:20px;float:left;position:relative;overflow:hidden;}
 .dp_picList li div{width: 80px; border: 1px solid #e0e0e0; text-align: center;  margin: 0 auto;}
 .dp_picList li img{width:80px;height:80px;display:block;}
+
+/*======================*/
+.dp_picList li input{width:80px;height:80px;opacity:0;text-indent:9999;position:absolute;left:20px;top:20px;z-index:999;}
+/*======================*/
 .dp_picList li div p{width:80px;height:20px;line-height:20px;background: rgba(0,0,0,.5);font-size:12px;color:#fff;position:absolute;bottom:20px;left:20px;}
 .dp_submit_pic{height:40px;line-height:40px;background:#0072bb;text-align: center;}
 .dp_submit_pic input{border:0;background:#0072bb;font-size:16px;color:#fff;}
@@ -23,7 +28,7 @@ img{vertical-align:top;}
 .shop_picList li div{width:90px;overflow: hidden;margin:0 auto;}
 .shop_picList li div img{float:left;width:90px;height:90px;}
 .shop_picList li div p{width:90px;}
-.shop_picList li div p a{display:block;height:30px;line-height:30px;color:#000;font-size:12px;text-align:center;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;border:1px solid #e1e1e1;box-sizing:border-box;}
+/*.shop_picList li div p a{display:block;height:30px;line-height:30px;color:#000;font-size:12px;text-align:center;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;border:1px solid #e1e1e1;box-sizing:border-box;}*/
 
 @media all and (max-width:320px) {
     .shop_picList li{
@@ -36,6 +41,11 @@ img{vertical-align:top;}
         padding:10px;
     }
 }
+.dp_picList_form{position:relative;overflow:hidden;padding-bottom:40px; min-height:160px;}
+.dp_upload_l{position:absolute;left:0;top:0;}
+.dp_upload_r{float:left;}
+.dp_upload_r li{width:80px;height:80px;}
+.dp_submit_pic{width:100%;position:absolute;bottom:0;left:0;}
 /*END dianping_picList_enviorment.html*/
 
 .dp_chosekind{margin:0 auto;box-sizing: border-box;}
