@@ -17,7 +17,9 @@ $shop_info = getShopInfoById($link, $shop_id);
     </div><!--<End ds_box-->
     <div class="conter2_list nopadding">
         <div class="conter2_list_conter border_bottom ds_div">
-            <img class="shop_topimg" src="<?php echo $shop_info["img"]; ?>" alt="topimg"/>
+            <a href="dp_picture_list.php?shop_id=<?php echo $shop_id; ?>">
+                <img class="shop_topimg" src="<?php echo $shop_info["img"]; ?>" alt="topimg"/>
+            </a>
             <div>
                 <h4><?php echo $shop_info["cnName"]; ?></h4>
                 <p class="conter2_pt">
