@@ -28,19 +28,12 @@ var_dump($_POST);
  *          其中:附件路径为 $tmpfilename, 附件上传时使用的文件名为 $_FILES["image_file"]["file"],即附件原始名称
  */
 
-function getUploadTmpDir($user_id, $utmpnum) {
-    $tmp_dir = "/tmp/wap_upload";
-    if (!is_dir($tmp_dir)) {
-        @mkdir($tmp_dir);
-    }
-
-    return $tmp_dir."/{$user_id}_{$utmpnum}";
-}
-
-
 if (!empty($_FILES["image_file"]["tmp_name"])) {
-    // 创建附件暂存路径,post_article时会读取该文件夹
+    // 创建附件暂存路径,post_imagetags时会读取该文件夹
     $upfiledir = getUploadTmpDir($currentuser["userid"], $utmpnum);
+    if ($image_count == 0) {
+        @system("rm $upfiledir -rf");
+    }
     @mkdir($upfiledir);
     // 创建附件临时文件名
     $tmpfilename = tempnam($upfiledir, ($image_count+1)."_");

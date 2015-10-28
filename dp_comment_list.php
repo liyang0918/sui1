@@ -1,6 +1,6 @@
 <?php
 include_once(dirname(__FILE__)."/../../mitbbs_funcs.php");
-include_once(dirname(__FILE__)."func.php");
+include_once(dirname(__FILE__)."/func.php");
 include_once("head.php");
 $link = db_connect_web();
 
@@ -16,8 +16,6 @@ $page = intval($_GET["page"]);
 if(empty($page)){
     $page = 1;
 }
-
-$prt_arr = array();
 
 //page part
 $total_row = getShopCommentTotal($link, $shop_id);

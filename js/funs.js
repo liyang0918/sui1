@@ -1666,3 +1666,26 @@ function dp_send_comment(url, para, jumpto) {
 
     return result;
 }
+
+function dp_send_imgtag(url, para, jumpto) {
+    var result = false;
+    $.ajax({
+        type: "POST",
+        url: url,
+        async:false,
+        data: para,
+        success: function (ret) {
+            var ret_json = eval("(" + ret + ")");
+            if (ret_json.result == "0") {
+                window.location.href = jumpto;
+            } else {
+                Alert(ret_json.msg, 1);
+            }
+        },
+        error: function (ret) {
+            Alert("«Î«Û ß∞‹", 1);
+        }
+    });
+
+    return result;
+}

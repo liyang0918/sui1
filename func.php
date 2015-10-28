@@ -1110,7 +1110,7 @@ function getShopTopImg($shop_id) {
     return $img;
 }
 
-function getShopImg($shop_id, $dir, $img_name) {
+function getShopImgNail($shop_id, $dir, $img_name) {
     $file_path = "/home/bbs/pic_home/comment";
     $file_path_rewrite = "/commentimg";
     // 相对路径
@@ -1182,6 +1182,66 @@ function getDpRecommendShops($link, $city) {
     return $ret;
 }
 
+function getShopPictureTotal($link, $shop_id, $type) {
+    if ($type == "dish") {
+        $sql = "SELECT COUNT(*) AS count FROM comment_img WHERE
+                shop_id=$shop_id AND type='dish' AND display<2";
+    } elseif ($type == "env") {
+        $sql = "SELECT COUNT(*) AS count FROM comment_img WHERE
+                shop_id=$shop_id AND type='env' AND display<2";
+    } else {
+        $sql = "SELECT COUNT(*) AS count FROM comment_img WHERE
+                shop_id=$shop_id AND display<2";
+    }
+
+    $result = mysql_query($sql, $link);
+    if ($row = mysql_fetch_array($result))
+        return $row["count"];
+    else
+        return 0;
+}
+
+function getShopPictureList($link, $shop_id, $type, $page, $num) {
+    $page = ($page-1)*$num;
+
+    if ($type == "dish") {
+        $sql = "SELECT img_name,type AS dir,c.tag_id AS tag_id,tag_name FROM comment_img c, tags t WHERE
+                c.shop_id=$shop_id AND type='dish' AND display<2 AND t.tag_id=c.tag_id
+                LIMIT $page,$num";
+    } elseif ($type == "env") {
+        $sql = "SELECT img_name,type AS dir,c.tag_id AS tag_id,tag_name FROM comment_img c, env_tags t WHERE
+                c.shop_id=$shop_id AND type='env' AND display<2 AND t.tag_id=c.tag_id
+                LIMIT $page,$num";
+    } else {
+        $sql = "SELECT img_name,type AS dir,tag_id FROM comment_img WHERE
+                shop_id=$shop_id AND display<2 LIMIT $page,$num";
+    }
+
+    $result = mysql_query($sql, $link);
+
+    $imgList = array();
+    while ($row = mysql_fetch_array($result)) {
+        $row["img"] = getShopImgNail($shop_id, $row["dir"], $row["img_name"]);
+        if ($type != "dish" and $type != "env") {
+            if ($row["dir"] == "dish") {
+                $sql_tag = "SELECT tag_name FROM tags WHERE tag_id={$row["tag_id"]}";
+            } else {
+                $sql_tag = "SELECT tag_name FROM env_tags WHERE tag_id={$row["tag_id"]}";
+            }
+            $result_tag = mysql_query($sql_tag, $link);
+            $row_tag = mysql_fetch_array($result_tag);
+            if (empty($row_tag) or $row_tag["tag_name"] =="")
+                $row["tag_name"] = "网友图片";
+            else
+                $row["tag_name"] = $row_tag["tag_name"];
+        }
+
+        $imgList[] = $row;
+    }
+
+    return $imgList;
+}
+
 function getShopInfoById($link, $shop_id) {
     $shop_id = intval($shop_id);
     $sql = "SELECT cnName,avg_score,avg_pay,taste_score,env_score,sev_score,location,contact,business_time FROM shop_info WHERE
@@ -1194,7 +1254,7 @@ function getShopInfoById($link, $shop_id) {
     if ($row = mysql_fetch_array($result)) {
         $shop_info = $row;
         if ($row_img = mysql_fetch_array($result_img)) {
-            $shop_info["img"] = getShopImg($shop_id, $row_img["dir"], $row_img["img_name"]);
+            $shop_info["img"] = getShopImgNail($shop_id, $row_img["dir"], $row_img["img_name"]);
         }
     }
 
@@ -1743,6 +1803,16 @@ function getAllEnvTags($link, $shop_id){
 }
 
 
+function getUploadTmpDir($user_id, $utmpnum) {
+    $tmp_dir = "/tmp/wap_upload";
+    if (!is_dir($tmp_dir)) {
+        @mkdir($tmp_dir);
+    }
+
+    return $tmp_dir."/{$user_id}_{$utmpnum}";
+}
+
+
 function check_if_fav($link, $type,$num_id1,$num_id2,$num_id3,$char_id1,$char_id2,$char_id3)
 {
     global $currentuser;
@@ -1758,7 +1828,6 @@ function check_if_fav($link, $type,$num_id1,$num_id2,$num_id3,$char_id1,$char_id
        and char_id1='{$char_id1}' and char_id2='{$char_id2}' and char_id3='{$char_id3}'
        and type={$type} and user_numid={$currentuser['num_id']}";
 
-    log2file("check>> $sql");
     $result = mysql_query($sql,$link);
     return $result;
 }
@@ -3582,7 +3651,8 @@ function getSource($type,$fileName) {
     return false;
 }
 
-function constrcutThumbnail($fileName) {
+// 生成$filename 的 以 _nail 结尾的缩略图
+function constrcutThumb($fileName) {
     if(!is_file($fileName))
         return false;
     $return = getimagesize($fileName);
@@ -3608,6 +3678,14 @@ function constrcutThumbnail($fileName) {
     }
     imagecopyresampled($target, $source, 0, 0, $x, $y, "400", "400",$width,$height);
     $res = imagejpeg($target,$filepath,50);
+
+    return $res;
+}
+
+// 生成 $filename 的缩略图,成功则替换原文件,失败则原文件保持不变
+function constrcutThumbnail($fileName) {
+    $filepath = $fileName.'_nail';
+    $res = constrcutThumb($fileName);
     if($res){
         @unlink($fileName);
         @rename($filepath, $fileName);

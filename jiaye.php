@@ -44,7 +44,7 @@ $userinfo = getCurrUserInfo();
             <li><a href="mycollect.php">我的收藏 <img src="img/btn-right.png" alt="btn-right;.png"/></a></li>
             <li><a href="myfriends.php">我的好友 <img src="img/btn-right.png" alt="btn-right;.png"/></a></li>
             <li><a href="myblacklist.php">我的黑名单 <img src="img/btn-right.png" alt="btn-right;.png"/></a></li>
-            <li><a href="mymessages.php">我的消息<img src="img/btn-right.png" alt="btn-right;.png"/></a></li>
+<!--            <li><a href="mymessages.php">我的消息<img src="img/btn-right.png" alt="btn-right;.png"/></a></li>-->
             <li><a href="mymails.php">我的邮箱<img src="img/btn-right.png" alt="btn-right;.png"/></a></li>
         </ul><!--End jy_gen_group-->
         <p class="jy_back"><a href="logout.php">退出登录<img src="img/btn-right.png" alt="btn-right;.png"/></a></p>
