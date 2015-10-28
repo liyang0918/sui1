@@ -9,6 +9,8 @@ if(empty($_COOKIE["app_show"]))
 if(empty($_COOKIE["sec_category"]))
     setcookie("sec_category", "all");
 
+setcookie("app_type", "search");
+setcookie("app_show", iconv("GBK","UTF-8//IGNORE","ËÑË÷"));
 $page_title = "ËÑË÷";
 ?>
 <html lang="zh">
