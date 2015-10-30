@@ -21,4 +21,4 @@
 #btn_prev{background: url("../images/hover_left.png") no-repeat left top;left: 100px;}
 #btn_next{background: url("../images/hover_right.png") no-repeat right top;right: 100px;}*/
 .flicking_con{display:none;}
-#text{line-height: 30px;font-size: 16px;background: rgba(0,0,0,0.3);text-indent: 10px;}
+#text{line-height:30px;height:30px;overflow:hidden;font-size: 16px;background: rgba(0,0,0,0.3);text-indent: 10px;}

@@ -13,7 +13,7 @@ else
 
 if ($add_flag == 0) {
     $city_list = getDpCityList($link);
-    $current_page = $_SERVER["REQUEST_URI"];
+    $current_page = $_SERVER["REQUEST_URI"]."?".$_SERVER["QUERY_STRING"];
 } else {
 //    show_result($_POST);
     $shopinfo["cnName"] = $_POST["cnName"];

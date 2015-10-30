@@ -951,13 +951,24 @@ body {
 .newsIndex_showBox{
     width:100%;
     height:240px;
+    position:relative;
 }
 
 .newsIndex_showBox img {
     width:100%;
     height:100%;
 }
-
+.newsIndex_info{
+    width:100%;
+    background:#ccc;
+    font-size:16px;
+    text-indent:10px;
+    height:30px;
+    line-height:30px;
+    overflow:hidden;
+    position:absolute;
+    left:0;bottom:0;
+}
 .news_list_lione img{
     float: left;
     width:80px;
@@ -994,6 +1005,8 @@ li.margin_right{
 .critize{
     font-size:1.2em;
     color:#999;
+    position:absolute;
+    padding:0 5px;
 }
 .right_t{
     top:20px;
@@ -1439,8 +1452,10 @@ span.im_l{
 img.column_img{
     width:50px;
 }
-img.column_btn{
+.critize img.column_btn{
      width:8px;
+     height:auto;
+     margin-right:0;
  }
 span.nobg{
     background:#fff;
@@ -1853,11 +1868,11 @@ span.fr{
     color:#333;
     position:absolute;
     left:10px;
-    top:10px;
+    top:6px;
 }
 .ds_box img{
     width:12px;
-   /* float: left;
+    /* float: left;
     margin-top:12px;
     margin-left:10px;*/
 }
