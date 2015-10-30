@@ -3,7 +3,7 @@ include_once(dirname(__FILE__)."/../../mitbbs_funcs.php");
 include_once(dirname(__FILE__)."/func.php");
 $link = db_connect_web();
 
-$curr_url = $_SERVER["REQUEST_URI"];
+$curr_url = $_SERVER["REQUEST_URI"]."?".$_SERVER["QUERY_STRING"];
 
 if (empty($currentuser) or $currentuser["userid"] == "guest") {
     setcookie("before_login", $curr_url);
@@ -41,7 +41,10 @@ $father_page = "one_shopinfo.php?shop_id=".$shop_id;
             <h3 class="navone_h3"><img class="navone_forum" src="img/menu.png" alt="menu.png"/>µ„∆¿</h3>
         </div>
         <img class="navone_space" src="img/space.png" alt="space.png"/>
-        <?php if($currentuser["userid"]=="guest")  {?>
+        <?php
+        if($currentuser["userid"]=="guest")  {
+            setcookie("before_login", $curr_url);
+        ?>
             <a class="navone_home" href="login.php">
                 <img src="img/home.png" alt="home.png">
             </a>
@@ -256,9 +259,8 @@ $father_page = "one_shopinfo.php?shop_id=".$shop_id;
                 para_str = para_str + ",\"tag_" + i + "\":\"" + $('#pic_id_'+i).html() + "\"";
             }
 
-            alert(para_str);
             var para = eval("({" + para_str + "})");
-            var url = "/mobile/forum/request/post_imagetags.php";
+            var url = "/mobile/forum/request/dp_send_imagetags.php";
             var jumpto = "one_shopinfo.php?shop_id=<?php echo $shop_id; ?>";
 
             dp_send_imgtag(url, para, jumpto);

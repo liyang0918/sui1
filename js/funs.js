@@ -86,7 +86,7 @@ function have_carouselfigure(id) {
         return true;
 
     var info = get_info_by_id(id);
-    return (info["domain"] == "club");
+    return (info["domain"]=="club" || info["domain"]=="news");
 }
 
 function request_url_generate(id) {
@@ -156,8 +156,9 @@ function sec_category_auto(){
             if(have_carouselfigure(obj.id)) {
                 var tag = document.getElementById("carouselfigure");
                 tag.setAttribute("style", 'display:block');
-                if (ret_json.carouselfigure != undefined)
+                if (ret_json.carouselfigure != undefined) {
                     tag.outerHTML = ret_json.carouselfigure;
+                }
             } else {
                 var tag = document.getElementById("carouselfigure");
                 if (tag)
@@ -871,8 +872,14 @@ function getCookie_wap(name){
     }
     return "";
 }
-function post_article(board,title,reid){
+
+function post_article(board, title, reid){
+    /*  可选参数
+    * club_flag: arguments[3],作用是标识文章类型, 默认为 0,表示在版面发表文章
+    * jumpto: arguments[4],作用是发表成功后跳转地址,默认为空字符串,发表成功不跳转
+    * */
     var club_flag = arguments[3]?arguments[3]:"0";
+    var jumpto = arguments[4]?arguments[4]:"";
     var url = "/mobile/forum/request/post_article.php";
     var text_id="text_"+reid;
     var content=document.getElementById("text_"+reid);
@@ -882,43 +889,30 @@ function post_article(board,title,reid){
     else
         para = "club="+board+"&title="+title+"&reid="+reid+"&content="+content.value;
 
-    send_article(url, para, true);
+    send_article(url, para, jumpto, true);
 }
 
-function send_article(url, para, re_flag) {
+function send_article(url, para, jumpto, is_reply) {
     var myAjax = new Ajax.Request(url,
         {
             method: "post",
             parameters: para,
             onSuccess: function (ret) {
-            if (re_flag == true) {
+            if (is_reply == true) {
                 if (ret.responseText == true) {
-                    Alert("发文成功",1);
-                    remove_node(document.getElementById("text_"+reid));
-                    remove_node(document.getElementById("btn_"+reid));
-                    location.reload();
+                    alert("回复成功");
+                    if (jumpto.length)
+                        window.location.href = jumpto;
                 } else {
-                    Alert(ret.responseText,5)
+                    Alert(ret.responseText,2);
                 }
             } else {
                 if (ret.responseText == true) {
-                    Alert("发文成功", 1);
-                    // 清空输入框 未生效
-                    var form_article = document.getElementById("form_article");
-                    var input = form_article.getElementsByTagName("input");
-                    var textarea = form_article.getElementsByTagName("textarea");
-                    input[0].value = "";
-                    textarea[0].value = "";
-                    textarea[0].innerHTML = "";
-                    input[0].focus();
-
-                    // 清空上传图片的缩略图 未生效
-                    var img_count = document.getElementsById("img_count");
-                    var count = parseInt(img_count.value);
-                    for (var i = 0; i < count; i++) {
-                        remove_node(document.getElementsById("img_"+i));
-                    }
-                    img_count.value = "0";
+                    alert("发文成功");
+                    if (jumpto.length)
+                        window.location.href = jumpto;
+                } else {
+                    Alert(ret.responseText, 2);
                 }
             }
             },
@@ -926,6 +920,31 @@ function send_article(url, para, re_flag) {
 
             }
         });
+}
+
+function del_article(url, para, jumpto) {
+    var myAjax = new Ajax.Request(url,
+        {
+            method: "post",
+            parameters: para,
+            asynchronous: false,
+            onSuccess: function (ret) {
+                var ret_json = eval("(" + ret.responseText + ")");
+                if (ret_json.result == 0) {
+                    if (ret_json.msg == "jump") {
+                        window.location.href = jumpto;
+                    } else if (ret_json.msg == "reload") {
+                        window.location.reload();
+                    }
+                } else {
+                    Alert("删除失败,"+ret_json.msg, 2);
+                }
+            },
+            onFailure: function (x) {
+                Alert("请求失败", 1);
+            }
+        }
+    );
 }
 
 function post_email(mailto, title, content) {
@@ -1688,4 +1707,34 @@ function dp_send_imgtag(url, para, jumpto) {
     });
 
     return result;
+}
+
+function dp_get_picture(shop_id, type, pic_num) {
+    var url = "/mobile/forum/request/dp_picture_single.php";
+    var para = {
+        "shop_id":shop_id,
+        "type":type,
+        "pic_num":pic_num
+    };
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        async: false,
+        data: para,
+        success: function (ret) {
+            var ret_json = eval("(" + ret + ")");
+            if (ret_json.result == "0") {
+                $('#imgbox').attr("src", ret_json.img);
+                $('#tag_name').html(ret_json.tag_name);
+                $('#pic_num').html(pic_num);
+                $('#total_num').html(ret_json.total_num);
+            } else {
+                alert("图片读取错误");
+            }
+        },
+        error: function (ret) {
+            Alert("请求失败", 1);
+        }
+    });
 }

@@ -517,6 +517,17 @@ function get_row_count($board_id, $article_id, $link, $type=1){
     return $row["count"];
 }
 
+function getLawyerName($link, $user) {
+    $query = "select lawyer_name from lawyer where creator = '".$user."' ;";
+    $result = mysql_query($query,$link);
+    $rows = mysql_fetch_row($result);
+    mysql_free_result($result);
+    if($rows)
+        return $rows[0];
+    else
+        return 0;
+}
+
 //function trans_content_html($str, &$imgList=NULL){
 //    $arr = array();
 //
@@ -566,11 +577,13 @@ function trans_content_html($str) {
 function trans_content_array($str) {
     $arr = array();
 
+    $imgType = "(jpg)|(jpeg)|(png)|(gif)|(bmp)";
     $arr = explode("\n", $str);
     $contentList = array();
     $imgList = array();
     foreach ($arr as $content) {
-        if (preg_match("/^http:\/\//", $content)) {
+        // 正则匹配时注意切除字符串两端的空白字符
+        if (preg_match('/^http:\/\/.*\.('.$imgType.')$/', trim($content))) {
             $imgList[] = $content;
         }else{
             $contentList[] = $content;
@@ -581,6 +594,7 @@ function trans_content_array($str) {
 }
 
 function wap_read_article($filepath, $attach_link, $img_ago_str, $img_after_str, $attach_linkstr, $show_ad_line, $articlType = 1, $opflag = 0, $mailtype = 0, &$attachinfo) {
+    $imgType = "(jpg)|(jpeg)|(png)|(gif)|(bmp)";
     define ("MAXATTACHMENTCOUNT", 20);
     $UBB_Control = chr(27); //0x1b
     $attach_start_pos = 0;
@@ -658,7 +672,7 @@ function wap_read_article($filepath, $attach_link, $img_ago_str, $img_after_str,
         $pic_num=0;
 
         $content_array[$j] = $tmpstr;
-        if (strcmp(substr($tmpstr, 0, 7), "http://") == 0) {
+        if (preg_match('/^http:\/\/.+\.('.$imgType.')$/', trim($tmpstr))) {
             ++$pic_num;
             $pic_list[] = $tmpstr;
         }
@@ -1123,6 +1137,19 @@ function getShopImgNail($shop_id, $dir, $img_name) {
     return $img;
 }
 
+function getShopImg($shop_id, $dir, $img_name) {
+    $file_path = "/home/bbs/pic_home/comment";
+    $file_path_rewrite = "/commentimg";
+    // 相对路径
+    $op_path = "/$shop_id/$dir/{$img_name}";
+    if (file_exists($file_path.$op_path))
+        $img = $file_path_rewrite.$op_path;
+    else
+        $img = "img/img_error.jpg";
+
+    return $img;
+}
+
 function getShopCommentImg($shop_id, $img_name) {
     $file_path = "/home/bbs/pic_home/comment";
     $file_path_rewrite = "/commentimg";
@@ -1201,27 +1228,37 @@ function getShopPictureTotal($link, $shop_id, $type) {
         return 0;
 }
 
-function getShopPictureList($link, $shop_id, $type, $page, $num) {
+// is_nail标志为true时,返回图片缩略图
+function getShopPictureList($link, $shop_id, $type, $page, $num, $is_nail=true, $user_num_id=-1) {
     $page = ($page-1)*$num;
+
+    $att_condition = "1=1";
+    if ($user_num_id != -1)
+        $att_condition = "user_id=$user_num_id";
 
     if ($type == "dish") {
         $sql = "SELECT img_name,type AS dir,c.tag_id AS tag_id,tag_name FROM comment_img c, tags t WHERE
-                c.shop_id=$shop_id AND type='dish' AND display<2 AND t.tag_id=c.tag_id
-                LIMIT $page,$num";
+                c.shop_id=$shop_id AND type='dish' AND display<2 AND t.tag_id=c.tag_id AND $att_condition
+                ORDER BY c.create_time DESC LIMIT $page,$num";
     } elseif ($type == "env") {
         $sql = "SELECT img_name,type AS dir,c.tag_id AS tag_id,tag_name FROM comment_img c, env_tags t WHERE
-                c.shop_id=$shop_id AND type='env' AND display<2 AND t.tag_id=c.tag_id
-                LIMIT $page,$num";
+                c.shop_id=$shop_id AND type='env' AND display<2 AND t.tag_id=c.tag_id AND $att_condition
+                ORDER BY c.create_time DESC LIMIT $page,$num";
     } else {
         $sql = "SELECT img_name,type AS dir,tag_id FROM comment_img WHERE
-                shop_id=$shop_id AND display<2 LIMIT $page,$num";
+                shop_id=$shop_id AND display<2 AND $att_condition
+                ORDER BY create_time DESC LIMIT $page,$num";
     }
 
     $result = mysql_query($sql, $link);
 
     $imgList = array();
     while ($row = mysql_fetch_array($result)) {
-        $row["img"] = getShopImgNail($shop_id, $row["dir"], $row["img_name"]);
+        if ($is_nail == true)
+            $row["img"] = getShopImgNail($shop_id, $row["dir"], $row["img_name"]);
+        else
+            $row["img"] = getShopImg($shop_id, $row["dir"], $row["img_name"]);
+
         if ($type != "dish" and $type != "env") {
             if ($row["dir"] == "dish") {
                 $sql_tag = "SELECT tag_name FROM tags WHERE tag_id={$row["tag_id"]}";
@@ -1260,6 +1297,17 @@ function getShopInfoById($link, $shop_id) {
 
     mysql_free_result($result);
     return $shop_info;
+}
+
+// 获取店铺相册封面
+function getShopAlbumCoverImg($link, $shop_id, $user_num_id) {
+    $sql = "SELECT img_name,type AS dir,tag_id FROM comment_img WHERE
+            shop_id=$shop_id AND user_id=$user_num_id AND display<2 ORDER BY create_time DESC LIMIT 1";
+    $result = mysql_query($sql, $link);
+    $row = mysql_fetch_array($result);
+    $img = getShopImgNail($shop_id, $row["dir"], $row["img_name"]);
+
+    return $img;
 }
 
 /*
@@ -1315,131 +1363,6 @@ function getDistanceString($distance) {
     return $str;
 }
 
-/**
- * 按照距离排序
- */
-function getShopNearBy($link, $city, $cond, $pos, $page, $num=20) {
-    $distance_null_num = 0;
-    $page = ($page-1)*$num;
-    $having1 = "";
-    $having2 = "";
-    // 全部,先查询距离不为NULL的结果,不足$num个时再查询距离为NULL的结果
-
-    if (isset($cond["distance_null_num"]) AND $cond["distance_null_num"] > 0) {
-        $distance_null_num = $cond["distance_null_num"];
-    }
-
-
-    // 按照 cond 给出的条件获取店铺信息
-    $sql = "SELECT shop_id,cnName,avg_score,avg_pay,type_set,(2 * 6378.137* ASIN(SQRT(POW(SIN(PI()*({$pos["lat"]}-lat)/360),2)+COS(PI()*{$pos["lon"]}/180)*COS(lat * PI()/180)
-           *POW(SIN(PI()*({$pos["lon"]}-lng)/360),2)))) as distance FROM shop_info WHERE review_result<>4 ";
-    /* $sql_standby 备用:
-     *  若一次性查询全部结果,升序排列会使 distance=NULL 排在前边,所以将查询分为两步:
-     *      1.先查询 distance is not null 的结果,使用 $sql
-     *      2.当查询结果不足 $num 时,再查询 distance is null 的结果,使用 $sql_standby
-     */
-    $sql_standby = $sql;
-
-    $condition = "";
-    if ($city != "all") {
-        $condition .= "AND city_type='$city' ";
-    }
-
-    if ($cond["food_class_type"] != "all") {
-        $condition .= "AND type_set='{$cond["food_class_type"]}' ";
-    }
-
-    if (isset($cond["search"])) {
-        if ($cond["search"]["fuzzy"])
-            $condition .= "AND cnName LIKE BINARY '%{$cond["search"]["name"]}%' ";
-        else
-            $condition .= "AND cnName='{$cond["search"]["name"]}' ";
-    }
-
-    $having1 = "HAVING distance IS NOT NULL ORDER BY distance ASC ";
-    $having2 = "HAVING distance IS NULL ";
-
-
-    $sql = $sql.$condition.$having1."LIMIT $page,$num;";
-//    $sql = $sql.$condition;
-    $result = mysql_query($sql, $link);
-    $result_num = mysql_num_rows($result);
-
-    $ret = array();
-    $end_flag = 0;
-    // distance_null_num == 0 表示距离非NULL的数据还没有查完
-    if ($distance_null_num == 0) {
-        while ($row = mysql_fetch_array($result)) {
-            if ($pos["locate_flag"])
-                $row["distance_str"] = getDistanceString($row["distance"]);
-            else
-                $row["distance_str"] = "定位失败";
-
-
-            if (!isset($row["avg_pay"]))
-                $row["avg_pay"] = 0.0;
-            if (!isset($row["avg_score"]))
-                $row["avg_score"] = 0.0;
-
-            $row["img"] = getShopTopImg($row["shop_id"]);
-            $row["href"] = "one_shopinfo.php?shop_id=".$row["shop_id"];
-            $ret[] = $row;
-        }
-        mysql_free_result($result);
-
-        // 查询结果不足 $num 个时
-        if ($result_num < $num) {
-            // 从distance IS NULL 的结果中查询不足 $num 的剩余部分
-            $sql_standby = $sql_standby.$condition.$having2."LIMIT 0,".($num-$result_num);
-            $result_standby = mysql_query($sql_standby, $link);
-            if (mysql_num_rows($result_standby) < ($num-$result_num))
-                $end_flag = 1;
-            else
-                $end_flag = 0;
-
-            while ($row = mysql_fetch_array($result_standby)) {
-                $row["distance_str"] = "定位失败";
-                if (!isset($row["avg_pay"]))
-                    $row["avg_pay"] = 0.0;
-                if (!isset($row["avg_score"]))
-                    $row["avg_score"] = 0.0;
-
-                $row["img"] = getShopTopImg($row["shop_id"]);
-                $row["href"] = "one_shopinfo.php?shop_id=".$row["shop_id"];
-                $ret[] = $row;
-            }
-
-            $distance_null_num = $num-$result_num;
-            mysql_free_result($result_standby);
-        }
-    } else {
-        // 当disance_null_num 非0 时直接查询 distance IS NULL 的结果
-        $sql_standby = $sql_standby.$condition.$having2."LIMIT $distance_null_num,$num";
-        $result_standby = mysql_query($sql_standby, $link);
-        $result_num = mysql_num_rows($result_standby);
-        if ($result_num < $num)
-            $end_flag = 1;
-        else
-            $end_flag = 0;
-
-        while ($row = mysql_fetch_array($result_standby)) {
-            $row["distance_str"] = "定位失败";
-            if (!isset($row["avg_pay"]))
-                $row["avg_pay"] = 0.0;
-            if (!isset($row["avg_score"]))
-                $row["avg_score"] = 0.0;
-
-            $row["img"] = getShopTopImg($row["shop_id"]);
-            $row["href"] = "one_shopinfo.php?shop_id=".$row["shop_id"];
-            $ret[] = $row;
-        }
-
-        $distance_null_num += $result_num;
-        mysql_free_result($result_standby);
-    } // end if $distance_null_num == 0
-    return array($end_flag, $distance_null_num, $ret);
-}
-
 /*按照给出的条件查询、排列城市，不包含"按距离排序"
  * @param: city 选择查看的城市
  * @param: cond 查询条件
@@ -1447,8 +1370,11 @@ function getShopNearBy($link, $city, $cond, $pos, $page, $num=20) {
  * */
 function getShopByCondition($link, $city, $cond, $pos, $page, $num=20) {
     $page = ($page-1)*$num;
-    // 按照 cond 给出的条件获取店铺信息
 
+    if ($pos["locate_flag"] == false) {
+        $pos["lat"] = 0;
+        $pos["lon"] = 0;
+    }
     /* 从数据库中获取一定数量的店铺信息 */
     $sql = "SELECT shop_id,cnName,avg_score,avg_pay,type_set,(2 * 6378.137* ASIN(SQRT(POW(SIN(PI()*({$pos["lat"]}-lat)/360),2)+COS(PI()*{$pos["lon"]}/180)*COS(lat * PI()/180)
                *POW(SIN(PI()*({$pos["lon"]}-lng)/360),2)))) as distance FROM shop_info WHERE review_result<>4 ";
@@ -1496,7 +1422,12 @@ function getShopByCondition($link, $city, $cond, $pos, $page, $num=20) {
 
     switch ($cond["order_type"]) {
         case 0:
-           $condition .= "ORDER BY distance ASC ";
+            if ($cond["near_type"] == 0) {
+                // 将 distance==NULL 的店铺靠后排序
+                $condition .= "ORDER BY IF(distance,0,1),distance ASC ";
+            } else {
+                $condition .= "ORDER BY distance ASC ";
+            }
             break;
         case 1:
             // 点评最多
@@ -1578,15 +1509,15 @@ function insertShop($link, $shopinfo){
 function dpCheckPointsPerm($link, $name, $userid){
     if($userid=="guest")
         return -1;
-    $time=time();
+    $time = time();
     $start = mktime(0,0,0,date("m",$time),date("d",$time),date("Y",$time));
     $end = mktime(23,59,59,date("m",$time),date("d",$time),date("Y",$time));
-    $sql="select count(*) as count from points_records where user_id='$userid' and add_time>='$start' and add_time<='$end'";
+    $sql = "select count(*) as count from points_records where user_id='$userid' and add_time>='$start' and add_time<='$end'";
     $result1 = mysql_query($sql, $link);
     $row1 = mysql_fetch_array($result1);
     mysql_free_result($result1);
     $count = $row1["count"];
-    $sql1="select times from points where name='$name'";
+    $sql1 = "select times from points where name='$name'";
     $result2 = mysql_query($sql1, $link);
     $row2 = mysql_fetch_array($result2);
     mysql_free_result($result2);
@@ -2698,6 +2629,7 @@ function in_array_list($array,$array_list){
 }
 
 $type_to_sql_data = array(
+    "mix"=>array("boardID"=>"365", "news_type"=>""),
     "military"=>array("boardID"=>"249", "news_type"=>"[ZGPT]"),
     "international"=>array("boardID"=>"395", "news_type"=>"[HWPT]"),
     "sport"=>array("boardID"=>"81", "news_type"=>"[TYPT]"),
@@ -2706,6 +2638,81 @@ $type_to_sql_data = array(
     "finance"=>array("boardID"=>"347", "news_type"=>"[CJPT]"),
     "immigration"=>array("boardID"=>"420", "news_type"=>"")
 );
+
+function getTopNewsByType($link, $type) {
+    global $type_to_sql_data;
+    if (!isset($type_to_sql_data[$type]))
+        return false;
+
+    $board_id = $type_to_sql_data[$type]["boardID"];
+    $sql_str = "select board_id,article_id,new_url from article_image_list where board_id=$board_id and type=101 group
+              by article_id,board_id ORDER BY id DESC limit 1";
+
+    $result1 = mysql_query($sql_str, $link);
+    $tmp = array();
+    $ret = array();
+    if ($row = mysql_fetch_array($result1)) {
+        $sql_str = "select board_desc,boardname from board where board_id=$board_id";
+        $result2 = mysql_query($sql_str, $link);
+        if($row2 = mysql_fetch_array($result2)){
+            $boardname = $row2["boardname"];
+        }
+        $img = BBS_HOME.'/pic_home/boards/'.$boardname."/".$row["new_url"];
+        if(is_file($img)){
+            $tmp["imgURL"]="http://". $_SERVER["SERVER_NAME"]."/boardimg/" . $boardname. "/".$row["new_url"];
+        }
+
+        $sql_str1="select title,groupid,owner,read_num,reply_num,total_reply,board_id,o_bid,o_groupid from dir_article_{$board_id}
+               where article_id={$row["article_id"]}";
+        $result2 = mysql_query($sql_str1, $link);
+        if ($row1 = mysql_fetch_array($result2)) {
+            if ($row1["o_bid"] == NULL || $row1["o_groupid"] == NULL || $row1["o_bid"] == 0 || $row1["o_groupid"] == 0) {
+                $tmp["title"] = $row1["title"];
+                $title_tmp = iconv("UTF-8", "GBK//IGNORE", $row1["title"]);
+                if ($title_tmp)
+                    $tmp["title"] = $title_tmp;
+
+                $tmp["groupid"] = $row1["groupid"];
+                $tmp["href"] = url_generate(3, array("news"=>$boardname, "groupid"=>$row1["groupid"]));
+                $tmp["owner"] = $row1["owner"];
+                $tmp["read_num"] = $row1["read_num"];
+                $tmp["board_id"] = $row1["board_id"];
+                if ($tmp["groupid"] == $row["articleid"])
+                    $tmp["reply_num"] = $row1["total_reply"];
+                else
+                    $tmp["reply_num"] = $row1["reply_num"];
+            } else {
+                $sql_str2 = "select title,groupid,owner,read_num,reply_num,total_reply,board_id from dir_article_{$row1["o_bid"]}
+                   where groupid={$row1["o_groupid"]}";
+                $result3 = mysql_query($sql_str2, $link);
+                if ($row3 = mysql_fetch_array($result3)) {
+                    $tmp["title"] = $row3["title"];
+                    $title_tmp = iconv("UTF-8", "GBK//IGNORE", $row3["title"]);
+                    if ($title_tmp)
+                        $tmp["title"] = $title_tmp;
+                    $tmp["groupid"] = $row3["groupid"];
+                    $tmp["href"] = url_generate(3, array("news"=>$boardname, "groupid"=>$row3["groupid"]));
+                    $tmp["owner"] = $row3["owner"];
+                    $tmp["read_num"] = $row3["read_num"];
+                    $tmp["board_id"] = $row3["board_id"];
+                    $tmp["reply_num"] = $row3["total_reply"];
+                } else {
+                    $tmp["title"] = "";
+                    $tmp["title"] = "";
+                    $tmp["groupid"] = "";
+                    $tmp["owner"] = "";
+                    $tmp["read_num"] = "";
+                    $tmp["board_id"] = "";
+                    $tmp["reply_num"] = "";
+                }
+            }
+        }
+        $tmp["articleid"] = $tmp["groupid"];
+        $ret = $tmp;
+    }
+
+    return $ret;
+}
 
 function getHeadLineNews($link, $page) {
     $pagenum = 40;
@@ -2746,9 +2753,10 @@ function getHeadLineNews($link, $page) {
         while ($row1=mysql_fetch_array($result1)) {
             $aNew["groupID"] = $row1["groupid"];
             $aNew["title"] = $row1["title"];
-            if($aNew["title"] == null){
-                $aNew["title"] = "";
-            }
+            $title_tmp = iconv("UTF-8", "GBK//IGNORE", $aNew["title"]);
+            if ($title_tmp)
+                $aNew["title"] = $title_tmp;
+
             $aNew["author"] = $row1["owner"];
             $aNew["BoardsEngName"] = $row1["boardname"];
             $aNew["total_reply"] = getNewsReply($link, $row["board_id"], $row1["groupid"]);
@@ -2884,7 +2892,11 @@ function getNewsDataByType($link, $page, $newsTypeName) {
         if($newsTypeName  == "immigration"){
             $aNew["newType"] = getImmigrationNewsType($aNew["title"]);
         }
-        $aNew["title"] = preg_replace('/\[.*\]/', "", $aNew["title"]);
+        $aNew["title"] = preg_replace('/\[[a-zA-Z]{4}\]/', "", $aNew["title"]);
+        $title_tmp = iconv("UTF-8", "GBK//IGNORE", $aNew["title"]);
+        if ($title_tmp)
+            $aNew["title"] = $title_tmp;
+
         $boardName = $row["boardname"];
         $boardCnName = $row["board_desc"];
         $aNew["BoardsName"] = trim(substr($boardCnName, strpos($boardCnName,']')+1));
@@ -3368,6 +3380,123 @@ function getFriendApply($link, $page, $num=10) {
     return $ret;
 }
 
+// 收藏的店铺
+function getMyDpCollectShop($link, $user_num_id, $pos, $page, $num) {
+    $page = ($page-1)*$num;
+    if ($pos["locate_flag"] == false) {
+        $pos["lat"] = 0;
+        $pos["lon"] = 0;
+    }
+
+    $sql = "SELECT f.fav_id AS fav_id,s.shop_id AS shop_id,create_time,s.avg_score AS avg_score,s.cnName AS cnName,s.type_set AS type_set,s.avg_pay AS avg_pay,
+            (2 * 6378.137* ASIN(SQRT(POW(SIN(PI()*({$pos["lat"]}-lat)/360),2)+COS(PI()*{$pos["lon"]}/180)*COS(lat * PI()/180)*POW(SIN(PI()*({$pos["lon"]}-lng)/360),2)))) as distance
+            FROM fav_shop AS f,shop_info AS s WHERE
+            f.user_id=$user_num_id AND s.review_result!=4 AND s.shop_id=f.shop_id
+            ORDER BY create_time DESC limit $page,$num";
+
+    $result = mysql_query($sql, $link);
+    $ret = array();
+    while ($row = mysql_fetch_array($result)) {
+        if ($pos["locate_flag"] and isset($row["distance"])) {
+            $row["distance_str"] = getDistanceString($row["distance"]) ;
+        } else {
+            $row["distance_str"] = "定位失败";
+        }
+
+        if (!isset($row["avg_pay"]))
+            $row["avg_pay"] = 0.0;
+        if (!isset($row["avg_score"]))
+            $row["avg_score"] = 0.0;
+
+        $row["img"] = getShopTopImg($row["shop_id"]);
+        $row["href"] = "one_shopinfo.php?shop_id=".$row["shop_id"];
+        $ret[] = $row;
+    }
+    mysql_free_result($result);
+    return $row;
+}
+
+function getMyDpCollectShopTotal($link, $user_num_id) {
+    $sql = "SELECT COUNT(*) AS count FROM fav_shop AS f,shop_info AS s WHERE
+            f.user_id=$user_num_id AND s.review_result!=4 AND s.shop_id=f.shop_id";
+    $result = mysql_query($sql, $link);
+    $total = 0;
+    if ($row = mysql_fetch_array($result))
+        $total = $row["count"];
+    mysql_free_result($result);
+
+    return $total;
+}
+
+// 我上传的点评图片
+function getMyDpAlbum($link, $user_num_id, $page, $num) {
+    $one = array();
+    $return_array = array();
+    $sql = 'select tmp.shop_id,tmp.count,cnName from (select shop_id,count(*) as count ,display from comment_img
+             where user_id='.$user_num_id.' and display<2 group by shop_id ) as tmp,shop_info where tmp.shop_id=shop_info.shop_id and display<2
+             order by cnName limit '.$page.','.$num;
+    $result = mysql_query($sql, $link);
+    while ($row = mysql_fetch_array($result)) {
+        $one["shop_id"] = $row["shop_id"];
+        $one["count"] = $row["count"];
+        $one["img"] = getShopAlbumCoverImg($link, $one["shop_id"], $user_num_id);
+        $one["cnName"] = $row["cnName"];
+        $tmp_name = iconv("UTF-8", "GTK//IGNORE", $row["cnName"]);
+        if ($tmp_name)
+            $one["cnName"] = $tmp_name;
+
+        $one["href"] = "dp_picture_list.php?shop_id={$one["shop_id"]}&user_num_id=$user_num_id";
+        $return_array[] = $one;
+    }
+    mysql_free_result($result);
+    return $return_array;
+}
+
+function getMyDpAlbumTotal($link, $user_num_id) {
+    $sql = "SELECT COUNT(*) AS count FROM (SELECT shop_id,COUNT(*) AS count ,display FROM comment_img
+             WHERE user_id=$user_num_id AND display<2 GROUP BY shop_id ) AS tmp,shop_info WHERE tmp.shop_id=shop_info.shop_id AND display<2";
+
+    $result = mysql_query($sql, $link);
+    $total = 0;
+    if ($row = mysql_fetch_array($result))
+        $total = $row["count"];
+    mysql_free_result($result);
+
+    return $total;
+}
+
+// 我的评论
+function getMyDpComment($link, $user_num_id, $page, $num){
+    $page = ($page-1)*$num;
+    $sql = "SELECT shop_id,user_id,user_name,avg_score,consume,content,photos FROM user_comment WHERE
+            user_id=$user_num_id AND display<2 ORDER BY create_time DESC LIMIT $page,$num";
+
+    $result = mysql_query($sql, $link);
+    $ret = array();
+    while ($row = mysql_fetch_array($result)) {
+        if ($row["photos"]) {
+            $row["img_list"] = getShopCommentImgList($row["shop_id"], $row["photos"]);
+        }
+
+        $ret[] = $row;
+    };
+    mysql_free_result($result);
+    return $row;
+}
+
+function getMyDpCommentTotal($link, $user_num_id) {
+    $sql = "SELECT COUNT(*) AS count FROM user_comment WHERE
+            user_id=$user_num_id AND display<2";
+
+    $result = mysql_query($sql, $link);
+    $total = 0;
+    if ($row = mysql_fetch_array($result))
+        $total = $row["count"];
+    mysql_free_result($result);
+
+    return $total;
+}
+
 function makeMailPath($user_id, $filename) {
     $filepath = BBS_HOME."/mail/".strtoupper(substr($user_id, 0, 1))."/$user_id/$filename";
     if (file_exists($filepath))
@@ -3501,7 +3630,7 @@ function getMailByType($user_id, $type, $page, $num) {
         foreach ($all_mails as $each) {
             $mail_count++;
             // 同一邮件夹下邮件id从0递增,按照时间先后顺序倒序遍历,所以邮件id为(总数-已遍历数)
-            $each["MAILID"] = $mail_total-$mail_count;
+            $each["MAILID"] = $mail_total-$mail_count-$page;
 
             switch ($type) {
                 case "unread":

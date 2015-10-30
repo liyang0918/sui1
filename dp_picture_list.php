@@ -8,7 +8,7 @@ $type = $_GET["type"];
 if ($type != "all" and $type != "dish" and $type != "env") {
     $type = "all";
 }
-
+$user_num_id = $_GET["user_num_id"];
 //data part
 $url_page = url_generate(4, array(
         "action" => "dp_picture_list.php",
@@ -23,7 +23,7 @@ if(empty($page)){
 //page part
 $total_row = getShopPictureTotal($link, $shop_id, $type);
 //end page
-$t_data = getShopPictureList($link, $shop_id, $type, $page, $per_page);
+$t_data = getShopPictureList($link, $shop_id, $type, $page, $per_page, true, $user_num_id);
 ?>
 <!DOCTYPE html>
 <html lang="zh">
@@ -81,11 +81,11 @@ $t_data = getShopPictureList($link, $shop_id, $type, $page, $per_page);
 <!--                <p><a href="#">µÍ∆Ã√˚≥∆</a></p>-->
 <!--            </div>-->
 <!--        </li>-->
-    <?php foreach ($t_data as $each) { ?>
+    <?php foreach ($t_data as $i=>$each) { ?>
         <li>
             <div>
-                <a href=""><img src="<?php echo $each["img"]; ?>" alt="picture"/></a>
-                <p><a href=""><?php echo $each["tag_name"]; ?></a></p>
+                <a href="dp_picture_single.php?shop_id=<?php echo $shop_id; ?>&pic_num=<?php echo $i+1; ?>&type=<?php echo $type; ?>"><img src="<?php echo $each["img"]; ?>" alt="picture"/></a>
+                <p><?php echo $each["tag_name"]; ?></p>
             </div>
         </li>
     <?php } ?>

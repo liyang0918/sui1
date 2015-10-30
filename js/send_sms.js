@@ -142,7 +142,7 @@ function ready_for_sms(obj) {
 			, asynchronous: false
 			, onSuccess: function (ret) {
 			confirm_num = ret.responseText
-			//alert(confirm_num);
+//			alert(confirm_num);
 		}
 			, onFailure: function (x) {
 			alert("fail to get confirm_num from server ;")
