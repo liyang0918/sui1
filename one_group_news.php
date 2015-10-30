@@ -20,6 +20,11 @@ if ($brdnum == 0) {
     if ($num == 0) wap_error_quit("不存在的版面");
 }
 
+$fav_flag = 0;
+$check_result = check_if_fav($link, 1, $brdarr["BOARD_ID"], $group_id, 0, $brdarr["NAME"], "", "");
+if ($check_result && mysql_num_rows($check_result) > 0)
+    $fav_flag = 1;
+
 function readArticleContent($link) {
     global $board_name, $group_id, $brdarr, $article_type;
     $sql = "SELECT owner_id,owner,groupid,article_id,boardname,title,type_flag,UNIX_TIMESTAMP(posttime) as posttime,total_reply,read_num,filename,attachment FROM dir_article_" . $brdarr["BOARD_ID"] . " ".
@@ -81,8 +86,17 @@ if ($reply_page == 0) {
     </div><!--------End news_content_box-->
     <footer class="collect_share">
         <a class="news_a" onclick="news_reply()">写评论</a>
-        <a class="share" href="#"><img src="img/share.png" alt="share.png"/><span>分享</span></a>
-        <a class="collect" href="#"><img src="img/star.png" alt="star.png"/> <span>收藏</span></a>
+        <span class="collect">
+            <a id="fav_<?php echo $fav_flag; ?>" href="" onclick="return collect_by_type(1, this, '<?php echo $brdarr["BOARD_ID"];?>', '<?php echo $group_id; ?>', '<?php echo $t_data["title"];?>')">
+                <?php if ($fav_flag == 1) { ?>
+                    <img id="collect_img" src="img/star.png" alt="star.png" hidden="hidden"/>
+                    <span id="collect_span" >已收藏</span>
+                <?php } else { ?>
+                    <img id="collect_img" src="img/star.png" alt="star.png"/>
+                    <span id="collect_span">收藏</span>
+                <?php } ?>
+            </a>
+        </span>
     </footer><!--------End collect_share-->
 <?php } else if($reply_page == 1) { ?>
     <div class="ds_box border_bottom">
@@ -137,9 +151,8 @@ if ($reply_page == 0) {
                 alert("评论内容不少于10个字!");
                 return false;
             }
-            post_article(board, title, groupid);
-            curr_url = curr_url + "&reply=0";
-            window.location = curr_url;
+
+            post_article(board, title, groupid, 0, curr_url+"&reply=0");
             return false;
         }
     </script>

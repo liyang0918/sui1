@@ -26,6 +26,7 @@ function getBoardsBySection($class)
     $boards = $boards_original;
     list ($board_list, $rows) = boards_dir_sort($boards);
 
+    $board_list = array_reverse($board_list, true);
     $fav_arr = array();
     if ($currentuser["userid"] != "guest") {
         $fav_arr = get_fav_arr($currentuser["num_id"],$link);

@@ -48,12 +48,14 @@ if (bbs_get_records_from_num($mail_fullpath, $mailid, $mails)) {
     bbs_setmailreaded($mail_fullpath, $mailid);
     $ret = getMailInfo($user_id, $mails[0], $type, 1);
 
-/* 测试律师阅读邮件的权限,将posttime提前7天 */
-// $ret["time"] = $ret["time"]-86400*7;
+    $timenow = time();
+/* 测试律师阅读的邮件内容,将posttime移至当前 */
+// $ret["time"] = time();
+
     if (preg_match('/^咨询：/', $ret["title"])) {
         $link = db_connect_web();
         // 非签约律师没有权限读取法律咨询邮件
-        if (!lawyer_read_perm($user_id, $ret["time"], $link)) {
+        if (!lawyer_read_perm($user_id, time(), $link)) {
             $could_read = false;
             $ret["content"] = "<br/><span style='color: red;text-align:center;'>作为加盟律师，您免费查看咨询邮件的期限已经到期，如果想要查看此邮件，请申请签约律师。</span>";
         }

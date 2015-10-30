@@ -18,11 +18,6 @@ $user_name = $currentuser["userid"];
 if (empty($user_name) || $user_name == "guest")
     error_quit(-100, "ÇëÏÈµÇÂ¼");
 
-foreach ($method_array as $key=>$value) {
-    log2file($key."=>".$value);
-}
-
-
 $shop_id = $method_array["shop_id"];
 if (empty($shop_id))
     error_quit(-1, "Î´ÖªµÄµêÆÌ");

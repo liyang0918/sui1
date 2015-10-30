@@ -6,16 +6,29 @@ $link = db_connect_web();
 //data part
 $club_flag = 0;
 $article_id = $_GET["article_id"];
+$group_id = $_GET["groupid"];
+if (isset($_GET["dingflag"]))
+    $dingflag = $_GET["dingflag"];
+else
+    $dingflag = 0;
 
-$curr_url = $_SERVER["REQUEST_URI"];
+if ($dingflag == 1)
+    $mode = $dir_modes["ZHIDING"];
+else
+    $mode = $dir_modes["ORIGIN"];
+
+$curr_url = $_SERVER["REQUEST_URI"]."?".$_SERVER["QUERY_STRING"];
 
 if (isset($_GET["board"])) {
     $club_flag = 0;
     $board_name = $_GET["board"];
+    $father_page = url_generate(3, array("type"=>$_COOKIE["app_type"], "board"=>$board_name, "groupid"=>$group_id));
 } elseif (isset($_GET["club"])) {
     $club_flag = 1;
     $board_name = $_GET["club"];
+    $father_page = url_generate(3, array("type"=>$_COOKIE["app_type"], "club"=>$board_name, "groupid"=>$group_id));
 }
+
 
 if ($club_flag == 0) {
     $brdarr = array();
@@ -118,13 +131,14 @@ if ($club_flag == 0) {
 
 <script type="text/javascript">
     function edit_submit() {
+        var father_page = "<?php echo $father_page; ?>";
         var board = "<?php echo $board_name; ?>";
         var filename = "<?php echo $art_arr["filename"]; ?>";
         var article_id = "<?php echo $article_id; ?>";
         var curr_url = "<?php echo $curr_url; ?>";
         var op_flag = "<?php echo $club_flag; ?>";
         var owner = "<?php echo $art_arr["owner"]; ?>";
-        var mode = 6;
+        var mode = "<?php echo $mode; ?>";
         var currentuser = "<?php echo $currentuser["userid"]; ?>";
         if (currentuser == "guest") {
             document.cookie = "before_login="+curr_url;
@@ -154,9 +168,10 @@ if ($club_flag == 0) {
                 parameters: para,
                 onSuccess: function (ret) {
                     if (ret.responseText == true) {
-                        Alert("修改成功", 1);
+                        alert("修改成功");
+                        window.location.href = father_page;
                     } else {
-                        Alert("shibai"+ret.responseText, 2);
+                        Alert("修改失败,"+ret.responseText, 2);
                     }
                 },
                 onFailure: function (x) {

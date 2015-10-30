@@ -5,6 +5,11 @@ include_once("head.php");
 //data part
 $board_name = $_GET["board"];
 $group_id = $_GET["group"];
+if (isset($_GET["dingflag"]))
+    $dingflag = $_GET["dingflag"];
+else
+    $dingflag = 0;
+
 $user_id = $currentuser["userid"];
 
 $curr_url = url_generate(3, array("type"=>$_COOKIE["app_type"], "board"=>$board_name, "groupid"=>$group_id));
@@ -53,9 +58,11 @@ if($row == false){
     if($page == 1) {
         $floor_cnt++;
         $tmp_arr["owner"] = $row["owner"];
+        $tmp_arr["title"] = $title;
         $tmp_arr["posttime"] = $row["posttime"];
         $tmp_arr["floor"] = "楼主";
         $tmp_arr["img"] = get_user_img($row["owner"]);
+        $tmp_arr["filename"] = $row["filename"];
         $tmp_arr["file"] = check_board_filename($board_name, $row["filename"]);
         $content_arr = get_file_content($tmp_arr["file"], $row["attachment"], $board_name, $row["article_id"], $article_type, $att_arr);
 
@@ -100,6 +107,7 @@ while ($row = mysql_fetch_array($ret)) {
     $tmp_arr["img"] = get_user_img($row["owner"]);
     $tmp_arr["posttime"] = $row["posttime"];
     $tmp_arr["floor"] = ($floor_cnt+($page-1)*$per_page)."楼";
+    $tmp_arr["filename"] = $row["filename"];
     $tmp_arr["file"] = check_board_filename($board_name,$row["filename"]);
     $content_arr = get_file_content($tmp_arr["file"],$row["attachment"],$board_name,$row["article_id"],$article_type,$att_arr);
 
@@ -144,7 +152,7 @@ $i_cnt = count($prt_arr);
                 <p id="content_<?php echo $prt_arr[$i_loop]["article_id"];?>" class="theme_middle black_font"><?php echo $prt_arr[$i_loop]["content"];?></p>
                 <div id="re_<?php echo $prt_arr[$i_loop]["article_id"];?>" class="news_reply">
                     <?php if ($user_id != "guest" and $user_id == $prt_arr[$i_loop]["owner"]) { ?>
-                    <a href="one_edit.php?board=<?php echo $board_name; ?>&article_id=<?php echo $prt_arr[$i_loop]["article_id"]; ?>">修改</a>
+                    <a href="one_edit.php?board=<?php echo $board_name; ?>&article_id=<?php echo $prt_arr[$i_loop]["article_id"]; ?>&groupid=<?php echo $group_id; ?>&dingflag=<?php echo $dingflag; ?>">修改</a>
                     <?php } ?>
                     <a type="button" href="<?php echo $reply_href = url_generate(4, array(
                         "action" => "one_reply.php",
@@ -156,7 +164,7 @@ $i_cnt = count($prt_arr);
                             "page"=>$page)
                     )); ?>">回复</a>
                     <?php if ($user_id != "guest" and $user_id == $prt_arr[$i_loop]["owner"]) { ?>
-                    <a class="cancel" href="javascript:;">删除</a>
+                    <a class="cancel" href="javascript:;" onclick="return del('<?php echo $board_name; ?>', '<?php echo $group_id; ?>', '<?php echo $prt_arr[$i_loop]["article_id"]; ?>', '<?php echo $prt_arr[$i_loop]["filename"]; ?>', '<?php echo $dingflag; ?>', 0);">删除</a>
                     <?php } ?>
                 </div>
             </li>
@@ -195,6 +203,18 @@ $i_cnt = count($prt_arr);
     </div><!--  End news_foot-->
     <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript">
+        function del(boardname, group_id, article_id, filename, dingflag, club_flag) {
+            if (!confirm("你真的要删除本文吗?"))
+                return false;
+
+            var url = "/mobile/forum/request/del_article.php";
+            var para = "boardname="+boardname+"&group_id="+group_id+"&article_id="+article_id+"&filename="+filename+"&dingflag="+dingflag+"&club_flag="+club_flag;
+
+            var jumpto = "one_board.php?board=<?php echo $board_name; ?>";
+            del_article(url, para, jumpto);
+            return false;
+        }
+
         $(document).ready(function () {
             var page = <?php echo $page;?>;
 

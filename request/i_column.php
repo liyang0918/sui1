@@ -20,11 +20,17 @@ function getSpecialColumnArticle($link) {
                 "args"=>array("reqtype"=>"column", "board"=>$each["board"], "groupid"=>$each["groupid"])
             ));
         $boardname = $each["board"];
+        $author = getLawyerName($link, $each["author"]);
+        $author_tmp = iconv("UTF-8", "GBK//IGNORE", $author);
+        if ($author_tmp)
+            $author = $author_tmp;
+
         $ret[] = array(
             "title" => $title,
             "postTime" => $postTime,
             "href" => $href,
-            "boardname" => $boardname
+            "boardname" => $boardname,
+            "author" => $author
         );
     }
 
@@ -99,7 +105,7 @@ foreach ($article_list as $each) {
     $str_article .= '<div class="content_list nopic padding10 ">';
     $str_article .= '<h4><a href="'.$each["href"].'">'.$each["title"].'</a></h4>';
     $str_article .= '<p class="commen_p padding-bottom border_bottom">';
-    $str_article .= '<span class="commen_margin im_l">'.$each["boardname"].'</span>';
+    $str_article .= '<span class="commen_margin im_l">'.$each["author"].'бий╕</span>';
     $str_article .= '<span class="commen_right ">'.$each["postTime"].'</span>';
     $str_article .= '</p></div></li>';
 }

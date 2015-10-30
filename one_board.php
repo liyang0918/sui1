@@ -36,7 +36,7 @@ function getBoardArticles() {
     foreach ($articles as $article) {
         $href = url_generate(3, array("type"=>$_COOKIE["app_type"], "board"=>$brdarr["NAME"], "groupid"=>$article["GROUPID"]));
         if (!strncasecmp($article["FLAGS"], "d", 1)) {
-            $ret[1][] = array("href" => $href, "title" => $article["TITLE"]);
+            $ret[1][] = array("href" => $href."&dingflag=1", "title" => $article["TITLE"]);
         } else {
             $sql = $sql_pub.$article["GROUPID"];
             $result = mysql_query($sql, $link);

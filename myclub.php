@@ -2,11 +2,12 @@
 include_once(dirname(__FILE__)."/../../mitbbs_funcs.php");
 include_once("func.php");
 include_once("head.php");
-
+$curr_url = $_SERVER["REQUEST_URI"]."?".$_SERVER["QUERY_STRING"];
 if ($currentuser["userid"] == "guest") {
+    setcookie("before_login", $curr_url);
 ?>
 <script type="text/javascript">
-    location.href = "login.php";
+    window.location.href = "login.php";
 </script>
 <?php
 }

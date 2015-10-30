@@ -11,9 +11,11 @@ $title = $_GET["title"];
 if (isset($_GET["board"])) {
     $club_flag = 0;
     $board_name = $_GET["board"];
+    $father_page = url_generate(3, array("type"=>$_COOKIE["app_type"], "board"=>$board_name, "groupid"=>$group_id));
 } elseif (isset($_GET["club"])) {
     $club_flag = 1;
     $board_name = $_GET["club"];
+    $father_page = url_generate(3, array("type"=>$_COOKIE["app_type"], "club"=>$board_name, "groupid"=>$group_id));
 }
 
 $page = $_GET["page"];
@@ -38,6 +40,7 @@ else
 
 <script type="text/javascript">
     function reply_submit() {
+        var father_page = "<?php echo $father_page; ?>";
         var board = "<?php echo $board_name; ?>";
         var groupid = "<?php echo $article_id; ?>";
         var curr_url = "<?php echo $curr_url; ?>";
@@ -56,8 +59,7 @@ else
             return false;
         }
 
-        post_article(board, title, groupid, "<?php echo $club_flag; ?>");
-        document.location = "<?php echo $father_page; ?>";
+        post_article(board, title, groupid, "<?php echo $club_flag; ?>", father_page);
         return false;
     }
 </script>

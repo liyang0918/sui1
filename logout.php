@@ -28,10 +28,7 @@ function userLogout() {
 
 $ret = userLogout();
 echo '<script type="text/javascript">';
-if(!empty($_COOKIE["before_login"]))
-    echo 'location.href = "'.$_COOKIE["before_login"].'";';
-else
-    echo 'location.href = "index.php";';
+echo 'location.href = "index.php";';
 if ($ret["logoutResult"] == "1") {
     echo 'Alert("µÇ³ö³É¹¦", 1);';
 } else {

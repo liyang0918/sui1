@@ -7,6 +7,18 @@ $page = $_COOKIE["current_page"];
 if (empty($page))
     $page = 1;
 
+// carouselfigure start
+$str_carouselfigure = "";
+$ret = getTopNewsByType($link, $type);
+$str_carouselfigure = '<div id="carouselfigure" class="newsIndex_showBox" style="display: none">';
+if ($ret) {
+    $str_carouselfigure = '<div id="carouselfigure" class="newsIndex_showBox">';
+    $str_carouselfigure .= '<a href="'.$ret["href"].'"><img src="'.$ret["imgURL"].'" /></a>';
+    $str_carouselfigure .= '<p class="newsIndex_info">'.$ret["title"].'</p>';
+}
+$str_carouselfigure .= '</div>';
+// carouselfigure end
+
 list($head_line_news, $end_flag) = getNews($link, $page, $type);
 setcookie("end_flag", (string)$end_flag, 0, "/");
 $str_article = '<div class="news_list_content" id="detail">';
@@ -40,7 +52,9 @@ foreach ($head_line_news as $each) {
 
 $str_article .= "</ul></div>";
 //detail end
+$str_carouselfigure = mb_convert_encoding($str_carouselfigure, "UTF-8", "GBK");
 $str_article = mb_convert_encoding($str_article, "UTF-8", "GBK");
+$all_arr["carouselfigure"] = $str_carouselfigure;
 $all_arr["detail"] = $str_article;
 if ($page == 1)
     echo json_encode($all_arr);

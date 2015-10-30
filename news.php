@@ -13,7 +13,7 @@ if(!is_own_label($_COOKIE["sec_category"], "news")) {
     setcookie("app_show", iconv("GBK", "UTF-8//IGNORE", "新闻"));
     setcookie("sec_category", "news_mix");
     // 切换栏目需要重新加载
-    echo '<script language="javascript">location.href=location.href</script>';
+    echo '<script language="javascript">window.location.href=window.location.href</script>';
 }
 
 include_once("head.php");
@@ -21,8 +21,7 @@ include_once("sec_news.php")
 ?>
 <div id="linklist">
 </div>
-<div class="newsIndex_showBox">
-    <img src="images/1.png" alt="images/1.png"/>
+<div id="carouselfigure" class="newsIndex_showBox">
 </div>
 <div id="detail">
 </div>

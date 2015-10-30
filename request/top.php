@@ -85,7 +85,6 @@ function getTopArticle($link, $page, $limit_article) {
                     $readnum = $row_old["read_num"];
                     $totalreply = $row_old["total_reply"];
                 }
-                //add by baibing for get old information
             } else {
                 $data["groupID"] = $row1["groupid"];
                 $data["articleID"] = $row["article_id"];
@@ -93,8 +92,8 @@ function getTopArticle($link, $page, $limit_article) {
                 $readnum = $row1["read_num"];
                 $totalreply = $row1["total_reply"];
             }
-            $limit["article_id"] =$row["article_id"];
-            $limit["board_id"] =$row["board_id"];
+            $limit["article_id"] = $row["article_id"];
+            $limit["board_id"] = $row["board_id"];
             $data["replyNum"] = $totalreply;
             $data["readNum"] = $readnum;
             $data["posttime"] = $row1["posttime"];
