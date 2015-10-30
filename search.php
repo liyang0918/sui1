@@ -2,6 +2,7 @@
 require_once(dirname(__FILE__)."/../../mitbbs_funcs.php");
 require_once("func.php");
 
+$curr_url = $_SERVER["REQUEST_URI"]."?".$_SERVER["QUERY_STRING"];
 if(empty($_COOKIE["app_type"]))
     setcookie("app_type", "search");
 if(empty($_COOKIE["app_show"]))
@@ -35,7 +36,10 @@ $page_title = "ËÑË÷";
             <h3 class="navone_h3"><img class="navone_forum" src="img/menu.png" alt="menu.png"/><?PHP echo $page_title?></h3>
         </div>
         <img class="navone_space" src="img/space.png" alt="space.png"/>
-        <?php if($currentuser["userid"]=="guest")  {?>
+        <?php
+        if($currentuser["userid"]=="guest")  {
+            setcookie("before_login", $curr_url);
+        ?>
             <a class="navone_home" href="login.php">
                 <img src="img/home.png" alt="home.png">
             </a>

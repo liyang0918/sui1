@@ -17,11 +17,11 @@ if ($mail_type == 1) {
     $sql = "SELECT lawyer_name FROM lawyer WHERE creator='$mailto'";
     $result = mysql_query($sql, $link);
     if ($row = mysql_fetch_array($result)) {
-        $mailto_name = $row["lawyer_name"];
+        $mailto_name = $row["lawyer_name"]."律师";
     }
 }
 
-$curr_url = $_SERVER["REQUEST_URI"];
+$curr_url = $_SERVER["REQUEST_URI"]."?".$_SERVER["QUERY_STRING"];
 
 ?>
     <div class="ds_box border_bottom">
@@ -85,6 +85,9 @@ $curr_url = $_SERVER["REQUEST_URI"];
             if (mail_type == "1") {
                 // 咨询类型邮件的标题前需加上 "咨询："
                 title = "咨询："+title;
+            } else {
+                // 普通邮件若以咨询开头 将冒号改为英文
+                title = title.replace(/^咨询：(.*)/, "咨询:$1");
             }
 
             // 获取正文

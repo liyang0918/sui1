@@ -3,7 +3,7 @@ include_once(dirname(__FILE__)."/../../mitbbs_funcs.php");
 include_once(dirname(__FILE__)."/func.php");
 include_once("head.php");
 
-$curr_url = $_SERVER["REQUEST_URI"];
+$curr_url = $_SERVER["REQUEST_URI"]."?".$_SERVER["QUERY_STRING"];
 
 if (empty($currentuser) or $currentuser["userid"] == "guest") {
     setcookie("before_login", $curr_url);
@@ -122,15 +122,16 @@ if (isset($_GET["board"])) {
             var url = "/mobile/forum/request/post_article.php";
             var para = "";
 
+            var jumpto = "";
             if (article_type == "1") {
                 para = "board="+name+"&title="+input[0].value+"&reid=0&content="+textarea[0].value;
-                var href = "one_board.php?board="+name;
+                var jumpto = "one_board.php?board="+name;
             } else if (article_type == "2") {
                 para = "club="+name+"&title="+input[0].value+"&reid=0&content="+textarea[0].value;
-                var href = "one_club.php?club="+name;
+                var jumpto = "one_club.php?club="+name;
             }
 
-            send_article(url, para, false);
+            send_article(url, para, jumpto, false);
 //            document.location = href;
             return false;
         }
