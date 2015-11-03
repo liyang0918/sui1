@@ -101,10 +101,10 @@ if (count($article_list) == 0) {
 $str_article = '<ul class="hot_recommend">';
 $each = array();
 foreach ($article_list as $each) {
-    $str_article .= '<li class="hot_li hot_list_wrap im_conter_box">';
+    $str_article .= '<li class="hot_li hot_list_wrap im_conter_box border_top">';
     $str_article .= '<div class="content_list nopic padding10 ">';
     $str_article .= '<h4><a href="'.$each["href"].'">'.$each["title"].'</a></h4>';
-    $str_article .= '<p class="commen_p padding-bottom border_bottom">';
+    $str_article .= '<p class="commen_p padding-bottom">';
     $str_article .= '<span class="commen_margin im_l">'.$each["author"].'бий╕</span>';
     $str_article .= '<span class="commen_right ">'.$each["postTime"].'</span>';
     $str_article .= '</p></div></li>';

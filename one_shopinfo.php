@@ -22,9 +22,9 @@ $shop_info = getShopInfoById($link, $shop_id);
             </a>
             <div>
                 <h4><?php echo $shop_info["cnName"]; ?></h4>
-                <p class="conter2_pt">
+                <p class="conter2_pt pd_5">
                 <?php for ($i = 0; $i < 5; $i++) { ?>
-                    <?php if ($i < $shop_info["avg_score"]-1) { ?>
+                    <?php if ($i <= $shop_info["avg_score"]-1) { ?>
                     <img src="img/redstar.png" alt="redstar.png"/>
                     <?php } else { ?>
                     <img src="img/graystar.png" alt="redstar.png"/>
@@ -59,10 +59,10 @@ $shop_info = getShopInfoById($link, $shop_id);
         $total_page = intval($total_row/$num)+1;
         $frt_page = 1;
         $end_page = $total_page;
-        // 不足一页的隐藏页码
-        if ($total_row > $num)
-            $page_str = '<div id="page_part" class="pages_box margin-bottom">';
-        else
+        // 暂时不需要分页
+//        if ($total_row > $num)
+//            $page_str = '<div id="page_part" class="pages_box margin-bottom">';
+//        else
             $page_str = '<div id="page_part" class="pages_box margin-bottom" hidden="hidden">';
 
         $page_str .= '<a href="" id="pre_page" onclick="return getComment(-1);">上一页</a>';

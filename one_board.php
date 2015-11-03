@@ -42,6 +42,7 @@ function getBoardArticles() {
             $result = mysql_query($sql, $link);
             if ($result) {
                 $row = mysql_fetch_array($result);
+//                $row["title"] = htmlentities($row["title"]);
                 $tmp = iconv("UTF-8", "GBK//IGNORE", $row["title"]);
                 if ($tmp)
                     $row["title"] = $tmp;
@@ -89,7 +90,9 @@ $ret = getBoardArticles();
                         <img class="theme_small" src="<?php echo $each["img"]; ?>" alt="pic"/>
                         <div class="theme_right">
                             <h4><?php echo $each["owner"]; ?></h4>
-                            <span><?php echo date("H:i", strtotime($each["posttime"])); ?>&nbsp;</span><span class="theme_time"><?php echo date("Y-m-d", strtotime($each["posttime"])); ?></span>
+                            <span class="theme_time"><?php echo date("Y-m-d", strtotime($each["posttime"])); ?></span>
+                            <span><?php echo date("H:i", strtotime($each["posttime"])); ?>&nbsp;</span>
+
                         </div>
                     </div>
                     <p class="theme_middle"><?php echo $each["title"]; ?></p>

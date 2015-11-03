@@ -94,14 +94,17 @@ $search_type = ""; // board 搜版面   club 搜俱乐部   member 搜会员
 $search_name = "";
 if (isset($_GET["board"])) {
     $search_type = "board";
-    $search_name = $_GET["board"];
+    $search_name = strip_tags($_GET["board"]);
 } else if (isset($_GET["club"])) {
     $search_type = "club";
-    $search_name = $_GET["club"];
+    $search_name = strip_tags($_GET["club"]);
 } else if (isset($_GET["member"])) {
     $search_type = "member";
-    $search_name = $_GET["member"];
+    $search_name = strip_tags($_GET["member"]);
 }
+
+// 防注入,遇到【;,'"】直接截断
+$search_name = mbstr_split($search_name, ";,'\"");
 
 // 模糊查询标志: 1开启 0关闭
 $fuzzy = 1;
@@ -171,6 +174,7 @@ $limit = " limit $start,$per_page";
 
 $sql .= $limit;
 //data end
+log2file($sql);
 ?>
 <div class="ds_box border_bottom">
     <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
@@ -181,7 +185,7 @@ $sql .= $limit;
     <ul class="hot_list_wrap border_bottom block">
 <?php
 if ($total_row == 0)
-    echo '<h3><span>没有找到相匹配的结果</span></h3>';
+    echo '<h3 class="search_msg">没有找到相匹配的结果</h3>';
 $t_data = search_result_board($link, $sql, $search_name);
 foreach ($t_data as $each) {
 ?>
@@ -205,7 +209,7 @@ foreach ($t_data as $each) {
     <ul class="hot_list_wrap border_bottom block">
 <?php
 if ($total_row == 0)
-    echo '<h3><span>没有找到相匹配的结果</span></h3>';
+    echo '<h3 class="search_msg">没有找到相匹配的结果</h3>';
 $t_data = search_result_club($link, $sql, $search_name);
 foreach ($t_data as $each) {
 ?>
@@ -228,7 +232,7 @@ foreach ($t_data as $each) {
 <ul class="jy_f_group">
 <?php
 if ($total_row == 0)
-    echo '<h3><span>没有找到相匹配的结果</span></h3>';
+    echo '<h3 class="search_msg">没有找到相匹配的结果</h3>';
 $t_data = search_result_member($link, $sql, $search_name);
 foreach ($t_data as $each) {
 ?>

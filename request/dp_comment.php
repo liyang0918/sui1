@@ -34,7 +34,7 @@ if ($shop_id > 0) {
                 $str_content .= '<img src="img/graystar.png" alt="redstar.png"/>';
         }
         $str_content .= '<span>$'.$each["consume"].'/ÈË</span></p>';
-        $str_content .= '<p class="member_info">'.$each["content"].'</p>';
+        $str_content .= '<p class="member_info breakword">'.$each["content"].'</p>';
         if (isset($each["img_list"])) {
             $str_content .= '<div class="member_img">';
             foreach ($each["img_list"] as $img) {

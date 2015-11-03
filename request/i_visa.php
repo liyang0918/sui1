@@ -54,9 +54,9 @@ for ($i=$pagepos; $i < ($pagepos+$pagetotal) and $i < $pagetotal; $i++) {
     $str_article .= '<div class="content_list nopic padding10 ">';
     $str_article .= '<h4 class="singleline"><a href="'.$each["href"].'">'.$each["title"].'</a></h4>';
     $str_article .= '<p class="commen_p">';
-    $str_article .= '<span class="im_l noborder pl">'.$each["author"].'</span>';
+    $str_article .= '<span class="m_r_10 im_l noborder pl">'.$each["author"].'</span>';
     $str_article .= '<span class="im_l noborder pl">'.$each["BoardsName"].'</span>';
-    $str_article .= '<span class="fr">'.strftime("%G-%m-%d",$each["posttime"]).'</span>';
+    $str_article .= '<span class="fr" style="padding:0;">'.strftime("%G-%m-%d",$each["posttime"]).'</span>';
 //    $str_article .= '<span class="fr">'.$each["posttime"].'</span>';
     $str_article .= '</p></div></li>';
 }

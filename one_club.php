@@ -3,29 +3,54 @@ include_once(dirname(__FILE__)."/../../mitbbs_funcs.php");
 include_once(dirname(__FILE__)."/func.php");
 include_once("head.php");
 //data part
+$link = db_connect_web();
+
+$user_id = $currentuser["userid"];
+$user_num_id = $currentuser["num_id"];
+
 $club_name=$_GET["club"];
 $url_page = url_generate(2, array("type"=>$_COOKIE["app_type"], "club"=>$club_name))."&page=";
 $clubarr = array();
 $club_id = bbs_getclub($club_name, $clubarr);
+$member_type = clubCheckMember($club_id, $user_num_id, $link);
+//show_result($clubarr);
+
 $page = intval($_GET["page"]);
 if(empty($page)){
     $page=1;
 }
-if ($club_id == 0) {
-    if ($num == 0) wap_error_quit("错误的俱乐部参数!");
-}
-
 /* 每页文章数 */
 $article_num = 10;
 /* 起始页 */
 $start_num = $article_num*($page-1)+1;
+
+if ($club_id == 0) {
+    wap_error_quit("错误的俱乐部参数!");
+}
+
+/* 检查俱乐部的审批状态 */
+if ($clubarr["CLUB_APPROVAL_STATE"] > 1) {
+    wap_error_alert_quit("此俱乐部尚未通过审批,暂时不能访问", array("db_link"=>$link));
+}
+
+/* 检查访问俱乐部的权限 */
+if ($clubarr["CLUB_TYPE"] == 0) {
+    if ($user_id == "guest") {
+        wap_error_alert_quit("本俱乐部为私密俱乐部,请先登录!", array("db_link"=>$link));
+    }
+
+    if ($member_type != 2) {
+        wap_error_alert_quit("您不是本俱乐部正式成员,无权访问本俱乐部", array("db_link"=>$link));
+    }
+}
+
 /* 文章总数 */
 $totalarticle = bbs_countarticles($club_name, $dir_modes["ORIGIN"], 1);
 $articles = bbs_getarticles($club_name, $start_num, $article_num, $dir_modes["ORIGIN"], 1);
 
-function getClueArticles() {
+function getClueArticles($link) {
     global $articles, $clubarr;
-    $link = db_connect_web();
+
     $sql_table_id = intval($clubarr["CLUB_ID"])%256;
     if ($sql_table_id == 0)
         $sql_table_id = 256;
@@ -44,6 +69,7 @@ function getClueArticles() {
             $result = mysql_query($sql, $link);
             if ($result) {
                 $row = mysql_fetch_array($result);
+//                $row["title"] = htmlentities($row["title"]);
                 $tmp = iconv("UTF-8", "GBK//IGNORE", $row["title"]);
                 if ($tmp)
                     $row["title"] = $tmp;
@@ -55,18 +81,17 @@ function getClueArticles() {
         }
     }
 
-    mysql_close($link);
     return $ret;
 }
 
-$ret = getClueArticles();
+$ret = getClueArticles($link);
 
 ?>
 
     <div class="ds_box border_bottom">
         <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
         <?php echo $clubarr["CLUB_CNAME"]; ?>
-        <a href="writearticle.php?club=<?php echo $clubarr["CLUB_NAME"]; ?>" class="span_r">发文</a>
+        <a href="" onclick="return jump_to_write_article();" class="span_r">发文</a>
     </div>
     <div class="theme_wrap">
 <?php
@@ -114,6 +139,23 @@ $ret = getClueArticles();
 
     <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript">
+        function jump_to_write_article() {
+            var user_id = "<?php echo $user_id; ?>";
+            if (user_id == "guest") {
+                window.location.href = "login.php";
+                return false;
+            }
+
+            var flag = check_user_perm('<?php echo $member_type; ?>', '<?php echo $clubarr["CLUB_TYPE"]; ?>');
+            if (flag) {
+                window.location.href = "writearticle.php?club=<?php echo $clubarr["CLUB_NAME"]; ?>";
+                return false;
+            } else {
+                return false;
+            }
+        }
+
+
         $(document).ready(function () {
             var page = <?php echo $page;?>;
 
@@ -136,4 +178,5 @@ $ret = getClueArticles();
     </script>
 <?php
 include_once("foot.php");
+mysql_close($link);
 ?>

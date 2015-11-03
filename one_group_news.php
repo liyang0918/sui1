@@ -158,6 +158,5 @@ if ($reply_page == 0) {
     </script>
 </head>
 <?php
-include_once("foot.php");
 mysql_close($link);
 ?>

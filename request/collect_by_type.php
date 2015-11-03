@@ -145,7 +145,6 @@ if ($type == 6) {
         $sql = "DELETE FROM fav_article
                   WHERE user_numid={$user_num_id} AND fav_article_id={$fav_article_id}";
 
-        log2file($sql);
         $result = mysql_query($sql, $link);
         if ($result == NULL)
             error_quit(-16, "É¾³ıÊÕ²ØÎÄÕÂÊ§°Ü");

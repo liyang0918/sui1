@@ -122,7 +122,8 @@ function dpSavePic2Db($link, $shop_id, $file_info) {
     global $user_id, $user_num_id;
     $file_name = $file_info["pic_name"].'_'.$user_id.'_'.time();
     $shop_path =  BBS_HOME.'/pic_home/comment/'.$shop_id.'/'.$file_info["dir"];
-    @mkdir($shop_path);
+    log2file($shop_path);
+    @mkdirs_r($shop_path);
     while(is_file($shop_path.'/'.$file_name)){
         $file_name = $file_info["pic_name"].'_'.$user_id.'_'.(time()+1);
     }

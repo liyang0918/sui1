@@ -11,10 +11,8 @@ $page = $_POST["page"];
 $num = $_POST["num"];
 $str_content = "";
 
-log2file($type);
 if ($type == "shop") {
     $t_data = getMyDpCollectShop($link, $user_num_id, $pos, $page, $num);
-    log2file($t_data);
     foreach ($t_data as $each) {
         $str_content .= '<li class="conter2_list border_bottom">';
         $str_content .= '<a class="conter2_list_conter" href="'.$each["href"].'">';
@@ -60,7 +58,7 @@ if ($type == "shop") {
     foreach ($t_data as $each) {
         $str_content .= '<li><a href="'.$each["href"].'" ><img src="'.$each["img"].'"/></a>';
         $str_content .= '<div><p>'.$each["cnName"].'</p>';
-        $str_content .= '<p>'.$each["count"].'</p>';
+        $str_content .= '<p>('.$each["count"].')</p>';
         $str_content .= '</div></li>';
     }
 }

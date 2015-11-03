@@ -72,7 +72,7 @@ if ($mode == "0") {
         $str_lawyer .= '<dt>'.$group.'</dt>';
         $each = array();
         foreach ($lawyers as $each) {
-            $str_lawyer .= '<dd class="border_bottom area_dd"><a id="0|'.$each["city"].'" href="" onclick="sec_select(this);">'.$each["city"].'</a></dd>';
+            $str_lawyer .= '<dd class="border_bottom area_dd"><a id="0|'.$each["city"].'" href="" onclick="sec_select(this);">'.$each["city_cname"].'</a></dd>';
         }
         $str_lawyer .= '</dl>';
     }

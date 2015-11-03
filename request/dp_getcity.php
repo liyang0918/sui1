@@ -8,11 +8,6 @@ $sec_category = $_COOKIE["sec_category"];
 // detail start
 $t_data = getDpCityListGroupByName($link);
 $str_city = '<div class="chose_list_box nomargin_top">';
-$str_city .= '
-<dl class="chose_dl">
-    <dt>#</dt>
-    <dd class="border_bottom area_dd"><a id="'.$sec_category.'|all" href="" onclick="return set_city(this);">È«²¿</a></dd>
-</dl>';
 
 foreach ($t_data as $group=>$citys) {
     if (empty($citys))

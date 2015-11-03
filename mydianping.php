@@ -26,7 +26,7 @@ $num = 20;
 $arr = getMailNumByType($user_id);
 
 ?>
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh">
     <head>
         <meta charset="utf-8">
@@ -97,7 +97,7 @@ $arr = getMailNumByType($user_id);
         </ul>
     </div>
 
-    <div id="page_part" class="pages_box margin-bottom" hidden="hidden">
+    <div id="page_part" class="pages_box margin-bottom">
         <a href="" id="pre_page" onclick="return get_pre_next(-1);">…œ“ª“≥</a>
         <span id='sep_left'>...</span>
         <a id="now_page"></a>
@@ -176,6 +176,11 @@ $arr = getMailNumByType($user_id);
 
             var num = parseInt("<?php echo $num;?>");
             var total_page = parseInt(total_row/num)+1;
+            if (total_page <= 1)
+                $('#page_part').hide();
+            else
+                $('#page_part').show();
+
             var page = $('#now_page').html();
 
             switch (direction) {

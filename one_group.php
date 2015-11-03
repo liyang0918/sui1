@@ -47,7 +47,9 @@ if($row == false){
     $tmp_arr = array();
     $att_arr = array();
     $content_arr = array();
-    $title = preg_replace( '/\[[A-Z]{4}\]/', "", $row["title"]);
+
+//    $row["title"] = htmlentities($row["title"]);
+    $title = preg_replace( '/\[[a-zA-Z]{4}\]/', "", $row["title"]);
     $tmp = iconv("UTF-8", "GBK//IGNORE", $title);
     if ($tmp)
         $title = $tmp;
@@ -91,6 +93,8 @@ if($page == 1){
     $per_page--;
     $limit = " limit $start,$per_page";
 }else{
+    // 第一页显示了9条回复,自第二页开始,每页10条,start每次都需要-1
+    $start--;
     $limit = " limit $start,$per_page";
 }
 $sql .= $limit;
@@ -173,7 +177,7 @@ $i_cnt = count($prt_arr);
     </div>
 <?php
     // 分页显示
-    echo page_partition($total_row, $page, $per_page);
+    echo page_partition($total_row-1, $page, $per_page);
 ?>
 <br><br><br><br>
     <div class="news_foot">
@@ -218,7 +222,6 @@ $i_cnt = count($prt_arr);
         $(document).ready(function () {
             var page = <?php echo $page;?>;
 
-                $("#page_now").css("background-color", "blue");
                 $("#page_now").removeAttr("href");
 
             //alert($("#page_part a").size());

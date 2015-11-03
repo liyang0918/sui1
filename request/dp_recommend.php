@@ -4,7 +4,7 @@ include_once(dirname(__FILE__)."/../func.php");
 $link = db_connect_web();
 
 $city = "all";
-list(,$city) = getExtraValue($_GET["extra"]);
+$city = $_GET["city"];
 $t_data = getDpRecommendShops($link, $city);
 
 // detail start

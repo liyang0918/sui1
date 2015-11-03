@@ -111,7 +111,6 @@ list($clubs, $totalclub) = getClubList($link, $group_id, $page, $pagesize);
         $(document).ready(function () {
             var page = <?php echo $page;?>;
 
-            $("#page_now").css("background-color", "blue");
             $("#page_now").removeAttr("href");
 
             //alert($("#page_part a").size());

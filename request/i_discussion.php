@@ -19,7 +19,7 @@ $i_board_list = array(
 // detail start
 $sql_base = 'select boardname,board_desc from board where board_id=';
 $str_article = '<div class="board_wrap">';
-foreach ($i_board_list as $each) {
+foreach ($i_board_list as $i=> $each) {
     $sql = $sql_base.$each["boardid"];
     $result = mysql_query($sql, $link);
     $row = mysql_fetch_array($result);
@@ -30,7 +30,7 @@ foreach ($i_board_list as $each) {
     $str_article .= '<div class="bd_list border_bottom">';
     $str_article .=
 '<a href="'.url_generate(2, array("board"=>$boardEngName)).'">
-    <img src="img/dis1.png" alt="board1.png"/>
+    <img src="img/dis'.($i+1).'.png" alt="board1.png"/>
     <strong>'.$each["title"].' <em class="dis_tip">'.$boardCnName.'£¨'.$boardEngName.'£©</em></strong>
     <span class="bd_right"></span>
 </a>';

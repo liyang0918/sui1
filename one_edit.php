@@ -123,7 +123,11 @@ if ($club_flag == 0) {
 </div>
 <form class="newreply_conter">
     <h4>标题:</h4>
+    <?php if ($article_id == $group_id) { ?>
     <input id="art_title" class="newreply_txt" type="text" value="<?php echo $art_arr["title"]; ?>" />
+    <?php } else { ?>
+    <input disabled="true" id="art_title" class="newreply_txt" type="text" value="<?php echo $art_arr["title"]; ?>" />
+    <?php } ?>
     <h4>正文:</h4>
     <textarea id="art_content" cols="30" rows="10"><?php echo $art_arr["content"]; ?></textarea>
     <input class="newreply_sub" type="button" value="确认修改" onclick="return edit_submit();"/>

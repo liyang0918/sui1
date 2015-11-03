@@ -9,16 +9,35 @@ if(isset($_POST["board"])) {
 } else if (isset($_POST["club"])) {
     $board_name = $_POST["club"];
     $club_flag = 1;
+    // 添加对俱乐部文章post的权限判断
+    $user_id = $currentuser["userid"];
+    $user_num_id = $currentuser["num_id"];
+    $clubarr = array();
+    $club_id = bbs_getclub($board_name, $clubarr);
+    $link = db_connect_web();
+    $member_type = clubCheckMember($club_id, $user_num_id, $link);
+    mysql_close($link);
+    if ($member_type != 2) {
+        echo "请先加入俱乐部再发文";
+        return false;
+    }
 }
 
+$title = "";
 if(!empty($_POST["title"])) {
     $title = $_POST["title"];
     $tmp = iconv("UTF-8", "GBK//IGNORE", $title);
     if ($tmp)
         $title = $tmp;
-} if(!empty($_POST["reid"])) {
+}
+
+$reid=0;
+if(!empty($_POST["reid"])) {
     $reid = intval($_POST["reid"]);
-} if(!empty($_POST["content"])) {
+}
+
+$content = "";
+if(!empty($_POST["content"])) {
     $content = $_POST["content"];
     $tmp = iconv("UTF-8", "GBK//IGNORE", $content);
     if ($tmp)
@@ -49,7 +68,7 @@ switch ($ret) {
         $echo_ret="标题为空，或只含有无效字符";
         break;
     case -4:
-        $echo_ret="此讨论区是唯读的, 或是您尚无权限在此发表文章";
+        $echo_ret="此讨论区是只读的, 或是您尚无权限在此发表文章";
         break;
     case -5:
         $echo_ret="很抱歉, 你被版务人员停止了本版的post权利";

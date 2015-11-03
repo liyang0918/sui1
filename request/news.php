@@ -25,12 +25,15 @@ $str_article = '<div class="news_list_content" id="detail">';
 $str_article .= '<ul class="new_list_content_listbox">';
 foreach ($head_line_news as $each) {
     if ($each["imgNum"] <= 1) {
-        $str_article .= '<li class="news_ltems news_list_lione">';
-        if ($each["imgNum"] == 1)
+        if ($each["imgNum"] == 1) {
+            $str_article .= '<li class="news_ltems news_list_lione">';
             $str_article .= '<img src="'.$each["imgList"][0].'" alt="img">';
+        } else {
+            $str_article .= '<li class="news_ltems news_list_lione news_list_lione_nopic">';
+        }
+
         $str_article .= '<div class="lione_r_box">';
         $str_article .= '<h3><a href="'.$each["href"].'" onclick="add_read_num(this)">'.$each["title"].'</a></h3>';
-      //  $str_article .= '<a href="'.$each["href"].'" onclick="add_read_num(this)"><p>'.$each["notes"].'</p></a>';
         $str_article .= '<a href="'.$each["href"].'" onclick="add_read_num(this)"></a>';
         $str_article .= '</div>';
         $str_article .= '<span class="critize right_b">'.$each["total_reply"].'ÆÀÂÛ</span>';

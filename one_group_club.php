@@ -2,8 +2,10 @@
 include_once(dirname(__FILE__)."/../../mitbbs_funcs.php");
 include_once(dirname(__FILE__)."/func.php");
 include_once("head.php");
+$link = db_connect_web();
 
 $user_id = $currentuser["userid"];
+$user_num_id = $currentuser["num_id"];
 
 //data part
 $club_name = $_GET["club"];
@@ -17,19 +19,41 @@ $url_page = url_generate(3, array("type"=>$_COOKIE["app_type"], "club"=>$club_na
 $article_type = 1; //3是新闻
 $clubarr = array();
 $club_id = bbs_getclub($club_name, $clubarr);
+$member_type = clubCheckMember($club_id, $user_num_id, $link);
+
 $per_page=10;
 $page = intval($_GET["page"]);
 if(empty($page)){
     $page = 1;
 }
+
 if ($club_id == 0) {
-    if ($num == 0) wap_error_quit("俱乐部不存在!");
+    mysql_close($link);
+    wap_error_quit("俱乐部不存在!");
 }
+
+
+/* 检查俱乐部的审批状态 */
+if ($clubarr["CLUB_APPROVAL_STATE"] > 1) {
+    wap_error_alert_quit("此俱乐部尚未通过审批,暂时无法访问！", array("db_link"=>$link));
+}
+
+/* 检查访问俱乐部的权限 */
+if ($clubarr["CLUB_TYPE"] == 0) {
+    if ($user_id == "guest") {
+        wap_error_alert_quit("本俱乐部为私密俱乐部，仅限成员访问，请先登录您的帐号！", array("db_link"=>$link));
+    }
+
+
+    if ($member_type != 2) {
+        wap_error_alert_quit("本俱乐部为私密俱乐部，仅限成员访问！", array("db_link"=>$link));
+    }
+}
+
 $prt_arr = array();
-$conn = db_connect_web();
 
 $fav_flag = 0;
-$check_result = check_if_fav($conn, 2, $clubarr["CLUB_ID"], $group_id, 0, $clubarr["CLUB_NAME"], "", "");
+$check_result = check_if_fav($link, 2, $clubarr["CLUB_ID"], $group_id, 0, $clubarr["CLUB_NAME"], "", "");
 if ($check_result && mysql_num_rows($check_result) > 0)
     $fav_flag = 1;
 
@@ -38,7 +62,7 @@ if ($sql_table_id == 0)
     $sql_table_id = 256;
 $sql = "SELECT owner_id,owner,groupid,article_id,title,posttime,total_reply,read_num,filename,attachment FROM club_dir_article_".$sql_table_id." ".
     "WHERE groupid=".$group_id." AND article_id=".$group_id;
-$ret = mysql_query($sql, $conn);
+$ret = mysql_query($sql, $link);
 $floor_cnt = 1;
 $row = mysql_fetch_array($ret);
 mysql_free_result($ret);
@@ -49,7 +73,8 @@ if($row == false){
     $tmp_arr = array();
     $att_arr = array();
     $content_arr = array();
-    $title = preg_replace( '/\[[A-Z]{4}\]/', "", $row["title"]);
+//    $row["title"] = htmlentities($row["title"]);
+    $title = preg_replace( '/\[[a-zA-Z]{4}\]/', "", $row["title"]);
     $tmp = iconv("UTF-8", "GBK//IGNORE", $title);
     if ($tmp)
         $title = $tmp;
@@ -78,7 +103,7 @@ if($row == false){
 }
 
 //page part
-$total_row = get_row_count($clubarr["CLUB_ID"], $group_id, $conn, 2);
+$total_row = get_row_count($clubarr["CLUB_ID"], $group_id, $link, 2);
 $total_page = intval($total_row/$per_page)+1;
 
 //end page
@@ -92,10 +117,11 @@ if($page == 1){
     $per_page--;
     $limit = " limit $start,$per_page";
 }else{
+    $start--;
     $limit = " limit $start,$per_page";
 }
 $sql .= $limit;
-$ret = mysql_query($sql,$conn);
+$ret = mysql_query($sql,$link);
 
 while ($row = mysql_fetch_array($ret)) {
     //if more than one article
@@ -123,7 +149,7 @@ while ($row = mysql_fetch_array($ret)) {
     $floor_cnt++;
 }
 mysql_free_result($ret);
-mysql_close($conn);
+mysql_close($link);
 $i_cnt = count($prt_arr);
 //data end
 ?>
@@ -152,10 +178,10 @@ $i_cnt = count($prt_arr);
                 <p id="re_content_<?php echo $prt_arr[$i_loop]["article_id"];?>" hidden="hidden"><?php echo $prt_arr[$i_loop]["re_content"];?></p>
                 <p id="content_<?php echo $prt_arr[$i_loop]["article_id"];?>" class="theme_middle black_font"><?php echo $prt_arr[$i_loop]["content"];?></p>
                 <div id="re_<?php echo $prt_arr[$i_loop]["article_id"];?>" class="news_reply">
-                    <?php if ($user_id != "guest" and $user_id == $prt_arr[$i_loop]["owner"]) { ?>
+                    <?php if ($user_id != "guest" and $user_id == $prt_arr[$i_loop]["owner"] and $member_type == 2) { ?>
                     <a href="one_edit.php?club=<?php echo $club_name; ?>&article_id=<?php echo $prt_arr[$i_loop]["article_id"]; ?>&groupid=<?php echo $group_id;?>&dingflag=<?php echo $dingflag; ?>">修改</a>
                     <?php } ?>
-                    <a type="button" href="<?php echo url_generate(4, array(
+                    <a type="button" href="" onclick="return jump_to_write_reply('<?php echo url_generate(4, array(
                         "action" => "one_reply.php",
                         "args" => array(
                             "article_id"=>$prt_arr[$i_loop]["article_id"],
@@ -163,8 +189,8 @@ $i_cnt = count($prt_arr);
                             "club"=>$club_name,
                             "title"=>$prt_arr[$i_loop]["title"],
                             "page"=>$page)
-                    )); ?>">回复</a>
-                    <?php if ($user_id != "guest" and $user_id == $prt_arr[$i_loop]["owner"]) { ?>
+                    )); ?>');">回复</a>
+                    <?php if ($user_id != "guest" and $user_id == $prt_arr[$i_loop]["owner"] and $member_type == 2) { ?>
                     <a class="cancel" href="javascript:;" onclick="return del('<?php echo $club_name; ?>', '<?php echo $group_id; ?>', '<?php echo $prt_arr[$i_loop]["article_id"]; ?>', '<?php echo $prt_arr[$i_loop]["filename"]; ?>', '<?php echo $dingflag; ?>', 1);">删除</a>
                     <?php } ?>
                 </div>
@@ -178,7 +204,7 @@ $i_cnt = count($prt_arr);
     ?>
     <br><br><br><br>
     <div class="news_foot">
-        <input type="button" value="写跟帖" onclick="document.location='<?php
+        <input type="button" value="写跟帖" onclick="return jump_to_write_reply('<?php
         echo url_generate(4, array(
             "action" => "one_reply.php",
             "args" => array(
@@ -189,7 +215,7 @@ $i_cnt = count($prt_arr);
                 "page"=>$page
             )
         ));
-        ?>'" />
+        ?>')" />
         <span class="news_collect">
            <a id="fav_<?php echo $fav_flag; ?>" href="" onclick="return collect_by_type(2, this, '<?php echo $clubarr["CLUB_ID"];?>', '<?php echo $group_id; ?>', '<?php echo $title;?>')">
                 <?php if ($fav_flag == 1) { ?>
@@ -206,6 +232,21 @@ $i_cnt = count($prt_arr);
 
     <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript">
+        function jump_to_write_reply(jumpto) {
+            var user_id = "<?php echo $user_id; ?>";
+            if (user_id == "guest") {
+                window.location.href = "login.php";
+                return false;
+            }
+
+            var flag = check_user_perm('<?php echo $member_type; ?>', '<?php echo $clubarr["CLUB_TYPE"]; ?>');
+            if (flag) {
+                window.location.href = jumpto;
+            }
+
+            return false;
+        }
+
         function del(boardname, group_id, article_id, filename, dingflag, club_flag) {
             if (!confirm("你真的要删除本文吗?"))
                 return false;
@@ -221,7 +262,6 @@ $i_cnt = count($prt_arr);
         $(document).ready(function () {
             var page = <?php echo $page;?>;
 
-                $("#page_now").css("background-color", "blue");
                 $("#page_now").removeAttr("href");
 
             //alert($("#page_part a").size());

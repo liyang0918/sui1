@@ -34,10 +34,12 @@ if(!empty($_POST["login"])||$_POST["logintype"]=="reg") {
     ?>
     <SCRIPT language="javascript">
         <?php
+        // 删除 dp_city,用于触发点评模块重新读取用户所在城市
+        setcookie("dp_city", "", -1);
         if(!empty($_COOKIE["before_login"]))
-            echo 'window.location = "'.$_COOKIE["before_login"].'";';
+            echo 'window.location.href = "'.$_COOKIE["before_login"].'";';
         else
-            echo 'window.location = "index.php";';
+            echo 'window.location.href = "index.php";';
     }?>
     </SCRIPT>
 <?php

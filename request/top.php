@@ -171,8 +171,8 @@ foreach ($top_article as $each) {
     }
 
     $str_article .= '<p class="commen_p">';
+    $str_article .= '<span class="commen_margin m_r_10">'.$each["BoardsName"].'</span>'; 
     $str_article .= '<span>'.$each["author"].'</span>';
-    $str_article .= '<span class="commen_margin">'.$each["BoardsName"].'</span>';
     $str_article .= '<span class="commen_right">'.$each["replyNum"].'/'.$each["readNum"].'</span>';
     $str_article .= '</p></div></li>';
 

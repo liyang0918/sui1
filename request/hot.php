@@ -20,10 +20,10 @@ if ($topic_num > 0) {
     if ($topic_num > 1) {
         for ($i = 0; $i < $topic_num-1; $i++) {
             $str_content .= '<div class="content_list nopic padding10">';
-            $str_content .= '<h4><a href="'.$t_data[$i]["href"].'" onclick="add_read_num(this)">'.$t_data[$i]["title"].'</a></h4>';
+            $str_content .= '<h4><a hre m_r_10f="'.$t_data[$i]["href"].'" onclick="add_read_num(this)">'.$t_data[$i]["title"].'</a></h4>';
             $str_content .= '<p class="commen_p padding-bottom border_bottom">';
+            $str_content .= '<span class="commen_margin m_r_10">'.$t_data[$i]["boardsname"].'</span>';
             $str_content .= '<span>'.$t_data[$i]["author"].'</span>';
-            $str_content .= '<span class="commen_margin">'.$t_data[$i]["boardsname"].'</span>';
             $str_content .= '<span class="commen_right ">'.$t_data[$i]["popularity"].'</span>';
             $str_content .= '</p></div>';
         }
@@ -31,8 +31,8 @@ if ($topic_num > 0) {
     $str_content .= '<div class="content_list nopic padding10 noborder_bottom">';
     $str_content .= '<h4><a href="'.$t_data[$topic_num-1]["href"].'" onclick="add_read_num(this)">'.$t_data[$topic_num-1]["title"].'</a></h4>';
     $str_content .= '<p class="commen_p padding-bottom">';
+    $str_content .= '<span class="commen_margin m_r_10">'.$t_data[$topic_num-1]["boardsname"].'</span>';
     $str_content .= '<span>'.$t_data[$topic_num-1]["author"].'</span>';
-    $str_content .= '<span class="commen_margin">'.$t_data[$topic_num-1]["boardsname"].'</span>';
     $str_content .= '<span class="commen_right ">'.$t_data[$topic_num-1]["popularity"].'</span>';
     $str_content .= '</p></div>';
 }
@@ -52,8 +52,8 @@ if ($topic_num > 0) {
             $str_content .= '<div class="content_list nopic padding10">';
             $str_content .= '<h4><a href="'.$t_data[$i]["href"].'" onclick="add_read_num(this)">'.$t_data[$i]["title"].'</a></h4>';
             $str_content .= '<p class="commen_p padding-bottom border_bottom">';
+            $str_content .= '<span class="commen_margin m_r_10">'.$t_data[$i]["boardsname"].'</span>';
             $str_content .= '<span>'.$t_data[$i]["author"].'</span>';
-            $str_content .= '<span class="commen_margin">'.$t_data[$i]["boardsname"].'</span>';
             $str_content .= '<span class="commen_right ">'.$t_data[$i]["popularity"].'</span>';
             $str_content .= '</p></div>';
         }
@@ -61,8 +61,8 @@ if ($topic_num > 0) {
     $str_content .= '<div class="content_list nopic padding10 noborder_bottom">';
     $str_content .= '<h4><a href="'.$t_data[$topic_num-1]["href"].'" onclick="add_read_num(this)">'.$t_data[$topic_num-1]["title"].'</a></h4>';
     $str_content .= '<p class="commen_p padding-bottom">';
+    $str_content .= '<span class="commen_margin m_r_10">'.$t_data[$topic_num-1]["boardsname"].'</span>';
     $str_content .= '<span>'.$t_data[$topic_num-1]["author"].'</span>';
-    $str_content .= '<span class="commen_margin">'.$t_data[$topic_num-1]["boardsname"].'</span>';
     $str_content .= '<span class="commen_right ">'.$t_data[$topic_num-1]["popularity"].'</span>';
     $str_content .= '</p></div>';
 }
@@ -107,7 +107,7 @@ if ($topic_num > 0) {
         $str_content .= '<img class="hot_li_img" src="'.$t_data[$i]["img"].'" alt="club.png"/>';
         $str_content .= '<div class="hot_content">';
         $str_content .= '<h3 class="hot_name">'.$t_data[$i]["name"].'</h3>';
-        $str_content .= '<p class="hot_des">'.$t_data[$i]["des"].'</p>';
+        $str_content .= '<p class="hot_des ellipsis">'.$t_data[$i]["des"].'</p>';
         $str_content .= '<p class="hot_count"><span class="hot_left">当前在线 : '.$t_data[$i]["online"].'人</span><span class="hot_right">文章总数 : '.$t_data[$i]["article_num"].'</span></p>';
         $str_content .= '</div></a></div>';
     }
