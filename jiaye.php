@@ -41,7 +41,7 @@ $userinfo = getCurrUserInfo();
         <ul class="jy_group noborder_bottom">
             <li><a href="mydiscuss.php">我的讨论区 <img src="img/btn-right.png" alt="btn-right;.png"/></a></li>
             <li><a href="myclub.php">我的俱乐部 <img src="img/btn-right.png" alt="btn-right;.png"/></a></li>
-            <li><a href="jiaye_dp_shops.html">我的点评<img src="img/btn-right.png" alt="btn-right;.png"/></a></li>
+            <li><a href="mydianping.php">我的点评<img src="img/btn-right.png" alt="btn-right;.png"/></a></li>
             <li><a href="myarticle.php">我的文章 <img src="img/btn-right.png" alt="btn-right;.png"/></a></li>
             <li><a href="mycollect.php">我的收藏 <img src="img/btn-right.png" alt="btn-right;.png"/></a></li>
             <li><a href="myfriends.php">我的好友 <img src="img/btn-right.png" alt="btn-right;.png"/></a></li>
@@ -49,7 +49,7 @@ $userinfo = getCurrUserInfo();
 <!--            <li><a href="mymessages.php">我的消息<img src="img/btn-right.png" alt="btn-right;.png"/></a></li>-->
             <li><a href="mymails.php">我的邮箱<img src="img/btn-right.png" alt="btn-right;.png"/></a></li>
         </ul><!--End jy_gen_group-->
-        <p class="jy_back"><a href="logout.php">退出登录<img src="img/btn-right.png" alt="btn-right;.png"/></a></p>
+        <p class="jy_back"><a href="logout.php">退出登录</a></p>
     </div><!--End jiaye_personalInfo-->
     <script type="text/javascript" src="js/jquery.js"></script>
 <?php

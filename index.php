@@ -78,27 +78,20 @@ if ($_COOKIE["sec_category"] == "top" or empty($_COOKIE["sec_category"])) {
     $type = "index";
 // top image start
     $str_img = '<div id="carouselfigure" class="main_visual">';
-    $img_page = '<div class="flicking_con">';
     $img_url = '<div class="main_image"><ul>';
     foreach ($img_arr as $i=>$imgDate) {
 
         $php_page = url_generate(3, array("board"=>$board_name, "groupid"=>$imgDate["groupid"]));
-        $img_page .= '<a href="javascript:;">'.($i+1).'</a>';
+        $img_arr[$i]["php_page"] = $php_page;
         $img_url .=
             '<li>
-                <a href="'.$php_page.'" onclick="add_read_num(this)">
                 <img src="'.$imgDate["imgURL"].'"></img>
             </a>
         </li>';
     }
-    $img_page .= '</div>';
     $img_url .= '</ul></div>';
-    $str_img .= $img_page.$img_url;
-    $str_img .=
-        '<div class="text">
-            <p id="text">
-            </p>
-        </div>';
+    $str_img .= $img_url;
+    $str_img .= '<p class="text"><a id="text" onclick="add_read_num(this)"></a></p>';
     $str_img .= "</div>";
     echo $str_img;
     mysql_close($link);
@@ -115,15 +108,17 @@ if ($_COOKIE["sec_category"] == "top" or empty($_COOKIE["sec_category"])) { ?>
 <script type="text/javascript" src="js/jquery.js"></script>
 <script type="text/javascript" src="js/jquery.event.drag-1.5.min.js"></script>
 <script type="text/javascript" src="js/jquery.touchSlider.js"></script>
-<script tabindex="text/javascript" charset="utf-8" src="js/lunbo.js"></script>
+
 <script type="text/javascript">
     var titlelist = Array();
+    var pagelist = Array();
     var i = 0;
     <?php foreach($img_arr as $each) { ?>
         titlelist[i] = "<?php echo $each["title"]; ?>";
+        pagelist[i] = "<?php echo $each["php_page"]; ?>";
         i++;
     <?php } ?>
-    setImageEffect(titlelist);
+    setImageEffect(titlelist, pagelist);
 </script>
 <?php
     }

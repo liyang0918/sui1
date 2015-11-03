@@ -124,6 +124,3 @@ $ret_str = read_news_web($filepath, $attach_flag, "", "", $attach_linkstr, 0);
     </div>
     <div class="pagebox"></div>
 
-<?php
-include_once("foot.php");
-?>

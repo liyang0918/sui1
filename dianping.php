@@ -14,13 +14,31 @@ if(empty($_COOKIE["app_show"]))
 if(empty($_COOKIE["sec_category"]))
     setcookie("sec_category", "dp_recommend");
 
-if (!is_own_label($_COOKIE["sec_category"], "dianping")) {
+if (!isset($_COOKIE["dp_city"]) or !is_own_label($_COOKIE["sec_category"], "dianping")) {
     // 重新进入点评时重新定位
     $_SESSION = array();
     setcookie("app_type", "dianping");
     setcookie("app_show", iconv("GBK", "UTF-8//IGNORE", "点评"));
     setcookie("sec_category", "dp_recommend");
-    setcookie("extra", "1|all");
+
+    $user_id = $currentuser["userid"];
+    $user_num_id = $currentuser["num_id"];
+
+    if (!isset($_COOKIE["dp_city"]))
+        setcookie("dp_city", "all");
+
+    if ($user_id != "guest") {
+        $link = db_connect_web();
+        $sql = "SELECT city_concise,city_name FROM users_ex u, city_type c
+                WHERE u.numeral_user_id=$user_num_id AND c.city_concise=u.lastcity";
+        $result = mysql_query($sql, $link);
+        if ($row = mysql_fetch_array($result)) {
+            setcookie("dp_city", "{$row["city_concise"]}");
+        } else {
+            setcookie("dp_city", "all");
+        }
+        mysql_close($link);
+    }
     // 切换栏目需要重新加载
     echo '<script language="javascript">location.href=location.href</script>';
 }
@@ -30,12 +48,7 @@ if (!isset($_SESSION["locate_flag"]) or $_SESSION["locate_flag"] == false) {
     $auto_location = "1";
 }
 
-list($mode, $city) = getExtraValue($_COOKIE["extra"]);
-
-if ($mode != "0" and $mode != "1") {
-    $mode = "1";
-    $city = "all";
-}
+$city = $_COOKIE["dp_city"];
 
 if (empty($city))
     $city = "all";
@@ -186,6 +199,9 @@ include_once("head.php");
 <script type="text/javascript">
     $(document).ready(document.cookie="current_page=1");
     $(document).ready(document.cookie="distance_null_num=0");
+if ("<?php echo $city; ?>" == "all") {
+    $(document).ready(select_city());
+} else {
     $(document).ready(function () {
         var queryString;
         var sec_category=getCookie_wap("sec_category");
@@ -213,6 +229,7 @@ include_once("head.php");
 
         sec_category_auto_dp(queryString);
     });
+}
 
 </script>
 <?php

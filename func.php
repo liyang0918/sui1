@@ -432,8 +432,7 @@ function dyadic_array_sort(&$arr, $base, $direction=0) {
 }
 
 /* 获取汉语拼音首字母 */
-function getSpellInitial($str)
-{
+function getSpellInitial($str) {
     if (preg_match('/^[a-z]/i', $str)) {
         return strtoupper(substr($str, 0, 1));
     } else if (preg_match("/^[\x7f-\xff]/", $str)) {
@@ -467,6 +466,33 @@ function getSpellInitial($str)
     } else {
         return "Other";
     }
+}
+
+// 按照给定的字符集 depend 切割 str,出现在depend中的字符均作为切割标记
+function mbstr_split($str, $depend) {
+    $len = mb_strlen($depend);
+    $sub = $str;
+    for ($i = 0; $i < $len; $i++) {
+        $search = mb_substr($depend, $i, 1);
+        $pos = mb_strpos($sub, $search);
+        if ($pos)
+            $sub = mb_substr($sub, 0, $pos);
+    }
+
+    return $sub;
+}
+
+// 递归创建目录
+function mkdirs_r($dir){
+    if(!is_dir($dir)){
+        if(!mkdirs_r(dirname($dir))){
+            return false;
+        }
+        if(!mkdir($dir,0777)){
+            return false;
+        }
+    }
+    return true;
 }
 
 /* 获取当前页面的URL */
@@ -943,6 +969,20 @@ function get_page_title(){
    }else
        return "错误的页面对应关系";
 }
+
+function wap_error_alert_quit($err_msg, $resource=array()) {
+    if (isset($resource["db_link"])) {
+        mysql_close($resource["db_link"]);
+    }
+?>
+    <script type='text/javascript'>
+        alert("<?php echo $err_msg; ?>");
+        go_last_page();
+    </script>;
+<?php
+    exit;
+}
+
 function wap_error_quit($err_msg,$head=1){
 global $country_name;
 global $adult;
@@ -955,11 +995,7 @@ $pre_url = $_SERVER['REQUEST_URI'];
 @mysql_close();
 
 ?>
-<div align="center">
-    <table width="240" border="0" cellspacing="0" cellpadding="0">
-        <tr>
-            <td align="center" valign="middle" class="logo-bg">
-                <div align="center">
+<div style="text-align:center;padding-top:30px;font-size:1.4em;">
                     <p>&nbsp;</p>
                     <?php if ($err_msg == WWW_NOLOGIN_MSG) { ?>
                         <p>你还没有登陆，或者你发呆时间过长被服务器清除。 请重新<a
@@ -989,12 +1025,11 @@ $pre_url = $_SERVER['REQUEST_URI'];
                     [<a href="javascript:history.go(-1)" class="headlink">快速返回</a>]
                     <p>&nbsp;</p>
                 </div>
-            </td>
-        </tr>
-    </table>
     <script type="text/javascript">if (top.location !== self.location) top.location = self.location;</script>
+    <script type="text/javascript" src="js/js.js"></script>
+    <link type="text/css" rel="stylesheet" href="css/reset.css">
+    <link type="text/css" rel="stylesheet" href="css/style.css">
     <?php
-    include("foot.php");
     exit;
 }
 function get_add_textarea_context ($filename,$user) {
@@ -1056,6 +1091,23 @@ function getExtraValue($str) {
     return $ret;
 }
 
+function dpSetUserLastCity($link, $city, $user_num_id) {
+    $sql = "SELECT COUNT(*) AS count FROM users_ex WHERE numeral_user_id=$user_num_id;";
+    log2file($sql);
+    $result = mysql_query($sql, $link);
+    $row = mysql_fetch_array($result);
+    if ($row["count"] > 0) {
+        $sql_insert = "INSERT INTO users_ex (numeral_user_id,lastcity) VALUES ($user_num_id, $city)";
+        log2file($sql_insert);
+        mysql_query($sql_insert, $link);
+    } else {
+        $sql_update = "UPDATE users_ex SET lastcity=$city WHERE numeral_user_id=$user_num_id";
+        log2file($sql_update);
+        mysql_query($sql_update, $link);
+    }
+}
+
+
 function getDpCityCname($city) {
     if ($city == "all")
         return $city;
@@ -1094,9 +1146,18 @@ function getDpCityListGroupByName($link) {
 
     $result = getDpCityList($link);
     foreach ($result as $row) {
-        $index = getSpellInitial($row["city_name"]);
+        // 城市英文名参与分组
+        $index1 = getSpellInitial($row["city_name"]);
+        $ret[$index1][] = $row;
 
-        $ret[$index][] = $row;
+        // 城市中文名参与分组
+        $cname_tmp = iconv("UTF-8", "GBK", $row["city_concise"]);
+        if ($cname_tmp)
+            $row["city_concise"] = $cname_tmp;
+
+        $index2 = getSpellInitial($row["city_concise"]);
+        if ($index1 != $index2)
+            $ret[$index2][] = $row;
     }
 
 //    foreach ($ret as $m=>$each) {
@@ -1111,6 +1172,7 @@ function getDpCityListGroupByName($link) {
 
 }
 
+// 推荐店铺的图片
 function getShopTopImg($shop_id) {
     $file_path = "/home/bbs/pic_home/comment";
     $file_path_rewrite = "/commentimg";
@@ -1124,6 +1186,7 @@ function getShopTopImg($shop_id) {
     return $img;
 }
 
+// 相册内图片的缩略图
 function getShopImgNail($shop_id, $dir, $img_name) {
     $file_path = "/home/bbs/pic_home/comment";
     $file_path_rewrite = "/commentimg";
@@ -1137,6 +1200,7 @@ function getShopImgNail($shop_id, $dir, $img_name) {
     return $img;
 }
 
+// 相册内图片
 function getShopImg($shop_id, $dir, $img_name) {
     $file_path = "/home/bbs/pic_home/comment";
     $file_path_rewrite = "/commentimg";
@@ -1146,6 +1210,19 @@ function getShopImg($shop_id, $dir, $img_name) {
         $img = $file_path_rewrite.$op_path;
     else
         $img = "img/img_error.jpg";
+
+    return $img;
+}
+
+// 店铺图片,取相册内所有图片中最新的一张
+function getShopInfoImg($link, $shop_id) {
+    $sql_img = "SELECT img_name,type as dir FROM comment_img WHERE shop_id=$shop_id ORDER BY create_time DESC LIMIT 1";
+    $result_img = mysql_query($sql_img, $link);
+    $img = "";
+    if ($row_img = mysql_fetch_array($result_img)) {
+        $img = getShopImgNail($shop_id, $row_img["dir"], $row_img["img_name"]);
+    }
+    mysql_free_result($result_img);
 
     return $img;
 }
@@ -1232,9 +1309,9 @@ function getShopPictureTotal($link, $shop_id, $type) {
 function getShopPictureList($link, $shop_id, $type, $page, $num, $is_nail=true, $user_num_id=-1) {
     $page = ($page-1)*$num;
 
-    $att_condition = "1=1";
+    $att_condition = "1=1 ";
     if ($user_num_id != -1)
-        $att_condition = "user_id=$user_num_id";
+        $att_condition = "user_id=$user_num_id ";
 
     if ($type == "dish") {
         $sql = "SELECT img_name,type AS dir,c.tag_id AS tag_id,tag_name FROM comment_img c, tags t WHERE
@@ -1281,18 +1358,18 @@ function getShopPictureList($link, $shop_id, $type, $page, $num, $is_nail=true, 
 
 function getShopInfoById($link, $shop_id) {
     $shop_id = intval($shop_id);
-    $sql = "SELECT cnName,avg_score,avg_pay,taste_score,env_score,sev_score,location,contact,business_time FROM shop_info WHERE
+    $sql = "SELECT cnName,avg_score,avg_pay,taste_score,env_score,sev_score,location,contact,business_time,type_set FROM shop_info WHERE
             shop_id=$shop_id;";
-    $sql_img = "SELECT img_name,type as dir FROM comment_img WHERE shop_id=$shop_id ORDER BY create_time DESC LIMIT 1";
     $result = mysql_query($sql, $link);
-    $result_img = mysql_query($sql_img, $link);
 
     $shop_info = array();
     if ($row = mysql_fetch_array($result)) {
         $shop_info = $row;
-        if ($row_img = mysql_fetch_array($result_img)) {
-            $shop_info["img"] = getShopImgNail($shop_id, $row_img["dir"], $row_img["img_name"]);
+        $shop_info["img"] = getShopInfoImg($link, $shop_id);
+        if (empty($shop_info["img"])) {
+            $shop_info["img"] = "img/shopimg.png";
         }
+
     }
 
     mysql_free_result($result);
@@ -1484,7 +1561,9 @@ function getShopByCondition($link, $city, $cond, $pos, $page, $num=20) {
         if (!isset($row["avg_score"]))
             $row["avg_score"] = 0.0;
 
-        $row["img"] = getShopTopImg($row["shop_id"]);
+        $row["img"] = getShopInfoImg($link, $row["shop_id"]);
+        if (empty($row["img"]))
+            $row["img"] = "img/{$row["type_set"]}.png";
         $row["href"] = "one_shopinfo.php?shop_id=".$row["shop_id"];
         $ret[] = $row;
     }
@@ -1632,30 +1711,30 @@ function getShopTop10($link, $reason, $city, $pos) {
     $createTime = strtotime(date("Y M D",strtotime( '+'. 1-$week .' days' )));
 
     if ($city != "all") {
-    switch ($reason){
-        case "hot":
-            $sql = 'select r.shop_id as shop_id,type_set,cnName,location,contact,comment_num,s.lat as lat,s.lng as lng,s.avg_pay as avg_pay,s.avg_score as avg_score,s.taste_score as taste_score,s.env_score as env_sore,s.sev_score as sev_score from user_comment as r,shop_info as s
+        switch ($reason){
+            case "hot":
+                $sql = 'select r.shop_id as shop_id,type_set,cnName,location,contact,comment_num,s.lat as lat,s.lng as lng,s.avg_pay as avg_pay,s.avg_score as avg_score,s.taste_score as taste_score,s.env_score as env_sore,s.sev_score as sev_score from user_comment as r,shop_info as s
                 where city_type="'.$city.'" and display<2 and create_time>'.$createTime.' and display<2 and r.shop_id=s.shop_id group by shop_id order by count(*) desc limit 10';
-            break;
-        case "best":
-            $sql = 'select shop_id,type_set,cnName,location,contact,comment_num,lat,lng,avg_pay,avg_score,taste_score,env_score,sev_score from shop_info
+                break;
+            case "best":
+                $sql = 'select shop_id,type_set,cnName,location,contact,comment_num,lat,lng,avg_pay,avg_score,taste_score,env_score,sev_score from shop_info
                 where city_type="'.$city.'" and review_result<>4 order by avg_score desc limit 10';
-            break;
-        case "taste":
-            $sql = 'select shop_id,type_set,cnName,location,contact,comment_num,lat,lng,avg_pay,avg_score,taste_score,env_score,sev_score from shop_info
+                break;
+            case "taste":
+                $sql = 'select shop_id,type_set,cnName,location,contact,comment_num,lat,lng,avg_pay,avg_score,taste_score,env_score,sev_score from shop_info
                  where city_type="'.$city.'" and review_result<>4 order by taste_score desc limit 10';
-            break;
-        case "env":
-            $sql = 'select shop_id,type_set,cnName,location,contact,comment_num,lat,lng,avg_pay,avg_score,taste_score,env_score,sev_score from shop_info
+                break;
+            case "env":
+                $sql = 'select shop_id,type_set,cnName,location,contact,comment_num,lat,lng,avg_pay,avg_score,taste_score,env_score,sev_score from shop_info
                 where city_type="'.$city.'" and review_result<>4 order by env_score desc limit 10';
-            break;
-        case "sev":
-            $sql = 'select shop_id,type_set,cnName,sev_score,location,contact,comment_num,lat,lng,avg_pay,avg_score,taste_score,env_score,sev_score from shop_info
+                break;
+            case "sev":
+                $sql = 'select shop_id,type_set,cnName,sev_score,location,contact,comment_num,lat,lng,avg_pay,avg_score,taste_score,env_score,sev_score from shop_info
                 where city_type="'.$city.'" and review_result<>4 order by sev_score desc limit 10';
-            break;
-        default:
-            return array();
-    }
+                break;
+            default:
+                return array();
+        }
     } else {
         switch ($reason){
             case "hot":
@@ -2181,6 +2260,30 @@ function getRecommendClubArticle($link, $page, $group_id){
     return array($return, $end_flag);
 }
 
+/*********************************************/
+            /* 俱乐部权限相关 */
+//判断某人是否属于某个俱乐部
+//-2  非成员   1  申请成员    2 正式成员 0 被邀请加入
+function clubCheckMember($clubid, $user_num_id, $link) {
+    $member_type = -2;
+    $sql = "SELECT member_type FROM club_member WHERE club_id={$clubid} AND member_num_id={$user_num_id}";
+
+    $result = mysql_query($sql, $link);
+    if(false == $result)
+        return -1;
+
+    if(mysql_num_rows($result) > 0) {
+        $row = mysql_fetch_array($result);
+        $member_type = $row['member_type'];
+    }
+    mysql_free_result($result);
+    return $member_type;
+}
+
+
+
+/**********************************************/
+
 $label_list = array(
     // 置顶文章 热门推荐 论坛集粹 分类讨论
     "index" => array("top", "hot", "classical", "classes"),
@@ -2587,15 +2690,29 @@ function getLawyerGroupByArea($link) {
     }
     $ret["Other"] = array();
 
-    $sql = "select distinct(city) from lawyer order by lawyer_name";
+    $sql = "select city,city_cname from lawyer group by city";
     $result = mysql_query($sql, $link);
     while ($row = mysql_fetch_array($result)) {
-        $index = getSpellInitial($row["city"]);
+        // 城市英文名参与排序
+        $index1 = getSpellInitial($row["city"]);
         $row["href"] = url_generate(4, array(
             "action" => "/mobile/forum/i_city.php",
             "args" => array("city"=>$row["city"])
         ));
-        $ret[$index][] = $row;
+        $ret[$index1][] = $row;
+
+        // 城市中文名参与排序
+        $cname_tmp = iconv("UTF-8", "GBK//IGNORE", $row["city_cname"]);
+        if ($cname_tmp)
+            $row["city_cname"] = $cname_tmp;
+
+        $index2 = getSpellInitial($row["city_cname"]);
+        $row["href"] = url_generate(4, array(
+            "action" => "/mobile/forum/i_city.php",
+            "args" => array("city"=>$row["city"])
+        ));
+        if ($index1 != $index2)
+            $ret[$index2][] = $row;
     }
     mysql_free_result($result);
 
@@ -2667,8 +2784,8 @@ function getTopNewsByType($link, $type) {
         $result2 = mysql_query($sql_str1, $link);
         if ($row1 = mysql_fetch_array($result2)) {
             if ($row1["o_bid"] == NULL || $row1["o_groupid"] == NULL || $row1["o_bid"] == 0 || $row1["o_groupid"] == 0) {
-                $tmp["title"] = $row1["title"];
-                $title_tmp = iconv("UTF-8", "GBK//IGNORE", $row1["title"]);
+                $tmp["title"] = preg_replace('/\[[a-zA-Z]{4}\]/', '', $row1["title"]);
+                $title_tmp = iconv("UTF-8", "GBK//IGNORE", $tmp["title"]);
                 if ($title_tmp)
                     $tmp["title"] = $title_tmp;
 
@@ -2686,8 +2803,8 @@ function getTopNewsByType($link, $type) {
                    where groupid={$row1["o_groupid"]}";
                 $result3 = mysql_query($sql_str2, $link);
                 if ($row3 = mysql_fetch_array($result3)) {
-                    $tmp["title"] = $row3["title"];
-                    $title_tmp = iconv("UTF-8", "GBK//IGNORE", $row3["title"]);
+                    $tmp["title"] = preg_replace('/\[[a-zA-Z]{4}\]/', '', $row3["title"]);
+                    $title_tmp = iconv("UTF-8", "GBK//IGNORE", $tmp["title"]);
                     if ($title_tmp)
                         $tmp["title"] = $title_tmp;
                     $tmp["groupid"] = $row3["groupid"];
@@ -2892,7 +3009,7 @@ function getNewsDataByType($link, $page, $newsTypeName) {
         if($newsTypeName  == "immigration"){
             $aNew["newType"] = getImmigrationNewsType($aNew["title"]);
         }
-        $aNew["title"] = preg_replace('/\[[a-zA-Z]{4}\]/', "", $aNew["title"]);
+        $aNew["title"] = preg_replace('/\[.+\]/', "", $aNew["title"]);
         $title_tmp = iconv("UTF-8", "GBK//IGNORE", $aNew["title"]);
         if ($title_tmp)
             $aNew["title"] = $title_tmp;
@@ -3413,7 +3530,7 @@ function getMyDpCollectShop($link, $user_num_id, $pos, $page, $num) {
         $ret[] = $row;
     }
     mysql_free_result($result);
-    return $row;
+    return $ret;
 }
 
 function getMyDpCollectShopTotal($link, $user_num_id) {
@@ -3430,6 +3547,7 @@ function getMyDpCollectShopTotal($link, $user_num_id) {
 
 // 我上传的点评图片
 function getMyDpAlbum($link, $user_num_id, $page, $num) {
+    $page = ($page-1)*$num;
     $one = array();
     $return_array = array();
     $sql = 'select tmp.shop_id,tmp.count,cnName from (select shop_id,count(*) as count ,display from comment_img
@@ -3481,7 +3599,7 @@ function getMyDpComment($link, $user_num_id, $page, $num){
         $ret[] = $row;
     };
     mysql_free_result($result);
-    return $row;
+    return $ret;
 }
 
 function getMyDpCommentTotal($link, $user_num_id) {

@@ -8,7 +8,11 @@ $type = $_GET["type"];
 if ($type != "all" and $type != "dish" and $type != "env") {
     $type = "all";
 }
-$user_num_id = $_GET["user_num_id"];
+
+$user_num_id = -1;
+if (isset($_GET["user_num_id"])) {
+    $user_num_id = $_GET["user_num_id"];
+}
 //data part
 $url_page = url_generate(4, array(
         "action" => "dp_picture_list.php",

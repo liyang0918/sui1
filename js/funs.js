@@ -101,8 +101,10 @@ function request_url_generate(id) {
         switch (info["domain"]) {
             case "index":
             case "immigration":
-            case "dianping":
                 url = "/mobile/forum/request/" + id + ".php" + "?extra=" + extra;
+                break;
+            case "dianping":
+                url = "/mobile/forum/request/" + id + ".php" + "?city=" + getCookie_wap("dp_city");
                 break;
             case "news":
             case "club":
@@ -1032,6 +1034,7 @@ function location_error(error) {
 }
 
 function select_city() {
+    $('.dp_list_r').hide();
     $('#near').hide();
     $('#search').hide();
     $('#rank').hide();
@@ -1067,13 +1070,26 @@ function select_city() {
 
 function set_city(obj) {
     var val = obj.id.split("|");
-    document.cookie = "extra=0|" + val[1];
+    document.cookie = "dp_city=" + val[1];
 
-    if (val[1] != "all")
-        document.getElementById("city_name").innerHTML = obj.innerHTML;
+    var url = "/mobile/forum/request/dp_setcity.php";
+    var para = "city="+val[1];
+    var myAjax = new Ajax.Request(url,
+        {
+            method: "post",
+            parameters: para,
+            asynchronous: false,
+            onSuccess: function (ret) {
+                if (val[1] != "all")
+                    document.getElementById("city_name").innerHTML = obj.innerHTML;
+                document.getElementById("detail").innerHTML = "";
+                document.getElementById(val[0]).click();
+            },
+            onFailure: function (x) {
 
-    document.getElementById("detail").innerHTML = "";
-    document.getElementById(val[0]).click();
+            }
+        }
+    );
     return true;
 }
 
@@ -1224,12 +1240,12 @@ function Alert(str,time) {
     bgObj.setAttribute('id','alertbgDiv');
     bgObj.style.position="absolute";
     bgObj.style.top="0";
-    bgObj.style.background="#E8E8E8";
+    bgObj.style.background="#000000";
     bgObj.style.filter="progid:DXImageTransform.Microsoft.Alpha(style=3,opacity=25,finishOpacity=75";
-    bgObj.style.opacity="0.6";
+    bgObj.style.opacity="0.5";
     bgObj.style.left="0";
-    bgObj.style.width = sWidth + "px";
-    bgObj.style.height = sHeight + "px";
+    bgObj.style.width = "100%";
+    bgObj.style.height = "100%";
     bgObj.style.zIndex = "10000";
     document.body.appendChild(bgObj);
     //创建提示窗口的div
@@ -1240,11 +1256,11 @@ function Alert(str,time) {
     msgObj.style.border="1px solid " + bordercolor;
     msgObj.style.position = "absolute";
     msgObj.style.left = "50%";
+    msgObj.style.top = "200px";
     msgObj.style.font="12px/1.6em Verdana, Geneva, Arial, Helvetica, sans-serif";
     //窗口距离左侧和顶端的距离
-    msgObj.style.marginLeft = "-225px";
+    msgObj.style.marginLeft = "-175px";
     //窗口被卷去的高+（屏幕可用工作区高/2）-150
-    msgObj.style.top = document.body.scrollTop+(window.screen.availHeight/2)-150 +"px";
     msgObj.style.width = msgw + "px";
     msgObj.style.height = msgh + "px";
     msgObj.style.textAlign = "center";
@@ -1581,6 +1597,7 @@ function dp_getLocation(obj) {
     var tag_lng = document.getElementById("pos_lng");
 
     var prompt4 = document.getElementById("prompt4");
+    prompt4.setAttribute("style", "display: block");
     prompt4.innerHTML = "正在查询位置...";
     var myAjax = new Ajax.Request(url,
         {
@@ -1591,7 +1608,6 @@ function dp_getLocation(obj) {
 
                 var ret_json = eval("(" + ret.responseText + ")");
                 if (ret_json.result != undefined && ret_json.result == 1) {
-                    var prompt4 = document.getElementById("prompt4");
                     prompt4.innerHTML = "地址定位成功";
                     tag_lat.value = ret_json.location.lat;
                     tag_lng.value = ret_json.location.lng;
@@ -1601,6 +1617,7 @@ function dp_getLocation(obj) {
 
             },
             onFailure: function (x) {
+                prompt4.innerHTML = "地址定位失败";
             }
         }
     );
@@ -1737,4 +1754,14 @@ function dp_get_picture(shop_id, type, pic_num) {
             Alert("请求失败", 1);
         }
     });
+}
+
+/* 俱乐部权限判断 */
+function check_user_perm(member_type, club_type) {
+    if (member_type == 2) {
+        return true;
+    } else {
+        alert("你还不是该俱乐部成员，没有发表文章的权限！");
+        return false;
+    }
 }

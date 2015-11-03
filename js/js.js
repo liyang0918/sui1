@@ -228,5 +228,6 @@ if($('.dp_pic_name').length>0){
     });
 }
 
+
 $(document).ready(downMenu($('.navone_menu'), $('.navone_ul')));
 $(document).ready(setEffect());
