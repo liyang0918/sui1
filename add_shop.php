@@ -16,10 +16,10 @@ if ($add_flag == 0) {
     $current_page = $_SERVER["REQUEST_URI"]."?".$_SERVER["QUERY_STRING"];
 } else {
 //    show_result($_POST);
-    $shopinfo["cnName"] = $_POST["cnName"];
+    $shopinfo["cnName"] = mb_substr($_POST["cnName"], 0, 20);
     $shopinfo["city_type"] = $_POST["city_list"];
     $shopinfo["type_set"] = $_POST["food_class"];
-    $shopinfo["enName"] = $_POST["enName"];
+    $shopinfo["enName"] = mb_substr($_POST["enName"], 0, 20);
     $shopinfo["location"] = $_POST["address"];
     $shopinfo["contact"] = $_POST["phone"];
     $shopinfo["business_time"] = $_POST["business_time"];
@@ -46,8 +46,9 @@ if ($add_flag == 0) {
     </div><!--<End ds_box-->
 <?php if ($add_flag == 0) { ?>
     <form id="addShopForm" class="border_bottom" action="add_shop.php" method="post">
-        <div><span><i>*</i>商铺名：</span><input id="cnName" name="cnName" class="addshop_txt" type="text" onblur="dp_check_cnName(this);"/><span id="prompt1" style="display:none">请填写商铺名称</span></div>
-        <div><span>英文名：</span><input id="enName" name="enName" class="addshop_txt" type="text"/></div>
+        <div><span><i>*</i>商铺名：</span><input maxlength="20" placeholder="20个字以内" id="cnName" name="cnName" class="addshop_txt" type="text" onblur="dp_check_cnName(this);"/></div>
+        <span class="add_shop_err" id="prompt1" style="display:none">请填写商铺名称</span>
+        <div><span>英文名：</span><input maxlength="20" placeholder="20个字以内" id="enName" name="enName" class="addshop_txt" type="text"/></div>
         <div>
             <span><i>*</i>分类：</span>
             <select id="food_class" name="food_class" onchange="dp_check_food_class(this)">
@@ -56,7 +57,7 @@ if ($add_flag == 0) {
                 <option value="<?php echo $food_class_list[$i]["type"]; ?>"><?php echo $food_class_list[$i]["name"]; ?></option>
                 <?php } ?>
             </select>
-            <span id="prompt2" style="display:none">请选择菜系</span>
+            <span class="add_shop_err1" id="prompt2" style="display:none">请选择菜系</span>
         </div>
         <div>
             <span><i>*</i>地址：</span>
@@ -66,12 +67,12 @@ if ($add_flag == 0) {
                     <option value="<?php echo $city_list[$i]["city_concise"]; ?>"><?php echo $city_list[$i]["city_name"]; ?></option>
                 <?php } ?>
             </select>
-            <span id="prompt3" style="display:none">请选择城市</span>
+            <span class="add_shop_err1" id="prompt3" style="display:none">请选择城市</span>
             <input id="address" name="address" class="addshop_txt addshop_p" type="text" placeholder="填写详细地址,包含城市名,国家名" onchange="return dp_getLocation(this);"/>
-            <span id="prompt4"></span>
             <input id="pos_lat" name="pos_lat" type="hidden" value=""/>
             <input id="pos_lng" name="pos_lng" type="hidden" value=""/>
         </div>
+        <span class="add_shop_err" id="prompt4" style="display: none;"></span>
         <div><span>电话：</span><input id="phone" name="phone" class="addshop_txt" type="text"/></div>
         <div><span>营业时间：</span><input id="business_time" name="business_time" class="addshop_txt" type="text"/></div>
         <input type="button" value="提交" onclick="return dp_addshop();"/>

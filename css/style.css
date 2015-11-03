@@ -88,7 +88,7 @@ body {
 .navtwo_ul{
     overflow:hidden;
     margin-left:10px;
-    border-bottom: 1px solid #e1e1e1;
+    color:#212121;
 }
 .navtwo_ul li{
     float: left;
@@ -124,7 +124,7 @@ body {
     padding:0 10px;
 }
 .article_wrap a{
-    color:#262626;
+    color:#212121;
 }
 .article_list_singlepic{
     padding:10px 0;
@@ -141,12 +141,9 @@ body {
 }
 .content_list span{
     font-size:1.2em;
-    color:#999999;
+    color:#bdbdbd;
     float:left;
 }
-.content_list .commen_margin{
-     margin-left:10px;
- }
 .content_list .commen_right{
     float:right;
 }
@@ -164,7 +161,7 @@ body {
 }
 .article_list_nopic,.article_list_nopic,.article_list_allpic{
      padding:10px 0;
-     border-bottom:1px solid #E1E1E1;
+     border-bottom:1px solid #E0E0E0;
  }
 .nopic{
       margin-left:0;
@@ -190,7 +187,7 @@ body {
 }
 /*End article_wrap*/
 .hot_recommend a{
-    color:#262626;
+    color:#212121;
 }
 .hot_li .action{
     color:#B53E3E;
@@ -236,11 +233,11 @@ body {
 }
 .hot_name{
     font-size:1.5em;
-    color:#333;
+    color:#212121;
 }
 .hot_des{
     font-size:1.3em;
-    color:#666;
+    color:#757575;
     padding:4px 0;
 }
 
@@ -252,7 +249,7 @@ body {
 
 .hot_count{
     font-size:1.2em;
-    color:#999;
+    color:#bdbdbd;
     overflow: hidden;
 }
 .hot_right{
@@ -267,7 +264,7 @@ body {
 .bd_list a{
     display: block;
     font-size:1.6em;
-    color:#656D78;
+    color:#212121;
     overflow: hidden;
 }
 .bd_list img{
@@ -341,7 +338,6 @@ body {
     height:30px;
     float:left;
     margin-right:10px;
-    border:1px solid #E6E9ED;
 }
 .theme_right{
     height:30px;
@@ -357,7 +353,7 @@ body {
     line-height: 15px;
 }
 .theme_time{
-    margin-right:10px;
+    margin-right:2px;
 }
 .theme_middle{
     line-height:30px;
@@ -380,6 +376,7 @@ body {
 .theme_bottom span{
     color:#999;
     margin-left:4px;
+    float: right;
 }
 .p_l{
     float:right;
@@ -387,7 +384,7 @@ body {
 }
 .p_l img{
     width:17px;
-    margin-top:2px;
+    margin-top:5px;
 }
 .p_r{
     float:right;
@@ -406,7 +403,7 @@ body {
 .news_title p{
     clear:both;
     overflow: hidden;
-    height:60px;
+    max-height:60px;
     line-height:30px;
     font-size:1.6em;
     margin-bottom: 8px;
@@ -472,11 +469,11 @@ body {
     border:0;
     padding:0;
    /* width:130px*/;
-    width:50%;
+    width:75%;
     height:30px;
     background:#fff;
-    border-radius:3px;
-    margin:5px 20px 0 0;
+    border-radius:2px;
+    margin-top:5px;
     text-align: center;
     float: left;
     color:#999;
@@ -486,9 +483,9 @@ body {
     line-height:40px;
     font-size:1.2em;
     float: right;
-}
-.news_collect{
-    margin-right:20px;
+    text-align:center;
+    display:inline-block;
+    width:20%;
 }
 
 .news_collect img{
@@ -948,6 +945,11 @@ body {
     width:100%;
     min-height:44px;
 }
+
+.news_list_lione_nopic {
+    padding: 20px 0;
+}
+
 .newsIndex_showBox{
     width:100%;
     height:240px;
@@ -1434,12 +1436,6 @@ img.club_img_w{
 .im_conter_box{
     display: block;
 }
-span.im_l{
-    border:1px solid #4A89DC;
-    border-radius: 8px;
-    padding:5px;
-}
-
 @media(max-width:350px){
     .immigration_nav li a{
         font-size:1.1em;
@@ -1814,8 +1810,8 @@ span.fr{
 }
 
 .conter2_list_conter .shop_topimg {
-    width: 90px;
-    height: 60px;
+    width: 80px;
+    height: 80px;
 }
 
 .conter2_list_conter div{
@@ -1831,6 +1827,8 @@ span.fr{
 }
 .conter2_pt img{
     margin-right:3px;
+    width:16px;
+    height:16px;
 }
 .conter2_pt span{
     margin-left:10px;
@@ -1934,6 +1932,11 @@ span.fr{
 }
 .member_pt span{
     margin-left:20px;
+}
+.member_pt img{
+    margin-right:2px;
+    width:12px;
+    height:12px;
 }
 .member_info{
     font-size:1.2em;
@@ -2086,6 +2089,16 @@ a.ds_footer_a{
     background: #0072BB;
     border-radius: 5px;
 }
+
+.add_shop_err{
+    padding-left:88px;
+    color:#e4393c;
+    font-size:1.2em;
+}
+.add_shop_err1{
+    color:#e4393c;
+    font-size:1.2em;
+}
 /*End dianping_search_addshop*/
 .pages_box{
     text-align: center;
@@ -2096,9 +2109,14 @@ a.ds_footer_a{
     padding:2px 5px;
     color:#999;
     border:1px solid #999;
-    border-radius: 3px;
+    border-radius:1px;
     font-size:1.2em;
     margin-right:5px;
+}
+#page_now{
+    background-color:#0072bb;
+    color:#fff;
+    border:1px solid #0072bb;
 }
 .pages_box a.active{
     background: #0072bb;
@@ -2195,7 +2213,8 @@ section { padding: 10px;overflow: hidden;zoom: 1;border-top: 1px solid #dbdbdb;o
 }
 /*End jiaye_personalInfo*/
 .jy{
-    background: #f7f7f7;
+    background: #fff;
+    padding-bottom:40px;
 }
 .jy_info{
     background:#0072BB;
@@ -2234,7 +2253,7 @@ section { padding: 10px;overflow: hidden;zoom: 1;border-top: 1px solid #dbdbdb;o
     box-sizing:border-box;
     float: left;
     width:50%;
-    border:1px solid #AAB2BD;
+    border:1px solid #e4e4e4;
     border-bottom: 0;
 }
 li.noborder_left{
@@ -2259,15 +2278,15 @@ li.noborder_left{
     font-size:2em;
 }
 .jy_group{
-    border:1px solid #B3B3B3;
+    border-top:1px solid #e4e4e4;
+    border-bottom:1px solid #e4e4e4;
     margin-bottom:20px;
 }
 .jy_group li,.jy_back {
     box-sizing: border-box;
     padding:0 10px;
-
     background: #fff;
-    border-bottom: 1px solid #b3b3b3;
+    border-bottom: 1px solid #e4e4e4;
 }
 .jy_group li a ,.jy_back a{
     height:40px;
@@ -2283,8 +2302,13 @@ li.noborder_left{
     float: right;
 }
 .jy_back{
-    border-bottom: 1px solid #b3b3b3;
-    border-top: 1px solid #b3b3b3;
+    width:40%;
+    margin:0 auto;
+    background:#e4393c;
+    text-align:center;
+}
+.jy_back a{
+    color:#fff;
 }
 /*End jiaye*/
 .fs_group li{
@@ -2292,7 +2316,7 @@ li.noborder_left{
     padding:0 10px;
     line-height:40px;
     text-align: center;
-    fon-size:1.4em;
+    font-size:1.4em;
     overflow: hidden;
     background: #fff;
 }
@@ -2342,6 +2366,7 @@ li.noborder_left{
 }
 .jy_dp_pic_box li img{
     width:90px;
+    height: 90px;
     display: block;
 }
 .jy_dp_pic_box li div{
@@ -2605,7 +2630,7 @@ input.jmfd_agree{
 }
 .mr_list_div div .mr_span_l{
     display: inline-block;
-    flost:left;
+    float:left;
 }
 .mr_list_div div .mr_span_r{
     display: inline-block;
@@ -2858,7 +2883,7 @@ input.button_disable {
     margin-bottom: 100px;
 }
 .border_bottom{
-    border-bottom:1px solid #e1e1e1;
+    border-bottom:1px solid #e0e0e0;
 }   
 .noborder_bottom,.noborder_left{
     border-bottom: 0;
@@ -2873,7 +2898,7 @@ input.button_disable {
      margin-bottom:30px;
  }
 .border_top{
-    border-top:1px solid #e1e1e1;
+    border-top:1px solid #e0e0e0;
 }
 .ellipsis{
     text-overflow: ellipsis;
@@ -2888,6 +2913,15 @@ input.button_disable {
 }
 .block{
     display: block;
+}
+.m_r_10{
+    margin-right:10px;
+}
+.pd_5{
+    padding:5px 0;
+}
+.breakword{
+    word-break: break-all;
 }
 /* End common class*/
 /* Footer */
