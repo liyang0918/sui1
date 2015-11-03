@@ -16,7 +16,8 @@ if (isset($_GET["food_class"])) {
 }
 
 if (isset($_GET["kws"])) {
-    $kws = $_GET["kws"];
+    // 防止注入攻击,从符号【;,'"】处截取
+    $kws = mbstr_split($_GET["kws"], ";,'\"");
     $title = $kws;
     $shopname_search = 1;
 }

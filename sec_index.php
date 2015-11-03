@@ -1,6 +1,6 @@
 <div id="sec_category">
    <nav class="navtwo">
-                <ul class="navtwo_ul border_bottom">
+                <ul class="navtwo_ul">
                     <li><a href="" id="top" onclick="sec_category(this)">置顶文章</a></li>
                     <li><a href="" id="hot" onclick="sec_category(this)">热门推荐</a></li>
                     <li><a href="" id="classical" onclick="sec_category(this)">论坛集萃</a></li>
