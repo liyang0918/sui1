@@ -1819,7 +1819,7 @@ span.fr{
 }
 .conter2_list_conter div h4{
     font-size:1.6em;
-    color:#333;
+    color:#212121;
     line-height:24px;
 }
 .conter2_list_conter div p{
@@ -1832,18 +1832,20 @@ span.fr{
 }
 .conter2_pt span{
     margin-left:10px;
-    color:#333;
+    color:#212121;
 }
 .conter2_pd{
     overflow: hidden;
 }
 .conter2_pd span{
     float: left;
-    color:#999;
+    color:#bdbdbd;
+    font-size:1.3em;
 }
 .conter2_pd em{
     float: right;
-    color:#999;
+    color:#bdbdbd;
+    font-size:1.3em;
 }
 /*End dianping_near*/
 .nopadding{
