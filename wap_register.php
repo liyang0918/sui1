@@ -74,7 +74,7 @@ if($_POST["submit"]) {
         //$ret=bbs_createnewid($userid,$password,$nickname,$reg_email,$reuser);
         //$ret=bbs_createnewid_ph($userid,$password,$nickname,$area_code,$reg_phone,$reuser);
         $ret = bbs_createnewid_ph($user_id, $password, $nickname, $country, $reg_phone, $reg_email, $reuser);
-        echo $ret;
+//        echo $ret;
         switch ($ret) {
             case 0:
                 break;

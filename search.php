@@ -16,7 +16,7 @@ $page_title = "ËÑË÷";
 ?>
 <html lang="zh">
     <head>
-        <meta charset="utf-8">
+        <meta charset="gb2312">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="apple-mobile-web-app-status-bar-style" content="black">
         <meta name="format-detection" content="telephone=no">
