@@ -9,8 +9,7 @@ include_once(dirname(__FILE__)."/func.php");
  */
 
 $thumb_dir = "thumb";
-if (is_dir($thumb_dir))
-    @mkdir($thumb_dir);
+@mkdir(dirname(__FILE__).'/$thumb_dir');
 
 // file_path 是相对于 nginx根路径的位置
 $file_path = "NULL";
@@ -20,7 +19,6 @@ $image_count = 0;
 if ($_POST["img_count"]) {
     $image_count = intval($_POST["img_count"]);
 }
-var_dump($_POST);
 
 /* 待上传的附件存放在 $upfiledir 中,在$upfiledir 中有 .index 文件，记录了将被上传的文件信息，post_article 时,会打开 .index 文件读取该信息。
  * 文件中每一行记录一个待上传的附件的信息，信息格式为
@@ -77,6 +75,8 @@ if (!empty($_FILES["image_file"]["tmp_name"])) {
     } else {
         $file_path = "ERROR:文件上传失败!";
     }
+} else {
+    $file_path = "ERROR:文件上传失败!";
 }
 
 ?>

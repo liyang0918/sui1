@@ -32,7 +32,7 @@ $t_data = getShopPictureList($link, $shop_id, $type, $page, $per_page, true, $us
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="utf-8">
+    <meta charset="gb2312">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="format-detection" content="telephone=no">
@@ -88,7 +88,7 @@ $t_data = getShopPictureList($link, $shop_id, $type, $page, $per_page, true, $us
     <?php foreach ($t_data as $i=>$each) { ?>
         <li>
             <div>
-                <a href="dp_picture_single.php?shop_id=<?php echo $shop_id; ?>&pic_num=<?php echo $i+1; ?>&type=<?php echo $type; ?>"><img src="<?php echo $each["img"]; ?>" alt="picture"/></a>
+                <a href="dp_picture_single.php?shop_id=<?php echo $shop_id; ?>&pic_num=<?php echo $i+1; ?>&type=<?php echo $type; ?>&user_num_id=<?php echo $user_num_id; ?>"><img src="<?php echo $each["img"]; ?>" alt="picture"/></a>
                 <p><?php echo $each["tag_name"]; ?></p>
             </div>
         </li>
@@ -106,7 +106,7 @@ $t_data = getShopPictureList($link, $shop_id, $type, $page, $per_page, true, $us
     <script type="text/javascript" src="js/slide.js"></script>
     <script type="text/javascript">
         function jump_to_this(obj) {
-            var jumpto = "dp_picture_list.php?shop_id=<?php echo $shop_id; ?>&type="+obj.id;
+            var jumpto = "dp_picture_list.php?shop_id=<?php echo $shop_id; ?>&type="+obj.id+"&user_num_id="+"<?php echo $user_num_id; ?>";
             window.location.href = jumpto;
 
             return false;

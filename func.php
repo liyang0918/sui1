@@ -1093,16 +1093,13 @@ function getExtraValue($str) {
 
 function dpSetUserLastCity($link, $city, $user_num_id) {
     $sql = "SELECT COUNT(*) AS count FROM users_ex WHERE numeral_user_id=$user_num_id;";
-    log2file($sql);
     $result = mysql_query($sql, $link);
     $row = mysql_fetch_array($result);
-    if ($row["count"] > 0) {
-        $sql_insert = "INSERT INTO users_ex (numeral_user_id,lastcity) VALUES ($user_num_id, $city)";
-        log2file($sql_insert);
+    if ($row["count"] < 1) {
+        $sql_insert = "INSERT INTO users_ex (numeral_user_id,lastcity) VALUES ($user_num_id, '$city')";
         mysql_query($sql_insert, $link);
     } else {
-        $sql_update = "UPDATE users_ex SET lastcity=$city WHERE numeral_user_id=$user_num_id";
-        log2file($sql_update);
+        $sql_update = "UPDATE users_ex SET lastcity='$city' WHERE numeral_user_id=$user_num_id";
         mysql_query($sql_update, $link);
     }
 }
@@ -1286,16 +1283,25 @@ function getDpRecommendShops($link, $city) {
     return $ret;
 }
 
-function getShopPictureTotal($link, $shop_id, $type) {
+function getShopPictureTotal($link, $shop_id, $type, $user_num_id=-1) {
+    $att_condition = "1=1 ";
+    if ($user_num_id != -1) {
+        $result_u = mysql_query("SELECT user_id FROM users WHERE numeral_user_id=$user_num_id;", $link);
+        if ($row = mysql_fetch_array($result_u)) {
+            $att_condition = "user_name='{$row["user_id"]}' ";
+        }
+        mysql_free_result($result_u);
+    }
+
     if ($type == "dish") {
         $sql = "SELECT COUNT(*) AS count FROM comment_img WHERE
-                shop_id=$shop_id AND type='dish' AND display<2";
+                shop_id=$shop_id AND type='dish' AND $att_condition AND display<2";
     } elseif ($type == "env") {
         $sql = "SELECT COUNT(*) AS count FROM comment_img WHERE
-                shop_id=$shop_id AND type='env' AND display<2";
+                shop_id=$shop_id AND type='env' AND $att_condition AND display<2";
     } else {
         $sql = "SELECT COUNT(*) AS count FROM comment_img WHERE
-                shop_id=$shop_id AND display<2";
+                shop_id=$shop_id AND $att_condition AND display<2";
     }
 
     $result = mysql_query($sql, $link);
@@ -1710,7 +1716,7 @@ function getShopTop10($link, $reason, $city, $pos) {
     $week = date('w');
     $createTime = strtotime(date("Y M D",strtotime( '+'. 1-$week .' days' )));
 
-    if ($city != "all") {
+    if (!empty($city) and $city != "all") {
         switch ($reason){
             case "hot":
                 $sql = 'select r.shop_id as shop_id,type_set,cnName,location,contact,comment_num,s.lat as lat,s.lng as lng,s.avg_pay as avg_pay,s.avg_score as avg_score,s.taste_score as taste_score,s.env_score as env_sore,s.sev_score as sev_score from user_comment as r,shop_info as s
@@ -1781,7 +1787,11 @@ function getShopTop10($link, $reason, $city, $pos) {
         if (!isset($row["avg_score"]))
             $row["avg_score"] = 0.0;
 
-        $row["img"] = getShopTopImg($row["shop_id"]);
+
+        $row["img"] = getShopInfoImg($link, $row["shop_id"]);
+        if (empty($row["img"]))
+            $row["img"] = "img/{$row["type_set"]}.png";
+
         $row["href"] = "one_shopinfo.php?shop_id=".$row["shop_id"];
 
         $ret[] = $row;

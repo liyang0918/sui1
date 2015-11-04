@@ -936,7 +936,7 @@ function del_article(url, para, jumpto) {
                     if (ret_json.msg == "jump") {
                         window.location.href = jumpto;
                     } else if (ret_json.msg == "reload") {
-                        window.location.reload();
+                        window.location.reload(true);
                     }
                 } else {
                     Alert("É¾³ýÊ§°Ü,"+ret_json.msg, 2);
@@ -1657,8 +1657,8 @@ function dp_show_rank(obj) {
     rank_type.innerHTML = arr[1];
     document.getElementById(active_id).setAttribute("class", "");
     obj.setAttribute("class", "redgo");
-    var extra = getCookie_wap("extra");
-    var url = "/mobile/forum/request/dp_rank.php?extra="+extra;
+    var dp_city = getCookie_wap("dp_city");
+    var url = "/mobile/forum/request/dp_rank.php?city="+dp_city;
     var para = "reason="+arr[1];
     var tag = document.getElementById("detail");
     var myAjax = new Ajax.Request(url,
@@ -1726,12 +1726,13 @@ function dp_send_imgtag(url, para, jumpto) {
     return result;
 }
 
-function dp_get_picture(shop_id, type, pic_num) {
+function dp_get_picture(shop_id, type, pic_num, user_num_id) {
     var url = "/mobile/forum/request/dp_picture_single.php";
     var para = {
         "shop_id":shop_id,
         "type":type,
-        "pic_num":pic_num
+        "pic_num":pic_num,
+        "user_num_id":user_num_id
     };
 
     $.ajax({

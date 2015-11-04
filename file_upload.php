@@ -9,8 +9,7 @@ include_once(dirname(__FILE__)."/func.php");
  */
 
 $thumb_dir = "thumb";
-if (is_dir($thumb_dir))
-    @mkdir($thumb_dir);
+@mkdir(dirname(__FILE__).'/$thumb_dir');
 
 // file_path 是相对于 nginx根路径的位置
 $file_path = "NULL";

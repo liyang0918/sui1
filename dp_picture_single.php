@@ -5,6 +5,10 @@ $link = db_connect_web();
 
 $shop_id = $_GET["shop_id"];
 $pic_num = $_GET["pic_num"];
+$user_num_id = -1;
+if (isset($_GET["user_num_id"]))
+    $user_num_id = $_GET["user_num_id"];
+
 $type = $_GET["type"];
 if ($type != "all" and $type != "dish" and $type != "env") {
     $type = "all";
@@ -28,15 +32,11 @@ if(empty($page)){
     $page = 1;
 }
 
-//page part
-$total_row = getShopPictureTotal($link, $shop_id, $type);
-//end page
-$t_data = getShopPictureList($link, $shop_id, $type, $page, $per_page);
 ?>
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="utf-8">
+    <meta charset="gb2312">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="format-detection" content="telephone=no">
@@ -124,12 +124,12 @@ $t_data = getShopPictureList($link, $shop_id, $type, $page, $per_page);
             return false;
         }
 
-        dp_get_picture("<?php echo $shop_id; ?>", "<?php echo $type?>", req_pic_num);
+        dp_get_picture("<?php echo $shop_id; ?>", "<?php echo $type?>", req_pic_num, "<?php echo $user_num_id; ?>");
         return false;
     }
 
     $(document).ready(function () {
-        dp_get_picture("<?php echo $shop_id; ?>", "<?php echo $type; ?>", "<?php echo $pic_num; ?>");
+        dp_get_picture("<?php echo $shop_id; ?>", "<?php echo $type; ?>", "<?php echo $pic_num; ?>", "<?php echo $user_num_id; ?>");
     })
 
 </script>

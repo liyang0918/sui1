@@ -6,7 +6,7 @@ $curr_url = $_SERVER["REQUEST_URI"]."?".$_SERVER["QUERY_STRING"];
 if(!empty($_COOKIE["app_show"]))
     $page_title= iconv("UTF-8","GBK",$_COOKIE["app_show"]);
 else
-    $page_title = iconv("UTF-8", "GBK", "ÂÛÌ³");
+    $page_title = "ÂÛÌ³";
 ?>
 <!DOCTYPE html>
 <html lang="zh">

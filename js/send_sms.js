@@ -169,6 +169,9 @@ function ready_for_sms(obj) {
 
 // send template message
 }
+
+
+
 //function send_templatesms(phone_num,confirm_num){
 //
 //	// send require to server :sendboxapp for test only ,substitution app when normal
@@ -391,3 +394,6 @@ function TimeOver(obj) {
 	clearTimeout(ret_t);
 }
 
+function passwd_reset_send_sms (obj) {
+    
+}
