@@ -13,6 +13,9 @@ if (empty($user_id) or $user_id == "guest")
     error_quit(-1, "Äú»¹Ã»ÓÐµÇÂ¼", "beforeExit", array($link, ""));
 
 $tmp_dir = getUploadTmpDir($user_id, $utmpnum);
+// É¾³ýÍ¼Æ¬Ô¤ÀÀÍ¼Ä¿Â¼
+$thumb_tmp_dir = "/usr/local/apache/htdocs/mobile/forum/thumb/".basename($tmp_dir);
+@system("rm $thumb_tmp_dir -rf");
 
 function error_quit($errno, $error_str, $fun=NULL, $args=array(NULL, "")) {
     // before exit
@@ -22,8 +25,6 @@ function error_quit($errno, $error_str, $fun=NULL, $args=array(NULL, "")) {
     echo json_encode(array("result"=>$errno, "msg"=>iconv("GBK", "UTF-8", $error_str)));
     exit;
 }
-
-
 
 
 function getFilePathFromIndex($dir) {
@@ -122,7 +123,6 @@ function dpSavePic2Db($link, $shop_id, $file_info) {
     global $user_id, $user_num_id;
     $file_name = $file_info["pic_name"].'_'.$user_id.'_'.time();
     $shop_path =  BBS_HOME.'/pic_home/comment/'.$shop_id.'/'.$file_info["dir"];
-    log2file($shop_path);
     @mkdirs_r($shop_path);
     while(is_file($shop_path.'/'.$file_name)){
         $file_name = $file_info["pic_name"].'_'.$user_id.'_'.(time()+1);

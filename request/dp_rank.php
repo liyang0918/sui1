@@ -22,9 +22,9 @@ foreach ($t_data as $each) {
     $str_content .= '<li class="conter2_list border_bottom">';
     $str_content .= '<a class="conter2_list_conter" href="'.$each["href"].'">';
     $str_content .= '<img class="shop_topimg" src="'.$each["img"].'" alt="shopimg"/>';
-    $str_content .= '<div><h4>'.$each["cnName"].'</h4><p class="conter2_pt" style="padding:5px 0;">';
+    $str_content .= '<div><h4>'.$each["cnName"].'</h4><p class="conter2_pt pd_5">';
     for ($i = 0; $i < 5; $i++) {
-        if ($i < $each["avg_score"]-1)
+        if ($i <= $each["avg_score"]-1)
             $str_content .= '<img src="img/redstar.png" alt="redstar.png"/>';
         else
             $str_content .= '<img src="img/graystar.png" alt="redstar.png"/>';

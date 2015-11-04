@@ -59,8 +59,52 @@ function getSectionHotArticles($msg){
     return $ret;
 }
 
+// 16进制格式的字符串转换为10进制数字
+function str_hex_to_num ($str) {
+    $end = strlen($str);
+    $result = 0;
+    for ($start = 0; $start < $end; $start++) {
+        switch (substr($str, $start, 1)) {
+            case "0":
+            case "1":
+            case "2":
+            case "3":
+            case "4":
+            case "5":
+            case "6":
+            case "7":
+            case "8":
+            case "9":
+                $result = $result*10+intval(substr($str, $start, 1));
+                break;
+            case "a":
+                $result = $result*10+10;
+                break;
+            case "b":
+                $result += $result*10+11;
+                break;
+            case "c":
+                $result += $result*10+12;
+                break;
+            case "d":
+                $result += $result*10+13;
+                break;
+            case "e":
+                $result += $result*10+14;
+                break;
+            case "f":
+                $result += $result*10+15;
+                break;
+            default:
+                break 2;
+        }
+    }
+
+    return $result;
+}
+
 foreach ($forum_class_list as $each) {
-    $sectionId = intval($each["section_num"]);
+    $sectionId = str_hex_to_num($each["section_num"]);
     if($sectionId == 0)
         $sectionId = 13;
 

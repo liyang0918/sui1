@@ -48,7 +48,7 @@ if(!empty($_POST["login"])||$_POST["logintype"]=="reg") {
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="utf-8">
+    <meta charset="gb2312">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">    <!--手机屏幕自适应设置-->
     <meta name="format-detection" content="telephone=no">    <!--手机屏幕自适应设置-->
@@ -72,7 +72,7 @@ if(!empty($_POST["login"])||$_POST["logintype"]=="reg") {
             <p class="forget_p">
                 <span>密码：</span><input id="passwd" name="passwd" type="password" placeholder="密码"/>
             </p>
-            <p class="forget_code"><a href="logIn_forget.html">忘记密码</a></p>
+            <p class="forget_code"><a href="/mitbbs_get_passwd_ph.php">忘记密码</a></p>
             <input class="forget_inp forget_lg"  name="login" id="login" type="submit" value="登录"/>
 	    <p class="nousername"><a href="wap_register.php">还没有账号？点此注册</a></p>
             </form>

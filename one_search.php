@@ -174,7 +174,6 @@ $limit = " limit $start,$per_page";
 
 $sql .= $limit;
 //data end
-log2file($sql);
 ?>
 <div class="ds_box border_bottom">
     <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>

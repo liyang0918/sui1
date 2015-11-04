@@ -6,9 +6,12 @@ $link = db_connect_web();
 $shop_id = $_POST["shop_id"];
 $type = $_POST["type"];
 $pic_num = $_POST["pic_num"];
+$user_num_id = -1;
+if (isset($_POST["user_num_id"]))
+    $user_num_id = $_POST["user_num_id"];
 
-$total_num = getShopPictureTotal($link, $shop_id, $type);
-$pic = getShopPictureList($link, $shop_id, $type, $pic_num, 1, false)[0];
+$total_num = getShopPictureTotal($link, $shop_id, $type, $user_num_id);
+$pic = getShopPictureList($link, $shop_id, $type, $pic_num, 1, false, $user_num_id)[0];
 
 $tag_name = mb_convert_encoding($pic["tag_name"], "UTF-8", "GBK");
 
