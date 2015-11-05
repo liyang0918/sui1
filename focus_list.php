@@ -42,7 +42,7 @@ $ret = getMyFriendList($link, $user_id, $app_type, $page, $num);
 //}
 ?>
     <div class="ds_box border_bottom">
-        <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+        <a href="" onclick="return go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
         ÎÒ¹Ø×¢µÄ
     </div><!--<End ds_box-->
     <ul class="fs_group margin-bottom">

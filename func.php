@@ -3,7 +3,7 @@
 // for debug start
 function log2file($str) {
     $str = (string)$str."\n";
-    $fp = fopen("/home/bbs/ly_mitbbs.log", "ab+");
+    $fp = fopen("/tmp/wap_mitbbs.log", "ab+");
     fputs($fp, $str);
     fclose($fp);
 }
@@ -429,6 +429,11 @@ function dyadic_array_sort(&$arr, $base, $direction=0) {
         $direction = SORT_ASC;
 
     array_multisort($sort_arr, $direction, $arr);
+}
+
+// 忽略非法字符,主要用于屏蔽手机端输入法的自带表情,有可能导致转码失败
+function illCharIgnore($str) {
+    return preg_replace_callback('/[\xf0-\xf7].{3}/', function($r) { return '';}, $str);
 }
 
 /* 获取汉语拼音首字母 */

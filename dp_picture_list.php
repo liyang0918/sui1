@@ -70,7 +70,7 @@ $t_data = getShopPictureList($link, $shop_id, $type, $page, $per_page, true, $us
         <li class="navone_li noborder"><a href="search.php"><img src="img/item.png" alt="item.png"/>ËÑË÷</a></li>
     </ul>
     <div class="ds_box border_bottom">
-        <a onclick="go_last_page()"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+        <a onclick="return go_last_page()"><img src="img/btn_left.png" alt="bth_left.png"/></a>
         µêÆÌÍ¼Æ¬ÁÐ±í
     </div><!--------End ds_box-->
     <ul class="dp_piclist_nav">

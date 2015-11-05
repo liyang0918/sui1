@@ -1,10 +1,8 @@
 
-function setImageEffect(){
+$(document).ready(function(){
+
     $dragBln = false;
-    var arr=["第一个图片","第二个图片","第三个图片"];
-    if (arguments.length == 1) {
-        arr = arguments[0];
-    }
+    arr=["第一个图片","第一个图片","第一个图片"];
 
     $(".main_image").touchSlider({
         flexible : true,
@@ -50,4 +48,4 @@ function setImageEffect(){
         }, 5000);
     });
 
-}
+});

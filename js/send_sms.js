@@ -169,9 +169,6 @@ function ready_for_sms(obj) {
 
 // send template message
 }
-
-
-
 //function send_templatesms(phone_num,confirm_num){
 //
 //	// send require to server :sendboxapp for test only ,substitution app when normal
@@ -395,5 +392,79 @@ function TimeOver(obj) {
 }
 
 function passwd_reset_send_sms (obj) {
-    
+    var user_phone = $('#user_phone1').val();
+    var check_reg = /^\d{11}$/;
+    if (!check_reg.test(user_phone)) {
+        Alert("电话号码格式错误", 1);
+        return false;
+    }
+
+    var user_name = $('#user_name1').val();
+    var phone_num_get = -1;
+    var country_code = -1;
+
+    // 获取用户名对应的电话号码
+    var url1 = "/mobile/forum/request/get_user_phone.php";
+    var para1 = {
+        "user_id": user_name
+    };
+    $.ajax({
+        type: "POST",
+        url: url1,
+        async: false,
+        data: para1,
+        success: function (ret) {
+            var ret_json = eval("(" + ret + ")");
+            if (ret_json.result == 0) {
+                phone_num_get = ret_json.phone_num;
+                country_code = ret_json.country_code;
+            }
+        },
+        error: function (x) {
+            alert("请求失败");
+        }
+    });
+
+    if (phone_num_get != user_phone) {
+        Alert("输入的电话号码与数据中不匹配", 1);
+        return false;
+    }
+
+	// 生成验证码,存放在session中
+	$.ajax({
+        type: 'get',
+        url:"/mobile/forum/request/create_confirm.php",
+        data: null,
+        async: false,
+        success: function (ret) {
+            btn_dcount(obj, 60);
+        },
+        error: function (x) {
+            alert("fail to get confirm_num from server ;");
+        }
+    });
+
+    // 发送模板短信
+    var para2 = {
+        "phone_num_final": country_code+user_phone,
+        "temp_id": "21332",
+        "country_code": country_code
+    };
+    $.ajax({
+        type: 'post',
+        url: "/mobile/forum/request/send_templatesms.php",
+        data: para2,
+        async: true,
+        success: function (ret) {
+            if (ret.responseText == true) {
+                Alert("短信发送成功,请于10分钟之内输入", 1);
+            }
+        },
+        error: function (x) {
+            alert("请检查您的手机号");
+            return false;
+        }
+    });
+
+    return false;
 }

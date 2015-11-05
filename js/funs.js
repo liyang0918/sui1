@@ -65,6 +65,7 @@ var label_list = {
 
 function go_last_page() {
     window.history.go(-1);
+    return false;
 }
 
 function get_info_by_id(id) {
@@ -1765,4 +1766,58 @@ function check_user_perm(member_type, club_type) {
         alert("你还不是该俱乐部成员，没有发表文章的权限！");
         return false;
     }
+}
+
+function passwd_reset_check_confirm(confirm_code) {
+    var para = {
+        "confirm_code": confirm_code,
+    };
+
+    var flag = false;
+    $.ajax({
+        type: "POST",
+        url: "/mobile/forum/request/check_confirm.php",
+        async: false,
+        data: para,
+        success: function (ret) {
+            var ret_json = eval("(" + ret + ")");
+            if (ret_json.result == 0) {
+                flag = true;
+            } else {
+                flag = false;
+                Alert(ret_json.msg, 1);
+            }
+        },
+        error: function (x) {
+            flag = false;
+            Alert("请求失败", 1);
+        }
+    });
+
+    return flag;
+}
+
+function user_passwd_reset (passwd) {
+    var para = {
+        "passwd": passwd
+    };
+
+    $.ajax({
+        type: "POST",
+        url: "/mobile/forum/request/user_passwd_reset.php",
+        async: false,
+        data: para,
+        success: function (ret) {
+            var ret_json = eval("(" + ret + ")");
+            if (ret_json.result == 0) {
+                alert("密码修改成功");
+                window.location.href = "login.php";
+            } else {
+                Alert(ret_json.msg, 1);
+            }
+        },
+        error: function (x) {
+            Alert("请求失败", 1);
+        }
+    });
 }
