@@ -22,7 +22,7 @@ if (isset($_GET["board"])) {
 
 ?>
     <div class="ds_box border_bottom">
-        <a onclick="go_last_page()"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+        <a onclick="return go_last_page()"><img src="img/btn_left.png" alt="bth_left.png"/></a>
         ╥╒нд
     </div><!--<End ds_box-->
     <form id="form_article" class="newreply_conter input_padding1">

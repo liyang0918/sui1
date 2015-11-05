@@ -55,7 +55,7 @@ $father_page = "one_shopinfo.php?shop_id=$shop_id";
         <li class="navone_li noborder"><a href="search.php"><img src="img/item.png" alt="item.png"/>ËÑË÷</a></li>
     </ul>
 <div class="ds_box border_bottom">
-    <a onclick="go_last_page()"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+    <a onclick="return go_last_page()"><img src="img/btn_left.png" alt="bth_left.png"/></a>
     Ð´µãÆÀ
 </div><!--<End ds_box-->
 <section class="shop-mycomment">
