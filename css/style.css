@@ -802,6 +802,7 @@ body {
 }
 .forget_p{
     margin-bottom: 10px;
+    position:relative;
 }
 .forget_p span{
     display: inline-block;
@@ -810,10 +811,12 @@ body {
     color:#fff;
 }
 .forget_p input{
-    width:80%;
+    border-radius:0;
+    width:100%;
     text-indent: 10px;
     font-size:1.4em;
     color:#333;
+    border:1px solid #ccc;
 }
 .forget_code{
     text-align: right;
@@ -888,23 +891,37 @@ body {
     margin-bottom: 20px;
 }
 .other_method{
-    text-align: left;
-    line-height:16px;
-    color:#999;
+    width:100%;
+    margin:0 auto;
+    padding-top:40px;
+    text-align:center;
+    line-height:30px;
+    font-size:1.2em;
+    color:#e4393c;
+}
+.other_method a{
+    color:#e4393c;
+    font-weight:bold;
 }
 /*End logoIn_forget*/
 .forget_p .get_test_l{
-    width:60%;
+    width:100%;
 }
 .forget_p .get_test_r{
-    width:30%;
+    width:100px;
+    height:30px;
     color:#333;
     background: #eee;
     text-indent: 0;
+    position:absolute;
+    right:5px;
+    top:8px;
+    line-height:30px;
+    font-size:1em;
 }
 .forget_submit{
-    width:90%;
-    font-size:1.7em;
+    width:100%;
+    font-size:1.6em;
 }
 .forget_box .forget_info{
     box-sizing: border-box;
@@ -1676,7 +1693,6 @@ span.fr{
 .dp_list2{
     overflow: hidden;
     border:1px solid #e1e1e1;
-    float: left;
 }
 .dp_list2_middle{
     box-sizing: border-box;
@@ -1755,7 +1771,7 @@ span.fr{
     }
     .dp_list2{
         width:300px;
-        margin:30px;
+        margin:30px auto;
     }
     .dp_list2_up{
         width:300px;

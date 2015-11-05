@@ -27,6 +27,18 @@ include_once("sec_club.php")
 </div>
 <div id="pagebox">
 </div>
+<script type="text/javascript">
+    function show_club_list(obj) {
+        var type = obj.id.split("_")[1];
+        if (type == "handpick") {
+            window.location.href = "club_classify.php";
+            return false;
+        }
+
+        window.location.href = "one_class_club.php?club_class="+type;
+        return false;
+    }
+</script>
 <?php
 include_once("foot.php");
 ?>
