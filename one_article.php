@@ -79,7 +79,7 @@ $i_cnt = count($prt_arr);
 //data end
 ?>
     <div class="ds_box border_bottom">
-        <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+        <a href="" onclick="return go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
         ндуб
     </div>
     <div class="theme_wrap">

@@ -23,7 +23,7 @@ $arr = getMailNumByType($user_id);
 ?>
 <div class="jy_email">
     <div class="ds_box border_bottom _margin_bottom">
-        <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+        <a href="" onclick="return go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
         нр╣дсйоД
     </div><!--<End ds_box-->
     <div class="board_wrap">

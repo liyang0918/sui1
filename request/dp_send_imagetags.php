@@ -27,6 +27,8 @@ function error_quit($errno, $error_str, $fun=NULL, $args=array(NULL, "")) {
 }
 
 
+
+
 function getFilePathFromIndex($dir) {
     $content_arr = file($dir."/.index");
 

@@ -88,7 +88,7 @@ $totalboard = count($boards[0]);
 ?>
 
     <div class="ds_box border_bottom">
-        <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+        <a href="" onclick="return go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
         <?php echo getClassName($class); ?>
     </div><!--------End ds_box-->
     <div class="hot_li">

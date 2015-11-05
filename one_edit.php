@@ -118,7 +118,7 @@ if ($club_flag == 0) {
 ?>
 
 <div class="ds_box border_bottom">
-    <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+    <a href="" onclick="return go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
     пч╦дндуб
 </div>
 <form class="newreply_conter">

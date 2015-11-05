@@ -25,7 +25,7 @@ if(isset($_POST["board"])) {
 
 $title = "";
 if(!empty($_POST["title"])) {
-    $title = $_POST["title"];
+    $title = illCharIgnore($_POST["title"]);
     $tmp = iconv("UTF-8", "GBK//IGNORE", $title);
     if ($tmp)
         $title = $tmp;

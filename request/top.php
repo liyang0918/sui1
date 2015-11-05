@@ -25,13 +25,8 @@ function getArticleLunbo($link){
     return $articlelist;
 }
 
-
-
+// 轮播图中显示的文章不再显示到文章列表中
 function getTopArticle($link, $page, $limit_article) {
-    global $articlelist;
-    // 轮播图中显示的文章不再显示到文章列表中
-    $limit_article = $articlelist;
-
     $pagenum = 40;
     $from = ($page-1)*$pagenum;
     $is_china_flag = is_china();
@@ -139,7 +134,7 @@ $all_arr = array();
 //detail start
 $str_article = '<ul class="article_wrap">';
 
-list($top_article, $end_flag) = getTopArticle($link, $page, $articlelist);
+list($top_article, $end_flag) = getTopArticle($link, $page, getArticleLunbo($link));
 
 setcookie("end_flag", (string)$end_flag, 0, "/");
 

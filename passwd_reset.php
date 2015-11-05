@@ -42,71 +42,84 @@ include_once(dirname(__FILE__)."/func.php");
             <span id="page_layer" style="display: none">0</span>
         </nav>
     </div>
-    <div id="reset_way">
-        <div class="forget_box">
-            <p class="forget_method">请选择找回密码的方式</p>
-            <input class="methods bg" type="button" value="通过手机号找回密码" onclick="reset_way('phone');"/>
-            <input class="methods bg" type="button" value="通过邮箱找回密码" onclick="reset_way('mail');"/>
-            <p class="other_method">
-                以上方式都无法找回密码？</br>
-                请发邮件至contactus@mitbbs.com，通过人工申诉找回密码。
-            </p>
-        </div>
-    </div><!--End reset_way-->
-
     <div id="by_phone">
         <form class="forget_box">
             <p class="forget_p">
-                <input type="text" placeholder="请输入账号"/>
-                <input class="get_test_l" type="text" placeholder="请输入您的手机号"/>
-                <input class="get_test_r" type="button" value="获取验证码"/>
+                <input id="user_name1" type="text" placeholder="请输入账号"/>
             </p>
             <p class="forget_p">
-                <input type="text" maxlength="4" placeholder="请输入4位短信验证码"/>
+                <input id="user_phone1" class="get_test_l" type="text" placeholder="请输入您的手机号"/>
+                <input class="get_test_r" type="button" value="获取验证码" onclick="passwd_reset_send_sms(this);" />
             </p>
-            <input class="forget_submit font_white bg" type="submit" value="下一步" onclick="window.location.href='logIn_forget_back.html'"/>
+            <p class="forget_p">
+                <input id="confirm_code" type="text" maxlength="4" placeholder="请输入4位短信验证码"/>
+            </p>
+            <input class="forget_submit font_white bg" type="button" value="下一步" onclick="return goto_set_newpasswd();"/>
+            <p class="other_method">
+                如果您是用邮箱注册的帐号,请登录我们的<a href="http://www.mitbbs.com">网站</a>进行密码找回!给您带来的不便敬请谅解！
+            </p>
         </form>
     </div><!-- End by_phone-->
 
-    <div id="by_mail">
+    <div id="set_newpasswd">
         <form class="forget_box">
             <p class="forget_p">
-                <input type="text" placeholder="请输入账号"/>
+                <input id="newpasswd" type="password" placeholder="设置新密码"/>
             </p>
             <p class="forget_p">
-                <input type="text" placeholder="请输入注册邮箱"/>
+                <input id="newpasswd_confirm" type="password" placeholder="确认新密码" onchange="passwd_compare();return true;"/>
             </p>
-            <p class="forget_info"> 系统将会向您的注册邮箱中发送一封带有10为数字验证码的邮件，请注意查收 </p>
-            <input class="forget_submit font_white bg" type="submit" value="提交"/>
+            <p id="newpasswd_msg" style="display: none">
+                两次密码输入比较结果的提示
+            </p>
+            <input class="forget_submit font_white bg" type="button" value="提交" onclick="passwd_submit();"/>
         </form>
-    </div><!--End by_mail-->
+    </div><!--End forget-->
 
 </div>
 <script type="text/javascript" src="js/jquery.js"></script>
 <script type="text/javascript" src="js/js.js"></script>
+<script type="text/javascript" src="js/funs.js"></script>
+<script type="text/javascript" src="js/send_sms.js"></script>
 <script type="text/javascript">
-    function reset_way(action) {
-        switch (action) {
-            case "phone":
-                $('#page_layer').html("1");
+    function passwd_compare() {
+        if ($('#newpasswd').val() != $('#newpasswd_confirm').val()) {
+            $('#newpasswd_msg').show();
+            $('#newpasswd_msg').html("两次密码输入不一致");
+            return false;
+        } else {
+            $('#newpasswd_msg').hide();
+            return true;
+        }
+    }
 
-                $('#reset_way').hide();
-                $('#by_phone').show();
-                $('#by_mail').hide();
+    function goto_set_newpasswd() {
+        if (passwd_reset_check_confirm($('#confirm_code').val())) {
+            $('#page_layer').html("1");
+            $('#title_text').html("设置新密码");
+            $('#by_phone').hide();
+            $('#by_mail').hide();
+            $('#set_newpasswd').show();
 
-                $('#title_text').html("手机号找回密码");
-                break;
-            case "mail":
-                $('#page_layer').html("1");
+            $('#newpasswd').val("");
+            $('#newpasswd_confirm').val("");
+        } else {
+            Alert("验证码不正确", 1);
+        }
+    }
 
-                $('#reset_way').hide();
-                $('#by_phone').hide();
-                $('#by_mail').show();
-
-                $('#title_text').html("邮箱找回密码");
-                break;
+    function passwd_submit() {
+        if (!passwd_compare()) {
+            return false;
         }
 
+        var newpasswd = $('#newpasswd').val();
+        if (newpasswd.length < 6) {
+            Alert("密码长度太短", 1);
+            return false;
+        }
+
+        user_passwd_reset($('#newpasswd').val());
         return false;
     }
 
@@ -118,17 +131,11 @@ include_once(dirname(__FILE__)."/func.php");
                 go_last_page();
                 break;
             case 1:
-                $('#reset_way').show();
-                $('#by_phone').hide();
-                $('#by_mail').hide();
-
-                $('#title_text').html("忘记密码");
-                break;
-            case 2:
-                $('#reset_way').hide();
                 $('#by_phone').show();
                 $('#by_mail').hide();
+                $('#set_newpasswd').hide();
 
+                $('#page_layer').html("0");
                 $('#title_text').html("手机号找回密码");
                 break;
         }
@@ -138,11 +145,10 @@ include_once(dirname(__FILE__)."/func.php");
 
 
     $(document).ready(function () {
-        $('#reset_way').show();
-        $('#by_phone').hide();
-        $('#by_mail').hide();
+        $('#by_phone').show();
+        $('#set_newpasswd').hide();
 
-        $('#title_text').html("忘记密码");
+        $('#title_text').html("找回密码");
     });
 </script>
 </body>

@@ -31,7 +31,7 @@ $total_row = get_row_count($brdarr["BOARD_ID"],$group_id,$link);
 //end page
 $sql = "SELECT owner_id,owner,groupid,article_id,boardname,title,type_flag,UNIX_TIMESTAMP(posttime) as posttime,total_reply,read_num,filename,attachment  FROM dir_article_" . $brdarr["BOARD_ID"] . " ".
     "WHERE groupid=".$group_id." AND article_id<>".$group_id;
-$order = " ORDER BY posttime";
+$order = " ORDER BY posttime DESC";
 $limit = "";
 $sql .= $order;
 $start = ($page-1)*$per_page;

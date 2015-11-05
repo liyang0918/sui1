@@ -70,7 +70,7 @@ $t_data = readArticleContent($link);
 if ($reply_page == 0) {
 ?>
     <div class="ds_box border_bottom">
-        <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+        <a href="" onclick="return go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
         <?php echo $brdarr["DESC"]; ?>
     </div>
     <div class="news_content_box">
@@ -100,7 +100,7 @@ if ($reply_page == 0) {
     </footer><!--------End collect_share-->
 <?php } else if($reply_page == 1) { ?>
     <div class="ds_box border_bottom">
-        <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+        <a href="" onclick="return go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
         新闻评论
     </div>
     <form class="reply_conter" action="">
@@ -111,7 +111,7 @@ if ($reply_page == 0) {
     </form><!--End reply_conter-->
 <?php } else if ($reply_page == 2) {?>
     <div class="ds_box border_bottom">
-        <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+        <a href="" onclick="return go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
         评论成功
     </div>
 <?php }?>

@@ -39,7 +39,7 @@ $ret1 = $ret[0];
 //}
 ?>
     <div class="ds_box border_bottom">
-        <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+        <a href="" onclick="return go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
         我的消息
     </div><!--<End ds_box-->
     <ul class="jy_m_group">

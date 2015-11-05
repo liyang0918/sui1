@@ -63,7 +63,7 @@ $ret = getBoardArticles();
 ?>
 
     <div class="ds_box border_bottom">
-        <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+        <a href="" onclick="return go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
         <?php echo $brdarr["DESC"]; ?>
         <a href="writearticle.php?board=<?php echo $brdarr["NAME"]; ?>" class="span_r" >╥╒нд</a>
     </div>

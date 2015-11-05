@@ -68,7 +68,7 @@ if (bbs_get_records_from_num($mail_fullpath, $mailid, $mails)) {
 //data end
 ?>
     <div class="ds_box border_bottom">
-        <a href="<?php echo $father_page; ?>" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+        <a href="<?php echo $father_page; ?>" onclick="return go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
         ÓÊ¼þÄÚÈÝ
     </div>
     <div class="mr_group">

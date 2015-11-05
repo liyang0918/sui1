@@ -67,7 +67,7 @@ $arr = getMailNumByType($user_id);
         <li class="navone_li noborder"><a href="search.php"><img src="img/item.png" alt="item.png"/>ËÑË÷</a></li>
     </ul>
     <div class="ds_box border_bottom">
-        <a href="" onclick="go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
+        <a href="" onclick="return go_last_page();"><img src="img/btn_left.png" alt="bth_left.png"/></a>
         ÎÒµÄµãÆÀ
     </div><!--<End ds_box-->
     <nav class="navtwo">

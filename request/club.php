@@ -11,7 +11,7 @@ if (empty($page))
 
 // carouselfigure start
 $str_img = '<div class="carouselfigure">';
-$str_img .= '<p class="club_title"><strong>热门俱乐部</strong><a href="club_classify.php"><span>全部俱乐部列表</span></a></p>';
+$str_img .= '<p class="club_title"><strong>热门俱乐部</strong><a id="class_'.$type.'" onclick="return show_club_list(this);"><span>全部俱乐部列表</span></a></p>';
 $str_img .= '<div class="club_list_wrap"><div class="club_div">';
 $str_img_dot = '';
 $t_data = array();
@@ -46,29 +46,29 @@ $str_img .= '</div></div></div>';
 // carouselfigure end
 
 list($article_list, $end_flag) = getRecommendClubArticle($link, $page, $groupid);
-if (count($article_list) == 0) {
-    $article_list[0] = array(
-        "href" => "one_group_club.php?type=index&club=Prepaid&group=138",
-        "title" => "[假数据]测试用例: 习近平今启程访问西雅图",
-        "content" => "尽管该属性的名称如此，但在这种情况下，它不需要也不应该为唯一的，这个语句不需要任何 WHERE 子句，因为我们希望检索所有的行。",
-        "img" => "/mobile/forum/img/club_simg.png",
-        "read_num" => "9988",
-        "reply_num" => "998",
-        "BoardsCnName" => "小白无敌",
-        "postTime" => "09-18"
-    );
-
-    $article_list[1] = array(
-        "href" => "one_group_club.php?type=index&club=Prepaid&group=183",
-        "title" => "[假数据]测试用例: 邹正89分钟绝杀进球，广州恒大客场2-1逆转广州富力",
-        "content" => "2015年9月21日19:35广州富力坐镇越秀山体育场迎战来访的广州恒大，恒大在先丢一球情况下最终由高拉特、邹正的进球逆转取胜，富力方面...",
-        "img" => "/mobile/forum/img/club_simg.png",
-        "read_num" => "10086",
-        "reply_num" => "10010",
-        "BoardsCnName" => "新闻编辑部",
-        "postTime" => "09-22"
-    );
-}
+//if (count($article_list) == 0) {
+//    $article_list[0] = array(
+//        "href" => "one_group_club.php?type=index&club=Prepaid&group=138",
+//        "title" => "[假数据]测试用例: 习近平今启程访问西雅图",
+//        "content" => "尽管该属性的名称如此，但在这种情况下，它不需要也不应该为唯一的，这个语句不需要任何 WHERE 子句，因为我们希望检索所有的行。",
+//        "img" => "/mobile/forum/img/club_simg.png",
+//        "read_num" => "9988",
+//        "reply_num" => "998",
+//        "BoardsCnName" => "小白无敌",
+//        "postTime" => "09-18"
+//    );
+//
+//    $article_list[1] = array(
+//        "href" => "one_group_club.php?type=index&club=Prepaid&group=183",
+//        "title" => "[假数据]测试用例: 邹正89分钟绝杀进球，广州恒大客场2-1逆转广州富力",
+//        "content" => "2015年9月21日19:35广州富力坐镇越秀山体育场迎战来访的广州恒大，恒大在先丢一球情况下最终由高拉特、邹正的进球逆转取胜，富力方面...",
+//        "img" => "/mobile/forum/img/club_simg.png",
+//        "read_num" => "10086",
+//        "reply_num" => "10010",
+//        "BoardsCnName" => "新闻编辑部",
+//        "postTime" => "09-22"
+//    );
+//}
 
 setcookie("end_flag", (string)$end_flag, 0, "/");
 $str_article = '<ul class="club_cont">';
