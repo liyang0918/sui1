@@ -23,11 +23,18 @@ $page = intval($_GET["page"]);
 if(empty($page)){
     $page = 1;
 }
+
 if ($brdnum == 0) {
     if ($num == 0) wap_error_quit("不存在的版面");
 }
+
+//page part
+
 $prt_arr = array();
 $conn = db_connect_web();
+
+$total_row = get_row_count($brdarr["BOARD_ID"],$group_id,$conn);
+$total_page = intval(($total_row-1)/$per_page)+1;
 
 $fav_flag = 0;
 $check_result = check_if_fav($conn, 1, $brdarr["BOARD_ID"], $group_id, 0, $brdarr["NAME"], "", "");
@@ -54,7 +61,7 @@ if($row == false){
     if ($tmp)
         $title = $tmp;
     $board_cname = $brdarr["DESC"];
-    $reply_num = $row["total_reply"];
+    $reply_num =  $total_row-1;
     $read_num = $row["read_num"];
     $board_link = "";
     if($page == 1) {
@@ -78,9 +85,7 @@ if($row == false){
     }
 }
 
-//page part
-$total_row = get_row_count($brdarr["BOARD_ID"],$group_id,$conn);
-$total_page = intval($total_row/$per_page)+1;
+
 
 //end page
 $sql = "SELECT owner_id,owner,groupid,article_id,boardname,title,type_flag,posttime,total_reply,read_num,filename,attachment  FROM dir_article_" . $brdarr["BOARD_ID"] . " ".
@@ -90,8 +95,7 @@ $limit =
 $sql .= $order;
 $start = ($page-1)*$per_page;
 if($page == 1){
-    $per_page--;
-    $limit = " limit $start,$per_page";
+    $limit = " limit $start,".($per_page-1);
 }else{
     // 第一页显示了9条回复,自第二页开始,每页10条,start每次都需要-1
     $start--;
@@ -121,7 +125,7 @@ while ($row = mysql_fetch_array($ret)) {
         $tmp_arr["content"] = $tmp_content;
     $tmp_arr["attach"] = $att_arr;
     $tmp_arr["article_id"] = $row["article_id"];
-    $tmp_arr["re_content"] = get_add_textarea_context($tmp_arr["file"],$tmp_arr["owner"]);
+    $tmp_arr["re_content"] = get_add_textarea_context($tmp_arr["file"],$tmp_arr["owner"], $conn);
     $prt_arr[] = $tmp_arr;
     $floor_cnt++;
 }
@@ -165,6 +169,7 @@ $i_cnt = count($prt_arr);
                             "group_id"=>$group_id,
                             "board"=>$board_name,
                             "title"=>$prt_arr[$i_loop]["title"],
+                            "re_content"=>$prt_arr[$i_loop]["re_content"],
                             "page"=>$page)
                     )); ?>">回复</a>
                     <?php if ($user_id != "guest" and $user_id == $prt_arr[$i_loop]["owner"]) { ?>
@@ -177,7 +182,7 @@ $i_cnt = count($prt_arr);
     </div>
 <?php
     // 分页显示
-    echo page_partition($total_row-1, $page, $per_page);
+    echo page_partition($total_row, $page, $per_page);
 ?>
 <br><br><br><br>
     <div class="news_foot">
@@ -189,6 +194,7 @@ $i_cnt = count($prt_arr);
                 "group_id"=>$group_id,
                 "board"=>$board_name,
                 "title"=>$title,
+                "re_content"=>"",
                 "page"=>$page
             )
         ));

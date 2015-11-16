@@ -51,7 +51,7 @@ if(isset($_POST["user_name"])){
 
 
     //$ret=charsetToUTF8($ret_text);
-    $ret=$ret_text;
+    $ret = iconv("GBK", "UTF-8//IGNORE", $ret_text);
 
     echo $ret;
 }

@@ -103,8 +103,7 @@ if (isset($_GET["board"])) {
     $search_name = strip_tags($_GET["member"]);
 }
 
-// 防注入,遇到【;,'"】直接截断
-$search_name = mbstr_split($search_name, ";,'\"");
+$search_name = mysql_real_escape_string($search_name);
 
 // 模糊查询标志: 1开启 0关闭
 $fuzzy = 1;

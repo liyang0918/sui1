@@ -58,7 +58,7 @@ while ($row = mysql_fetch_array($ret)) {
         $tmp_arr["content"] = $tmp_content;
     $tmp_arr["attach"] = $att_arr;
     $tmp_arr["article_id"] = $row["article_id"];
-    $tmp_arr["re_content"] = get_add_textarea_context($tmp_arr["file"],$tmp_arr["owner"]) ;
+    $tmp_arr["re_content"] = get_add_textarea_context($tmp_arr["file"],$tmp_arr["owner"], $link) ;
     $prt_arr[] = $tmp_arr;
 }
 mysql_free_result($ret);

@@ -62,8 +62,7 @@ $comment_info = array(
     "sev_score" => $sev_score,
     "avg_pay" => $avg_pay,
     "has_pic" => 0,
-//    "content" => illCharIgnore($des),
-    "content" => $des,
+    "content" => illCharIgnore($des),
     "wifi" => "X",
     "park" => "X"
 );

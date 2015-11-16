@@ -13,13 +13,6 @@ if(isset($_POST["user_name"])){
     elseif(!strcmp($user_name,$password))
         $ret_text = "
         密码不可以与用户名相同
-        密码不可以与用户名相同
-        密码不可以与用户名相同
-        密码不可以与用户名相同
-        密码不可以与用户名相同
-        密码不可以与用户名相同
-        密码不可以与用户名相同
-        密码不可以与用户名相同
         ";
     elseif (preg_match("/[\x7f-\xff]/", $password)) {
         $ret_text = "密码不要输入中文!";

@@ -52,6 +52,10 @@ if ($clubarr["CLUB_TYPE"] == 0) {
 
 $prt_arr = array();
 
+//page part
+$total_row = get_row_count($clubarr["CLUB_ID"], $group_id, $link, 2);
+$total_page = intval(($total_row-1)/$per_page)+1;
+
 $fav_flag = 0;
 $check_result = check_if_fav($link, 2, $clubarr["CLUB_ID"], $group_id, 0, $clubarr["CLUB_NAME"], "", "");
 if ($check_result && mysql_num_rows($check_result) > 0)
@@ -79,7 +83,7 @@ if($row == false){
     if ($tmp)
         $title = $tmp;
     $board_cname = $clubarr["CLUB_CNAME"];
-    $reply_num = $row["total_reply"];
+    $reply_num = $total_row-1;
     $read_num = $row["read_num"];
     $board_link = "";
     if($page == 1) {
@@ -102,9 +106,7 @@ if($row == false){
     }
 }
 
-//page part
-$total_row = get_row_count($clubarr["CLUB_ID"], $group_id, $link, 2);
-$total_page = intval($total_row/$per_page)+1;
+
 
 //end page
 $sql = "SELECT owner_id,owner,groupid,article_id,title,posttime,total_reply,read_num,filename,attachment  FROM club_dir_article_" .$sql_table_id. " ".
@@ -114,8 +116,7 @@ $limit =
 $sql .= $order;
 $start = ($page-1)*$per_page;
 if($page == 1){
-    $per_page--;
-    $limit = " limit $start,$per_page";
+    $limit = " limit $start,".($per_page-1);
 }else{
     $start--;
     $limit = " limit $start,$per_page";
@@ -144,7 +145,7 @@ while ($row = mysql_fetch_array($ret)) {
         $tmp_arr["content"] = $tmp_content;
     $tmp_arr["attach"] = $att_arr;
     $tmp_arr["article_id"] = $row["article_id"];
-    $tmp_arr["re_content"] = get_add_textarea_context($tmp_arr["file"],$tmp_arr["owner"]) ;
+    $tmp_arr["re_content"] = get_add_textarea_context($tmp_arr["file"],$tmp_arr["owner"], $link) ;
     $prt_arr[] = $tmp_arr;
     $floor_cnt++;
 }
@@ -181,15 +182,16 @@ $i_cnt = count($prt_arr);
                     <?php if ($user_id != "guest" and $user_id == $prt_arr[$i_loop]["owner"] and $member_type == 2) { ?>
                     <a href="one_edit.php?club=<?php echo $club_name; ?>&article_id=<?php echo $prt_arr[$i_loop]["article_id"]; ?>&groupid=<?php echo $group_id;?>&dingflag=<?php echo $dingflag; ?>">ÐÞ¸Ä</a>
                     <?php } ?>
-                    <a type="button" href="" onclick="return jump_to_write_reply('<?php echo url_generate(4, array(
+                    <a type="button" href="<?php echo url_generate(4, array(
                         "action" => "one_reply.php",
                         "args" => array(
                             "article_id"=>$prt_arr[$i_loop]["article_id"],
                             "group_id"=>$group_id,
                             "club"=>$club_name,
                             "title"=>$prt_arr[$i_loop]["title"],
+                            "re_content"=>$prt_arr[$i_loop]["re_content"],
                             "page"=>$page)
-                    )); ?>');">»Ø¸´</a>
+                    )); ?>" onclick="return jump_to_write_reply();">»Ø¸´</a>
                     <?php if ($user_id != "guest" and $user_id == $prt_arr[$i_loop]["owner"] and $member_type == 2) { ?>
                     <a class="cancel" href="javascript:;" onclick="return del('<?php echo $club_name; ?>', '<?php echo $group_id; ?>', '<?php echo $prt_arr[$i_loop]["article_id"]; ?>', '<?php echo $prt_arr[$i_loop]["filename"]; ?>', '<?php echo $dingflag; ?>', 1);">É¾³ý</a>
                     <?php } ?>
@@ -212,6 +214,7 @@ $i_cnt = count($prt_arr);
                 "group_id"=>$group_id,
                 "club"=>$club_name,
                 "title"=>$title,
+                "re_content"=>"",
                 "page"=>$page
             )
         ));
@@ -232,7 +235,8 @@ $i_cnt = count($prt_arr);
 
     <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript">
-        function jump_to_write_reply(jumpto) {
+        function jump_to_write_reply() {
+            var jumpto = arguments[0]?arguments[0]:"";
             var user_id = "<?php echo $user_id; ?>";
             if (user_id == "guest") {
                 window.location.href = "login.php";
@@ -241,7 +245,11 @@ $i_cnt = count($prt_arr);
 
             var flag = check_user_perm('<?php echo $member_type; ?>', '<?php echo $clubarr["CLUB_TYPE"]; ?>');
             if (flag) {
-                window.location.href = jumpto;
+                if (jumpto.length > 0) {
+                    window.location.href = jumpto;
+                }
+
+                return true;
             }
 
             return false;

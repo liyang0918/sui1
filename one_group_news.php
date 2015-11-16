@@ -152,7 +152,7 @@ if ($reply_page == 0) {
                 return false;
             }
 
-            post_article(board, title, groupid, 0, curr_url+"&reply=0");
+            post_article(board, title, groupid, content, 0, curr_url+"&reply=0");
             return false;
         }
     </script>

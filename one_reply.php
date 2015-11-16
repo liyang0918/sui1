@@ -7,6 +7,7 @@ $club_flag = 0;
 $group_id = $_GET["group_id"];
 $article_id = $_GET["article_id"];
 $title = $_GET["title"];
+$re_content = $_GET["re_content"];
 
 if (isset($_GET["board"])) {
     $club_flag = 0;
@@ -45,6 +46,7 @@ else
         var groupid = "<?php echo $article_id; ?>";
         var curr_url = "<?php echo $curr_url; ?>";
         var title = "<?php echo "Re: ".$title; ?>";
+        var re_content = "<?php echo $re_content; ?>";
         var currentuser = "<?php echo $currentuser["userid"]; ?>";
         if (currentuser == "guest") {
             document.cookie = "before_login="+curr_url;
@@ -58,8 +60,9 @@ else
             alert("评论内容不少于10个字!");
             return false;
         }
+        content = content+"\n\n"+re_content;
 
-        post_article(board, title, groupid, "<?php echo $club_flag; ?>", father_page);
+        post_article(board, title, groupid, content, "<?php echo $club_flag; ?>", father_page);
         return false;
     }
 </script>

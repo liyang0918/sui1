@@ -18,7 +18,7 @@ if(isset($_POST["board"])) {
     $member_type = clubCheckMember($club_id, $user_num_id, $link);
     mysql_close($link);
     if ($member_type != 2) {
-        echo "请先加入俱乐部再发文";
+        echo iconv("GBK", "UTF-8//IGNORE", "请先加入俱乐部再发文");
         return false;
     }
 }
@@ -92,6 +92,7 @@ switch ($ret) {
 if($echo_ret>0){
     echo true;
 } else {
-    echo $echo_ret;
+    echo mb_convert_encoding($echo_ret, "UTF-8", "GBK");
+//    echo $echo_ret;
 }
 

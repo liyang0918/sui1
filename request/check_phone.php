@@ -8,7 +8,8 @@ if($check = mysql_query("SELECT COUNT(1) FROM users WHERE phone_num='$phone'",$c
     mysql_free_result($check);
     if (intval($check_row[0]) <= 0)
         echo true;
-    else
-        echo "该电话号已经注册过";
+    else {
+        echo iconv("GBK", "UTF-8//IGNORE", "该电话号已经注册过");
+    }
 }
 mysql_close($conn);
