@@ -378,7 +378,7 @@ function stringConvertToGbk($mixed) {
     if (is_array($mixed)) {
         foreach ($mixed as $k => $v) {
             if (is_array($v)) {
-                $mixed[$k] = charsetToGBK($v);
+                $mixed[$k] = stringConvertToGbK($v);
             } else {
                 $encode = mb_detect_encoding($v, array('ASCII', 'UTF-8', 'GB2312', 'GBK', 'BIG5'));
                 if ($encode == 'UTF-8') {
@@ -1037,8 +1037,20 @@ $pre_url = $_SERVER['REQUEST_URI'];
     <?php
     exit;
 }
-function get_add_textarea_context ($filename,$user) {
+
+function get_user_nickname($currentuserID,$conn){
+//	$conn=db_connect_web();
+    if($re = mysql_query("SELECT username FROM users  WHERE user_id='".$currentuserID."'", $conn))
+    {
+        $row = mysql_fetch_row($re);
+        mysql_free_result($re);
+        return $row[0];
+    }
+}
+
+function get_add_textarea_context ($filename,$user, $link) {
     $ret_str="";
+    $user_nick_name = get_user_nickname($user, $link);
         if (file_exists($filename)) {
             $fp = fopen($filename, "r");
             if ($fp) {
@@ -1049,7 +1061,7 @@ function get_add_textarea_context ($filename,$user) {
                 if ($start != FALSE && $end != FALSE)
                     $quser = substr($buf, $start + 2, $end - $start - 1);
 
-                $ret_str="\n\n【 在 " . $user . " 的大作中提到: 】\n";
+                $ret_str="\n\n【 在 " . $user . "(".$user_nick_name.") 的大作中提到: 】\n";
                 for ($i = 0; $i < 3; $i++) {
                     if (($buf = fgets($fp, 500)) == FALSE)
                         break;
@@ -2589,7 +2601,7 @@ function page_partition($total_row, $page, $per_page=10, $show_page=3) {
 function page_partition($total_row, $page, $per_page=10, $show_page=1) {
     if ($total_row <= $per_page)
         return false;
-    $total_page = intval($total_row/$per_page)+1;
+    $total_page = intval(($total_row-1)/$per_page)+1;
     $frt_page = 1;
     $end_page = $total_page;
     $page_str = '<div id="page_part" class="pages_box margin-bottom">';

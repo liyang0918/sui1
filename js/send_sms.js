@@ -93,6 +93,14 @@ function ready_for_sms(obj) {
 	var country_code = document.getElementById('reg_country_id');
 	var user_id = document.getElementById('user_id');
 	var phone_num_final = "";
+
+    var verify_tag = document.getElementById("verify_code");
+    check_verify(verify_tag);
+    if (document.getElementById("verify_err").hidden == false) {
+        verify_tag.focus();
+        return;
+    }
+
 	//check user's information legal
 	if (user_id.value == '') {
 			alert("用户名id不能为空!");

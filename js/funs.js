@@ -599,7 +599,7 @@ function collect_by_type(type, obj) {
                             obj.id = arr[0]+"_1";
                         }
                     } else {
-                        Alert(ret_json.msg, 1);
+                        Alert(ret_json.msg, 5);
                     }
                 } else if (type == 2) {
                     if (ret_json.result != undefined && ret_json.result == "0") {
@@ -643,7 +643,7 @@ function clearTrash() {
             asynchronous: false,
             onSuccess: function (ret) {
             if (ret.responseText == true) {
-                location.reload();
+                window.location.href = window.location.href;
             } else {
                 Alert("操作失败,"+ret.responseText, 1);
             }
@@ -689,7 +689,7 @@ function clearEmail(msg) {
             asynchronous: false,
             onSuccess: function (ret) {
                 if (ret.responseText == true) {
-                    location.reload();
+                    window.location.href = window.location.href;
                     Alert("删除成功", 2);
                 } else {
                     Alert("操作失败,"+ret.responseText, 1);
@@ -736,7 +736,7 @@ function delEmail(msg) {
             asynchronous: false,
             onSuccess: function (ret) {
                 if (ret.responseText == true) {
-                    location.reload();
+                    window.location.href = window.location.href;
                     Alert("删除成功", 2);
                 } else {
                     Alert("操作失败,"+ret.responseText, 1);
@@ -783,7 +783,7 @@ function recoverEmail(msg) {
             asynchronous: false,
             onSuccess: function (ret) {
                 if (ret.responseText == true) {
-                    location.reload();
+                    window.location.href = window.location.href;
                     Alert("恢复邮件成功", 2);
                 } else {
                     Alert("操作失败,"+ret.responseText, 1);
@@ -876,21 +876,20 @@ function getCookie_wap(name){
     return "";
 }
 
-function post_article(board, title, reid){
+function post_article(board, title, reid, content){
     /*  可选参数
-    * club_flag: arguments[3],作用是标识文章类型, 默认为 0,表示在版面发表文章
-    * jumpto: arguments[4],作用是发表成功后跳转地址,默认为空字符串,发表成功不跳转
+    * club_flag: arguments[4],作用是标识文章类型, 默认为 0,表示在版面发表文章
+    * jumpto: arguments[5],作用是发表成功后跳转地址,默认为空字符串,发表成功不跳转
     * */
-    var club_flag = arguments[3]?arguments[3]:"0";
-    var jumpto = arguments[4]?arguments[4]:"";
+    var club_flag = arguments[4]?arguments[4]:"0";
+    var jumpto = arguments[5]?arguments[5]:"";
     var url = "/mobile/forum/request/post_article.php";
     var text_id="text_"+reid;
-    var content=document.getElementById("text_"+reid);
     var para = "";
     if (club_flag == 0)
-        para = "board="+board+"&title="+title+"&reid="+reid+"&content="+content.value;
+        para = "board="+board+"&title="+title+"&reid="+reid+"&content="+content;
     else
-        para = "club="+board+"&title="+title+"&reid="+reid+"&content="+content.value;
+        para = "club="+board+"&title="+title+"&reid="+reid+"&content="+content;
 
     send_article(url, para, jumpto, true);
 }
@@ -930,14 +929,14 @@ function del_article(url, para, jumpto) {
         {
             method: "post",
             parameters: para,
-            asynchronous: false,
+            asynchronous: true,
             onSuccess: function (ret) {
                 var ret_json = eval("(" + ret.responseText + ")");
                 if (ret_json.result == 0) {
                     if (ret_json.msg == "jump") {
                         window.location.href = jumpto;
                     } else if (ret_json.msg == "reload") {
-                        window.location.reload(true);
+                        window.location.href = window.location.href;
                     }
                 } else {
                     Alert("删除失败,"+ret_json.msg, 2);
@@ -1239,7 +1238,7 @@ function Alert(str,time) {
 //    //背景div
     var bgObj=document.createElement("div");
     bgObj.setAttribute('id','alertbgDiv');
-    bgObj.style.position="absolute";
+    bgObj.style.position="fixed";
     bgObj.style.top="0";
     bgObj.style.background="#000000";
     bgObj.style.filter="progid:DXImageTransform.Microsoft.Alpha(style=3,opacity=25,finishOpacity=75";
@@ -1255,12 +1254,13 @@ function Alert(str,time) {
     msgObj.setAttribute("align","center");
     msgObj.style.background="white";
     msgObj.style.border="1px solid " + bordercolor;
-    msgObj.style.position = "absolute";
+    msgObj.style.position = "fixed";
     msgObj.style.left = "50%";
     msgObj.style.top = "200px";
     msgObj.style.font="12px/1.6em Verdana, Geneva, Arial, Helvetica, sans-serif";
     //窗口距离左侧和顶端的距离
     msgObj.style.marginLeft = "-175px";
+
     //窗口被卷去的高+（屏幕可用工作区高/2）-150
     msgObj.style.width = msgw + "px";
     msgObj.style.height = msgh + "px";
@@ -1278,7 +1278,7 @@ function Alert(str,time) {
     title.style.filter="progid:DXImageTransform.Microsoft.Alpha(startX=20, startY=20, finishX=100, finishY=100,style=1,opacity=75,finishOpacity=100);";
     title.style.opacity="0.75";
     title.style.border="1px solid " + bordercolor;
-    title.style.height="18px";
+    title.style.height="18px"
     title.style.font="12px Verdana, Geneva, Arial, Helvetica, sans-serif";
     title.style.color="white";
     title.innerHTML="提示信息";
@@ -1464,6 +1464,12 @@ function request_error(ret){
 }
 function check_confirm(obj){
     var err=document.getElementById("confirm_err") ;
+    var verify_tag = document.getElementById("verify_code");
+    check_verify(verify_tag);
+    if (document.getElementById("verify_err").hidden == false) {
+        return;
+    }
+
     if(obj.value.length!=4){
         err.innerHTML="请输入4数字位验证码";
         err.hidden=false;
@@ -1543,6 +1549,33 @@ function check_country(obj) {
         document.getElementById('send_sms_btn').disabled=true;
     }
 
+}
+
+function check_verify(obj) {
+    var para = "num_auth="+obj.value;
+    var url = "request/check_verify.php";
+    var err_tag = document.getElementById("verify_err");
+
+    var myAjax = new Ajax.Request(url,
+        {
+            method: 'post',
+            parameters: para,
+            onComplete: function (ret) {
+                var ret_json = eval("("+ret.responseText+")");
+                if (ret_json.result == 0) {
+                    err_tag.innerHTML = "";
+                    err_tag.hidden = true;
+                } else {
+                    err_tag.innerHTML = ret_json.msg;
+                    err_tag.hidden = false;
+                }
+            },
+            onFailure: function (x) {
+                err_tag.hidden = false;
+                err_tag.innerHTML = "请求服务器失败";
+            }
+        }
+    );
 }
 
 function add_read_num(obj) {

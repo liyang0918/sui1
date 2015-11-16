@@ -2,6 +2,7 @@
 include_once(dirname(__FILE__)."/../../mitbbs_funcs.php");
 include_once("func.php");
 include_once("head.php");
+$link = db_connect_web();
 $reqtype = $_GET["reqtype"];
 $boardname = $_GET["board"];
 $article_id = $_GET["groupid"];
@@ -12,60 +13,30 @@ if ($brdnum == 0) {
 }
 $articles = array();
 $num = bbs_get_onerecord_from_id($article_id, $dir_modes["NORMAL"], $articles, $brdarr["BOARD_ID"]);
+show_result($articles);
 if ($num == 0) {
     wap_error_quit("错误的文章号,原文可能已被删除!");
 }
 $article = $articles[0];
-$name = "xxx";
-switch($boardname) {
-    case "FanLaw":
-        $name="范毅禹";
-        break;
-    case "jingchenglaw":
-        $name="精诚";
-        break;
-    case "lianglaw":
-        $name="梁勇";
-        break;
-    case "LiuLaw":
-        $name="刘宗坤";
-        break;
-    case "sqilaw":
-        $name="戚博雄";
-        break;
-    case "XieLaw":
-        $name="谢正权";
-        break;
-    case "hooyou":
-        $name="张哲瑞";
-        break;
-    case "SunLaw":
-        $name="孙";
-        break;
-    case "ChenLaw":
-        $name="陈帆";
-        break;
-    case "fyzlaw":
-        $name="FYZ";
-        break;
-    case "yanglaw":
-        $name="Annie杨";
-        break;
-    case "WeGreened":
-        $name="北美联合";
-        break;
-    default:
-        $name = $article["OWNER"];
-        break;
-}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++
+// 修改name的获取方式,从数据库内获取 liyang-20151106
+$name = getLawyerName($link, $boardname);
+$name_tmp = iconv("UTF-8", "GBK//IGNORE", $author);
+if ($name_tmp)
+    $name = $name_tmp;
+//++++++++++++++++++++++++++++++++++++++++++++++++++
 
 $newType = getImmigrationNewsType($article["TITLE"]);
 if (empty($newType))
     $newType = "未知";
 $article["TITLE"] = preg_replace('/\[.*\]/', "", $article["TITLE"]);
-$filepath = BBS_HOME ."/boards/".$boardname."/".$article["FILENAME"];
+//+++++++++++++++++++++++++++++++++++++++++++++++++++
+// 修改律师专栏文章路径的拼接方式,目录区分大小写,取brdarr["NAME"]
+$filepath = BBS_HOME ."/boards/".$brdarr["NAME"]."/".$article["FILENAME"];
 $attach_flag = $article["ATTACHPOS"];
-$attach_linkstr = "/article2/".$boardname."/".$article["ARTICLE_ID"];
+$attach_linkstr = "/article2/".$brdarr["NAME"]."/".$article["ARTICLE_ID"];
+//+++++++++++++++++++++++++++++++++++++++++++++++++++
 $ret_str = read_news_web($filepath, $attach_flag, "", "", $attach_linkstr, 0);
 ?>
     <div id="linklist"></div>
@@ -123,4 +94,6 @@ $ret_str = read_news_web($filepath, $attach_flag, "", "", $attach_linkstr, 0);
     <?php } ?>
     </div>
     <div class="pagebox"></div>
-
+<?php
+@mysql_close($link);
+?>

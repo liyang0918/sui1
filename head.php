@@ -24,7 +24,7 @@ else
         <link rel="stylesheet" href="css/reg.css" type="text/css" media="screen"/>
         <link rel="stylesheet" href="css/footer.css" type="text/css" media="screen"/>
     </head>
-    <body>
+    <body style="positon:relative;">
     <div class="conter">
             <nav class="navone">
                 <div class="navone_menu">
