@@ -4,6 +4,7 @@ include_once(dirname(__FILE__)."func.php");
 include_once("head.php");
 $link = db_connect_web();
 
+
 // add_flag: 0 添加店铺，1添加成功，2添加失败
 $add_flag = 0;
 if (empty($_POST))
