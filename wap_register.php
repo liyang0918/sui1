@@ -25,11 +25,14 @@ if($_POST["submit"]) {
     $password = trim($_POST["password"]);
     $country = trim($_POST["reg_country"]);
     $confirm = trim($_POST["confirm_str"]);
+    $verify_code = trim($_POST["verify_code"]);
 
     $nickname = '';
 }
 if($_POST["submit"]) {
-    if (!strcmp($user_id, "")) {
+    if (strcasecmp($verify_code, $_SESSION["num_auth"])) {
+        $error[$i++] = "图片验证码错误";
+    } else if (!strcmp($user_id, "")) {
         $error[$i++] = "用户代号(ID)不能为空";
     } else if (!isalpha($user_id[0])) {
         $error[$i++] = "用户代号必须以字母开头";
@@ -221,42 +224,53 @@ if ($i!=0 ||empty($_POST["submit"])){
         <h3>欢迎您注册未名空间</h3>
     </div>
     <div class="reg_wrap">
-    <form action="wap_register.php" method="post">
-        <div id="in_info" class="reg_box">
-		<span>账号：</span>
-		<input class="reg_input" maxlength="12" size="30" id="user_id" name="user_id" placeholder="字母开头，数字置后,3-12字符" value="<?php if (isset($_GET['u'])) echo $_GET['u']; else echo($_POST["user_id"]);?>" onblur="check_username(this)">
-		<p id="user_err" hidden="hidden" class="error_tips">输入错误的提示信息</p>
-        </div>
-        <div id="pw_info" class="reg_box">
-		<span>密码：</span>
-		<input class="reg_input" maxlength="18" size="30" id="password" name="password" type="password" onblur="check_password()" placeholder="6-18位字母数字组合">
-		<a type="button" id="passwd_btn" name="passwd_btn" onclick="passwd_show()">显示</a>
-		<p id="password_err" hidden="hidden" class="error_tips">输入错误的提示信息</p>
-        </div>
-        <div id="country_info" class="reg_box">
-		<span>选择国家：</span>
-		<select name="reg_country" class="reg_input" id="reg_country_id" onblur="check_country(this)">
-                <option value="Not set" selected>-- 国家 --</option>
+        <form action="wap_register.php" method="post">
+            <div id="verify" class="reg_box">
+                <span>图片验证码：</span>
+                <input class="reg_input reg_code" size="6" maxlength="4" name="verify_code" id="verify_code" onchange="check_verify(this)">
+                <p id="verify_err" hidden="hidden" class="error_tips">输入错误的提示信息</p>
+            </div>
+            <div class="reg_box">
+                <img id="validimg" src="/img_rand/img_rand.php" id="validimg" onclick="this.src='/img_rand/img_rand.php?a='+Date()+Math.random();return false;" />
+                <a href="javascript:void(0)" onclick="document.getElementById('validimg').src='/img_rand/img_rand.php?a='+Date()+Math.random();return false;">[看不清?点击图片刷新]</a>
+            </div>
+            <div id="in_info" class="reg_box">
+                <span>账号：</span>
+                <input class="reg_input" maxlength="12" size="30" id="user_id" name="user_id" placeholder="字母开头，数字置后,3-12字符" value="<?php if (isset($_GET['u'])) echo $_GET['u']; else echo($_POST["user_id"]);?>" onblur="check_username(this)">
+                <p id="user_err" hidden="hidden" class="error_tips">输入错误的提示信息</p>
+            </div>
+            <div id="pw_info" class="reg_box">
+                <span>密码：</span>
+                <input class="reg_input" maxlength="18" size="30" id="password" name="password" type="password" onblur="check_password()" placeholder="6-18位字母数字组合">
+                <a type="button" id="passwd_btn" name="passwd_btn" onclick="passwd_show()">显示</a>
+                <p id="password_err" hidden="hidden" class="error_tips">输入错误的提示信息</p>
+            </div>
+            <div id="country_info" class="reg_box">
+                <span>选择国家：</span>
+                <select name="reg_country" class="reg_input" id="reg_country_id" onblur="check_country(this)">
+                    <option value="Not set" selected>-- 国家 --</option>
                     <?php
                     foreach ($area_arr as $country) {
                         echo $country;
                     }
                     ?>
-           	</select>
-	</div>
-	<div id="phone-info" class="reg_box">
-           	<span>手机号码：</span>
-		<input class="reg_input" maxlength="12" type="text" size="30" id="phone_num" name="phone_num" placeholder="" onblur="check_phone(this)" onPropertyChange="webchange();">
-		<p id="phone_err" hidden="hidden" class="error_tips">输入错误的提示信息</p>
-        </div>
-        <div id="confirm" class="reg_box">
-	    	<span>验证码：</span>
-		<input class="reg_input reg_code" size="6" maxlength="4" name="confirm_str" id="confirm_str_id" placeholder="4位数字" onblur="check_confirm(this)"><input class="code_btn" type="button" disabled="disabled" id="send_sms_btn" onclick="ready_for_sms(this)" value="点此获取验证码">
-		<p id="confirm_err" hidden="hidden" class="error_tips">输入错误的提示信息</p>
-        </div>
-        <div id="reg_read" classs="reg_box">
-            <p class="reg_agree">注册即同意<a href="/mitbbs_register.php" class="headlink">未名空间用户使用条款</a></p>
-        </div>
+                </select>
+            </div>
+            <div id="phone-info" class="reg_box">
+                <span>手机号码：</span>
+                <input class="reg_input" maxlength="12" type="text" size="30" id="phone_num" name="phone_num" placeholder="" onblur="check_phone(this)" onPropertyChange="webchange();">
+                <p id="phone_err" hidden="hidden" class="error_tips">输入错误的提示信息</p>
+            </div>
+
+
+            <div id="confirm" class="reg_box">
+                <span>手机验证码：</span>
+                <input class="reg_input reg_code" size="6" maxlength="4" name="confirm_str" id="confirm_str_id" placeholder="4位数字" onblur="check_confirm(this)"><input class="code_btn" type="button" disabled="disabled" id="send_sms_btn" onclick="ready_for_sms(this)" value="点此获取验证码">
+                <p id="confirm_err" hidden="hidden" class="error_tips">输入错误的提示信息</p>
+            </div>
+            <div id="reg_read" class="reg_box">
+                <p class="reg_agree">注册即同意<a href="/mitbbs_register.php" class="headlink">未名空间用户使用条款</a></p>
+            </div>
 <?php
     if($i!=0){
     ?>
@@ -303,7 +317,7 @@ if ($i!=0 ||empty($_POST["submit"])){
                 obj.value = obj.value.substr(0, obj.value.length - 1);
         }
         function show_reg_error(){
-            var arr_js = <?php echo implode(",",$error);?>;
+            var arr_js = "<?php echo implode(",",$error);?>";
         }
     </script>
     <script type="text/javascript">

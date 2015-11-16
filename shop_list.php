@@ -16,8 +16,7 @@ if (isset($_GET["food_class"])) {
 }
 
 if (isset($_GET["kws"])) {
-    // ·ÀÖ¹×¢Èë¹¥»÷,´Ó·ûºÅ¡¾;,'"¡¿´¦½ØÈ¡
-    $kws = mbstr_split($_GET["kws"], ";,'\"");
+    $kws = mysql_real_escape_string($_GET["kws"]);
     $title = $kws;
     $shopname_search = 1;
 }
